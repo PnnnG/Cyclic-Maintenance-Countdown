@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Cyclic Maintenance Countdown">
+  <defs>
+    <linearGradient id="surface" x1="38" y1="30" x2="220" y2="232" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7668f2"/>
+      <stop offset="0.54" stop-color="#8c5bd9"/>
+      <stop offset="1" stop-color="#f3b54b"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="68" y1="56" x2="188" y2="202" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffffff" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.06"/>
+    </linearGradient>
+  </defs>
+  <rect x="16" y="16" width="224" height="224" rx="64" fill="url(#surface)"/>
+  <rect x="24" y="24" width="208" height="208" rx="56" fill="url(#shine)" stroke="#ffffff" stroke-opacity="0.28" stroke-width="2"/>
+  <path d="M72 92a67 67 0 0 1 108-14" fill="none" stroke="#ffffff" stroke-width="14" stroke-linecap="round"/>
+  <path d="m174 54 18 28-33 2" fill="#ffffff"/>
+  <path d="M184 164a67 67 0 0 1-108 14" fill="none" stroke="#ffffff" stroke-width="14" stroke-linecap="round"/>
+  <path d="m82 202-18-28 33-2" fill="#ffffff"/>
+  <circle cx="128" cy="128" r="37" fill="#211a43" fill-opacity="0.34" stroke="#ffffff" stroke-opacity="0.25" stroke-width="2"/>
+  <path d="M126 104v27l19 12" fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="126" cy="131" r="7" fill="#ffffff"/>
+</svg>

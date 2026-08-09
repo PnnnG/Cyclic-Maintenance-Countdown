@@ -1343,7 +1343,7 @@ customElements.get("cyclic-countdown-card") || customElements.define("cyclic-cou
 	name: "Cyclic Maintenance Countdown",
 	description: "A theme-aware calendar-day maintenance countdown",
 	preview: !0,
-	documentationURL: "https://github.com/pavelpoyarkov/cyclic-maintenance-countdown"
+	documentationURL: "https://github.com/PnnnG/Cyclic-Maintenance-Countdown"
 });
 //#endregion
 export { Ee as CyclicCountdownCard };

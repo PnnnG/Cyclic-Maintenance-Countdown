@@ -363,6 +363,6 @@ if (!window.customCards.some((card) => card.type === "cyclic-countdown-card")) {
     name: "Cyclic Maintenance Countdown",
     description: "A theme-aware calendar-day maintenance countdown",
     preview: true,
-    documentationURL: "https://github.com/pavelpoyarkov/cyclic-maintenance-countdown",
+    documentationURL: "https://github.com/PnnnG/Cyclic-Maintenance-Countdown",
   });
 }

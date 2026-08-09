@@ -27,6 +27,7 @@ from .storage import TaskManager
 from .websocket_api import register_websocket_commands
 
 SERVICE_COMPLETE_SCHEMA = vol.Schema({vol.Required("task_id"): cv.string})
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 
 async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
