@@ -1338,13 +1338,16 @@ var $ = {
   `;
 	}
 };
-customElements.get("cyclic-countdown-card") || customElements.define("cyclic-countdown-card", Ee), window.customCards = window.customCards || [], window.customCards.some((e) => e.type === "cyclic-countdown-card") || window.customCards.push({
-	type: "cyclic-countdown-card",
-	name: "Cyclic Maintenance Countdown",
-	description: "A theme-aware calendar-day maintenance countdown",
-	preview: !0,
-	documentationURL: "https://github.com/PnnnG/Cyclic-Maintenance-Countdown"
-});
+if (customElements.get("cyclic-countdown-card") || customElements.define("cyclic-countdown-card", Ee), window.customCards = window.customCards || [], !window.customCards.some((e) => e.type === "cyclic-countdown-card")) {
+	let e = (document.documentElement.lang || navigator.language || "en").toLowerCase().startsWith("ru");
+	window.customCards.push({
+		type: "cyclic-countdown-card",
+		name: e ? "Циклическое обслуживание" : "Cyclic Maintenance Countdown",
+		description: e ? "Адаптивный счётчик дней до циклического обслуживания" : "A theme-aware calendar-day maintenance countdown",
+		preview: !0,
+		documentationURL: "https://github.com/PnnnG/Cyclic-Maintenance-Countdown"
+	});
+}
 //#endregion
 export { Ee as CyclicCountdownCard };
 

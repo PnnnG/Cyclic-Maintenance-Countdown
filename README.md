@@ -45,6 +45,7 @@ Until the repository is included in the default HACS catalog, add it as a custom
 2. Add this repository URL with the **Integration** category.
 3. Install **Cyclic Maintenance Countdown** and restart Home Assistant.
 4. Open **Settings → Devices & services → Add integration**, find `Cyclic Maintenance Countdown`, and confirm installation.
+5. Reload the Home Assistant frontend once after adding the integration so the newly registered card module is available to every open client.
 
 The integration registers its card module through Home Assistant's supported frontend API. No manual Lovelace resource is required.
 

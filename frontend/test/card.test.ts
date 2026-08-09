@@ -56,6 +56,16 @@ describe("cyclic-countdown-card", () => {
     document.body.replaceChildren(card);
   });
 
+  it("registers itself in the Home Assistant visual card picker", () => {
+    expect(window.customCards).toContainEqual(
+      expect.objectContaining({
+        type: "cyclic-countdown-card",
+        name: expect.any(String),
+        preview: true,
+      }),
+    );
+  });
+
   it("renders a large day count instead of percent", async () => {
     await card.updateComplete;
     expect(card.shadowRoot?.querySelector(".days strong")?.textContent).toBe("13");

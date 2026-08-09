@@ -358,10 +358,14 @@ if (!customElements.get("cyclic-countdown-card")) {
 
 window.customCards = window.customCards || [];
 if (!window.customCards.some((card) => card.type === "cyclic-countdown-card")) {
+  const language = document.documentElement.lang || navigator.language || "en";
+  const russian = language.toLowerCase().startsWith("ru");
   window.customCards.push({
     type: "cyclic-countdown-card",
-    name: "Cyclic Maintenance Countdown",
-    description: "A theme-aware calendar-day maintenance countdown",
+    name: russian ? "Циклическое обслуживание" : "Cyclic Maintenance Countdown",
+    description: russian
+      ? "Адаптивный счётчик дней до циклического обслуживания"
+      : "A theme-aware calendar-day maintenance countdown",
     preview: true,
     documentationURL: "https://github.com/PnnnG/Cyclic-Maintenance-Countdown",
   });

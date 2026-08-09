@@ -2,6 +2,11 @@
 
 All notable changes to Cyclic Maintenance Countdown are documented here.
 
+## 0.1.2 — 2026-08-10
+
+- Add the integration version to the automatically registered card module URL so Home Assistant clients cannot reuse a stale frontend module after an update.
+- Localize the visual card picker entry in Russian and verify its registration in frontend tests.
+
 ## 0.1.1 — 2026-08-10
 
 - Show Cyclic Maintenance Countdown as an installed integration instead of routing it to Helpers.

@@ -16,10 +16,11 @@ from homeassistant.exceptions import HomeAssistantError, Unauthorized
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.event import async_track_time_change
+from homeassistant.loader import async_get_integration
 
 from .const import (
     DOMAIN,
-    FRONTEND_URL,
+    FRONTEND_PATH,
     PLATFORMS,
     SERVICE_COMPLETE,
 )
@@ -40,7 +41,8 @@ async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
     await hass.http.async_register_static_paths(
         [StaticPathConfig("/cyclic_countdown", str(frontend_path), cache_headers=False)]
     )
-    add_extra_js_url(hass, FRONTEND_URL)
+    integration = await async_get_integration(hass, DOMAIN)
+    add_extra_js_url(hass, f"{FRONTEND_PATH}?v={integration.version}")
 
     async def complete_task(call: ServiceCall) -> None:
         manager: TaskManager | None = hass.data.get(DOMAIN)
