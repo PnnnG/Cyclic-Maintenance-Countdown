@@ -7,6 +7,7 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant.auth.permissions.const import POLICY_CONTROL
+from homeassistant.components.frontend import add_extra_js_url
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EVENT_CORE_CONFIG_UPDATE
@@ -18,6 +19,7 @@ from homeassistant.helpers.event import async_track_time_change
 
 from .const import (
     DOMAIN,
+    FRONTEND_URL,
     PLATFORMS,
     SERVICE_COMPLETE,
 )
@@ -36,8 +38,9 @@ async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
 
     frontend_path = Path(__file__).parent / "frontend"
     await hass.http.async_register_static_paths(
-        [StaticPathConfig("/cyclic_countdown", str(frontend_path), cache_headers=True)]
+        [StaticPathConfig("/cyclic_countdown", str(frontend_path), cache_headers=False)]
     )
+    add_extra_js_url(hass, FRONTEND_URL)
 
     async def complete_task(call: ServiceCall) -> None:
         manager: TaskManager | None = hass.data.get(DOMAIN)

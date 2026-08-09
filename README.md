@@ -45,13 +45,12 @@ Until the repository is included in the default HACS catalog, add it as a custom
 2. Add this repository URL with the **Integration** category.
 3. Install **Cyclic Maintenance Countdown** and restart Home Assistant.
 4. Open **Settings → Devices & services → Add integration**, find `Cyclic Maintenance Countdown`, and confirm installation.
-5. Once, open **Settings → Dashboards → Resources** and add `/cyclic_countdown/cyclic-countdown-card.js?v=0.1.0` as a **JavaScript Module**.
 
-The resource step is intentionally explicit. The integration does not modify Lovelace through private frontend APIs.
+The integration registers its card module through Home Assistant's supported frontend API. No manual Lovelace resource is required.
 
 ### Manual installation
 
-Copy `custom_components/cyclic_countdown` into `<config>/custom_components/cyclic_countdown`, restart Home Assistant, and complete steps 4–5 above.
+Copy `custom_components/cyclic_countdown` into `<config>/custom_components/cyclic_countdown`, restart Home Assistant, and complete step 4 above.
 
 ## Create the first task without YAML
 
@@ -165,7 +164,7 @@ These variables can be provided by a theme or card-mod. card-mod is not a requir
 - Back up Home Assistant before updating, then install the new release through HACS.
 - Persistent data uses a versioned schema and is migrated during integration startup.
 - Tasks are deleted only after confirmation. Existing cards remain and display **Task not found**.
-- For complete removal, delete the cards and tasks, then remove the integration, dashboard resource, and component directory.
+- For complete removal, delete the cards and tasks, then remove the integration and component directory.
 
 ## Development
 

@@ -2,6 +2,13 @@
 
 All notable changes to Cyclic Maintenance Countdown are documented here.
 
+## 0.1.1 — 2026-08-10
+
+- Show Cyclic Maintenance Countdown as an installed integration instead of routing it to Helpers.
+- Fix the missing handler error when opening the configured entry.
+- Improve setup and duplicate-instance translations in English and Russian.
+- Load the Lovelace card automatically through Home Assistant's supported frontend module API.
+
 ## 0.1.0 — 2026-08-10
 
 - Initial UI-configured Home Assistant integration with versioned task storage.

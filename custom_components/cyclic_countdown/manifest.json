@@ -3,12 +3,12 @@
   "name": "Cyclic Maintenance Countdown",
   "codeowners": ["@PnnnG"],
   "config_flow": true,
-  "dependencies": ["http"],
+  "dependencies": ["frontend", "http"],
   "documentation": "https://github.com/PnnnG/Cyclic-Maintenance-Countdown",
-  "integration_type": "helper",
+  "integration_type": "service",
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/PnnnG/Cyclic-Maintenance-Countdown/issues",
   "requirements": [],
   "single_config_entry": true,
-  "version": "0.1.0"
+  "version": "0.1.1"
 }

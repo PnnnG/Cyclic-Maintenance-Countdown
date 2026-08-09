@@ -3,12 +3,13 @@
   "config": {
     "step": {
       "user": {
-        "title": "Set up Cyclic Maintenance Countdown",
-        "description": "Install the integration. Tasks are created and edited in the visual card editor."
+        "title": "Cyclic Maintenance Countdown",
+        "description": "Add the integration to Home Assistant. After setup, create and edit tasks in the visual card editor."
       }
     },
     "abort": {
-      "already_configured": "Cyclic Maintenance Countdown is already configured."
+      "already_configured": "Cyclic Maintenance Countdown is already configured.",
+      "single_instance_allowed": "Cyclic Maintenance Countdown is already configured. Only one instance is needed."
     }
   },
   "services": {

@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Final
 
 DOMAIN: Final = "cyclic_countdown"
+FRONTEND_URL: Final = "/cyclic_countdown/cyclic-countdown-card.js"
 PLATFORMS: Final = ["sensor"]
 STORAGE_KEY: Final = f"{DOMAIN}.tasks"
 STORAGE_VERSION: Final = 2
