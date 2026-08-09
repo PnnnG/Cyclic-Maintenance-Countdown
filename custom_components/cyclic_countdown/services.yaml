@@ -1,0 +1,10 @@
+complete:
+  name: Complete task
+  description: Complete a maintenance task now and start its next cycle from today.
+  fields:
+    task_id:
+      name: Task
+      description: Stable UUID of the cyclic maintenance task.
+      required: true
+      selector:
+        text:

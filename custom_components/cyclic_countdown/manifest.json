@@ -1,0 +1,14 @@
+{
+  "domain": "cyclic_countdown",
+  "name": "Cyclic Maintenance Countdown",
+  "codeowners": ["@pavelpoyarkov"],
+  "config_flow": true,
+  "dependencies": ["http"],
+  "documentation": "https://github.com/pavelpoyarkov/cyclic-maintenance-countdown",
+  "integration_type": "helper",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/pavelpoyarkov/cyclic-maintenance-countdown/issues",
+  "requirements": [],
+  "single_config_entry": true,
+  "version": "0.1.0"
+}

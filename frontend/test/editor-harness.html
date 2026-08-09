@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Cyclic Countdown editor harness</title>
+    <style>
+      * { box-sizing: border-box; }
+      :root {
+        --card-background-color: #fff;
+        --ha-card-background: #fff;
+        --primary-background-color: #f3f5f8;
+        --secondary-background-color: #edf0f5;
+        --primary-text-color: #20242b;
+        --secondary-text-color: #707986;
+        --divider-color: #d8dde5;
+        --primary-color: #6579df;
+        --warning-color: #cf8b20;
+        --error-color: #d4615c;
+        --success-color: #419767;
+      }
+      body { margin: 0; min-height: 100vh; padding: 26px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--primary-background-color); color: var(--primary-text-color); }
+      body.dark {
+        --card-background-color: #202229;
+        --ha-card-background: #202229;
+        --primary-background-color: #111319;
+        --secondary-background-color: #292c35;
+        --primary-text-color: #f4f5f7;
+        --secondary-text-color: #aeb4be;
+        --divider-color: #3a3e47;
+        --primary-color: #8b91f1;
+        --warning-color: #e2aa43;
+        --error-color: #e57770;
+        --success-color: #58b47d;
+      }
+      header { max-width: 760px; margin: 0 auto 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+      header div { display: flex; gap: 8px; }
+      h1 { margin: 0; font-size: 19px; }
+      button { min-height: 38px; padding: 0 12px; border: 1px solid var(--divider-color); border-radius: 11px; color: var(--primary-text-color); background: var(--card-background-color); cursor: pointer; }
+      .shell { max-width: 760px; margin: auto; padding: 20px; border: 1px solid var(--divider-color); border-radius: 24px; background: var(--card-background-color); box-shadow: 0 18px 48px rgba(0,0,0,.12); }
+      ha-icon { display: inline-grid; place-items: center; width: 24px; height: 24px; }
+      @media (max-width: 600px) { body { padding: 10px; } .shell { padding: 12px; border-radius: 18px; } header { align-items: flex-start; } }
+    </style>
+    <script>
+      customElements.define("ha-card", class extends HTMLElement {});
+      customElements.define("ha-icon", class extends HTMLElement {
+        set icon(value) { this.textContent = value?.includes("bell") ? "♢" : value?.includes("palette") ? "◐" : value?.includes("calendar") ? "▦" : value?.includes("gesture") ? "⌁" : "✦"; }
+      });
+    </script>
+    <script type="module" src="/custom_components/cyclic_countdown/frontend/cyclic-countdown-card.js"></script>
+  </head>
+  <body>
+    <header>
+      <h1>Visual card editor</h1>
+      <div>
+        <button id="language">RU</button>
+        <button id="theme">Dark theme</button>
+      </div>
+    </header>
+    <main class="shell"><cyclic-countdown-editor></cyclic-countdown-editor></main>
+    <script type="module">
+      await customElements.whenDefined("cyclic-countdown-editor");
+      const task = {
+        task_id: "2f96074a-8a53-4b35-bb80-d8ce560cf888",
+        name: "Water filter",
+        icon: "mdi:air-filter",
+        interval_days: 30,
+        last_completed_date: "2026-08-01",
+        due_date: "2026-08-31",
+        warning_days: 3,
+        notifications_enabled: true,
+        notification_targets: ["notify.phone"],
+        notification_title: "Maintenance",
+        notification_message: "{name}: {days} days · {due_date}",
+        notify_on_warning: true,
+        notify_on_due: true,
+        remaining_days: 21,
+        elapsed_progress: .3,
+        phase: "normal",
+      };
+      let language = "en";
+      const editor = document.querySelector("cyclic-countdown-editor");
+      const connection = {
+        async sendMessagePromise(message) {
+          if (message.type === "cyclic_countdown/tasks/list") return [task];
+          if (message.type === "cyclic_countdown/notification_targets/list") return [
+            { id: "notify.phone", name: "Pavel’s phone", available: true, kind: "entity" },
+            { id: "notify.tablet", name: "Wall tablet", available: true, kind: "entity" },
+            { id: "notify.old_device", name: "Old device", available: false, kind: "entity" },
+          ];
+          if (message.type === "cyclic_countdown/notifications/test") return { delivered: message.targets || [], failed: [] };
+          if (message.type.endsWith("/update") || message.type.endsWith("/create")) return { ...task, ...message };
+          return {};
+        },
+      };
+      const applyHass = () => {
+        editor.hass = { language, locale: { language: language === "ru" ? "ru-RU" : "en-US" }, states: {}, connection };
+      };
+      editor.setConfig({
+        type: "custom:cyclic-countdown-card",
+        task_id: task.task_id,
+        style: "bar",
+        reverse_progress: false,
+        confirm_complete: true,
+        show_secondary: true,
+        secondary_info: "last_completed",
+        tap_action: "complete",
+        hold_action: "more-info",
+      });
+      editor.addEventListener("config-changed", (event) => editor.setConfig(event.detail.config));
+      applyHass();
+      document.querySelector("#language").addEventListener("click", (event) => {
+        language = language === "en" ? "ru" : "en";
+        event.currentTarget.textContent = language === "en" ? "RU" : "EN";
+        document.documentElement.lang = language;
+        applyHass();
+      });
+      document.querySelector("#theme").addEventListener("click", (event) => {
+        document.body.classList.toggle("dark");
+        event.currentTarget.textContent = document.body.classList.contains("dark") ? "Light theme" : "Dark theme";
+      });
+    </script>
+  </body>
+</html>

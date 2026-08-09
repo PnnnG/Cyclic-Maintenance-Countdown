@@ -1,0 +1,26 @@
+{
+  "title": "Cyclic Maintenance Countdown",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up Cyclic Maintenance Countdown",
+        "description": "Install the integration. Tasks are created and edited in the visual card editor."
+      }
+    },
+    "abort": {
+      "already_configured": "Cyclic Maintenance Countdown is already configured."
+    }
+  },
+  "services": {
+    "complete": {
+      "name": "Complete task",
+      "description": "Complete a maintenance task now and start its next cycle from today.",
+      "fields": {
+        "task_id": {
+          "name": "Task",
+          "description": "Stable UUID of the cyclic maintenance task."
+        }
+      }
+    }
+  }
+}
