@@ -76,13 +76,17 @@ export class CyclicCountdownCard extends LitElement {
   }
 
   getCardSize(): number {
-    return 2;
+    return this._config.vertical_size === "compact" ? 1 : 2;
   }
 
   getGridOptions(): Record<string, number> {
-    return this._config.vertical_size === "wide"
-      ? { rows: 2, columns: 6, min_rows: 2, min_columns: 3 }
-      : { columns: 6, min_columns: 3 };
+    if (this._config.vertical_size === "compact") {
+      return { rows: 1, columns: 6, min_rows: 1, min_columns: 3 };
+    }
+    if (this._config.vertical_size === "wide") {
+      return { rows: 2, columns: 6, min_rows: 2, min_columns: 3 };
+    }
+    return { columns: 6, min_columns: 3 };
   }
 
   protected updated(changed: PropertyValues): void {
@@ -337,6 +341,15 @@ export class CyclicCountdownCard extends LitElement {
     .standard .secondary { margin-top: 3px; font-size: 13px; }
     .standard .days strong { font-size: 40px; }
     .standard .track { margin-top: 9px; }
+    .card.compact { min-height: auto; }
+    .compact .content { min-height: 54px; padding: 6px 10px; grid-template-columns: 40px minmax(0,1fr) 48px; gap: 10px; }
+    .compact .icon-tile { width: 40px; height: 40px; border-radius: 13px; }
+    .compact .icon-tile ha-icon { --mdc-icon-size: 23px; }
+    .compact .title { font-size: 16px; }
+    .compact .secondary, .compact .phase-label { display: none; }
+    .compact .days strong { font-size: 30px; }
+    .compact .days span { margin-top: 1px; font-size: 9px; }
+    .compact .track { height: 4px; margin-top: 5px; }
     .card:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 70%, white); outline-offset: 3px; }
     .card:active { transform: scale(.995); }
     .bar { --cyclic-countdown-radius: max(var(--ha-card-border-radius, 30px), 30px); }

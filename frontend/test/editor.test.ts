@@ -99,11 +99,12 @@ describe("cyclic-countdown-editor", () => {
     editor.addEventListener("config-changed", changed);
     const sizeButtons = editor.shadowRoot?.querySelectorAll<HTMLButtonElement>(".size-picker button");
 
-    sizeButtons?.[1].click();
+    sizeButtons?.[0].click();
     expect((changed.mock.calls[0][0] as CustomEvent).detail.config).toEqual(
       expect.objectContaining({
-        vertical_size: "wide",
-        grid_options: { columns: 8, min_columns: 4, rows: 2 },
+        vertical_size: "compact",
+        grid_options: { columns: 8, min_columns: 4, rows: 1 },
+        show_secondary: true,
       }),
     );
     await editor.updateComplete;
@@ -111,9 +112,9 @@ describe("cyclic-countdown-editor", () => {
       updateComplete: Promise<unknown>;
     };
     await preview.updateComplete;
-    expect(preview.shadowRoot?.querySelector("ha-card")?.classList.contains("wide")).toBe(true);
+    expect(preview.shadowRoot?.querySelector("ha-card")?.classList.contains("compact")).toBe(true);
 
-    sizeButtons?.[0].click();
+    sizeButtons?.[1].click();
     expect((changed.mock.calls[1][0] as CustomEvent).detail.config).toEqual(
       expect.objectContaining({
         vertical_size: "standard",
@@ -123,6 +124,17 @@ describe("cyclic-countdown-editor", () => {
     await editor.updateComplete;
     await preview.updateComplete;
     expect(preview.shadowRoot?.querySelector("ha-card")?.classList.contains("standard")).toBe(true);
+
+    sizeButtons?.[2].click();
+    expect((changed.mock.calls[2][0] as CustomEvent).detail.config).toEqual(
+      expect.objectContaining({
+        vertical_size: "wide",
+        grid_options: { columns: 8, min_columns: 4, rows: 2 },
+      }),
+    );
+    await editor.updateComplete;
+    await preview.updateComplete;
+    expect(preview.shadowRoot?.querySelector("ha-card")?.classList.contains("wide")).toBe(true);
   });
 
   it("offers the same three actions for tap, hold, and double tap", async () => {

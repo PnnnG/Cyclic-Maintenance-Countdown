@@ -600,6 +600,7 @@ var be = {
 	styleAria: "Card style",
 	verticalSize: "Card height",
 	verticalSizeAria: "Card height",
+	compactSize: "Compact",
 	standardSize: "Standard",
 	wideSize: "Wide",
 	bar: "Bar",
@@ -669,6 +670,7 @@ var be = {
 	styleAria: "Стиль карточки",
 	verticalSize: "Высота карточки",
 	verticalSizeAria: "Высота карточки",
+	compactSize: "Компактная",
 	standardSize: "Стандартная",
 	wideSize: "Широкая",
 	bar: "Полоса",
@@ -836,7 +838,7 @@ var Ce = {
 			vertical_size: e,
 			grid_options: {
 				...this._config?.grid_options,
-				rows: e === "wide" ? 2 : "auto"
+				rows: e === "compact" ? 1 : e === "wide" ? 2 : "auto"
 			}
 		});
 	}
@@ -1012,11 +1014,15 @@ var Ce = {
         </div>
         <div class="size-field"><span>${this.s.verticalSize}</span>
           <span class="size-picker" role="radiogroup" aria-label=${this.s.verticalSizeAria}>
-            ${["standard", "wide"].map((e) => I`<button
+            ${[
+			"compact",
+			"standard",
+			"wide"
+		].map((e) => I`<button
               class=${this._config?.vertical_size === e ? "selected" : ""}
               @click=${() => this.selectVerticalSize(e)}
               aria-pressed=${this._config?.vertical_size === e ? "true" : "false"}
-            >${e === "standard" ? this.s.standardSize : this.s.wideSize}</button>`)}
+            >${e === "compact" ? this.s.compactSize : e === "standard" ? this.s.standardSize : this.s.wideSize}</button>`)}
           </span>
         </div>
         <div class="grid">
@@ -1090,7 +1096,7 @@ var Ce = {
     .due-preview strong { font-size: 13px; }
     .style-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
     .size-field { display: flex; flex-direction: column; gap: 7px; margin: 0 0 13px; color: var(--secondary-text-color); font-size: 12px; font-weight: 650; }
-    .size-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .size-picker { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
     .size-picker button { min-height: 40px; border: 1px solid var(--divider-color); font-size: 13px; }
     .size-picker button.selected { border-color: var(--primary-color); color: var(--primary-color); background: color-mix(in srgb, var(--primary-color) 10%, var(--card-background-color)); }
     button { min-height: 44px; border: 0; border-radius: 12px; padding: 9px 14px; font: inherit; font-weight: 650; cursor: pointer; color: var(--primary-text-color); background: var(--secondary-background-color, rgba(127,127,127,.12)); }
@@ -1169,10 +1175,15 @@ var Te = {
 		};
 	}
 	getCardSize() {
-		return 2;
+		return this._config.vertical_size === "compact" ? 1 : 2;
 	}
 	getGridOptions() {
-		return this._config.vertical_size === "wide" ? {
+		return this._config.vertical_size === "compact" ? {
+			rows: 1,
+			columns: 6,
+			min_rows: 1,
+			min_columns: 3
+		} : this._config.vertical_size === "wide" ? {
 			rows: 2,
 			columns: 6,
 			min_rows: 2,
@@ -1373,6 +1384,15 @@ var Te = {
     .standard .secondary { margin-top: 3px; font-size: 13px; }
     .standard .days strong { font-size: 40px; }
     .standard .track { margin-top: 9px; }
+    .card.compact { min-height: auto; }
+    .compact .content { min-height: 54px; padding: 6px 10px; grid-template-columns: 40px minmax(0,1fr) 48px; gap: 10px; }
+    .compact .icon-tile { width: 40px; height: 40px; border-radius: 13px; }
+    .compact .icon-tile ha-icon { --mdc-icon-size: 23px; }
+    .compact .title { font-size: 16px; }
+    .compact .secondary, .compact .phase-label { display: none; }
+    .compact .days strong { font-size: 30px; }
+    .compact .days span { margin-top: 1px; font-size: 9px; }
+    .compact .track { height: 4px; margin-top: 5px; }
     .card:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 70%, white); outline-offset: 3px; }
     .card:active { transform: scale(.995); }
     .bar { --cyclic-countdown-radius: max(var(--ha-card-border-radius, 30px), 30px); }

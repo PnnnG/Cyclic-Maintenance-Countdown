@@ -180,7 +180,7 @@ export class CyclicCountdownEditor extends LitElement {
       vertical_size,
       grid_options: {
         ...this._config?.grid_options,
-        rows: vertical_size === "wide" ? 2 : "auto",
+        rows: vertical_size === "compact" ? 1 : vertical_size === "wide" ? 2 : "auto",
       },
     });
   }
@@ -421,11 +421,11 @@ export class CyclicCountdownEditor extends LitElement {
         </div>
         <div class="size-field"><span>${this.s.verticalSize}</span>
           <span class="size-picker" role="radiogroup" aria-label=${this.s.verticalSizeAria}>
-            ${(["standard", "wide"] as const).map((vertical_size) => html`<button
+            ${(["compact", "standard", "wide"] as const).map((vertical_size) => html`<button
               class=${this._config?.vertical_size === vertical_size ? "selected" : ""}
               @click=${() => this.selectVerticalSize(vertical_size)}
               aria-pressed=${this._config?.vertical_size === vertical_size ? "true" : "false"}
-            >${vertical_size === "standard" ? this.s.standardSize : this.s.wideSize}</button>`)}
+            >${vertical_size === "compact" ? this.s.compactSize : vertical_size === "standard" ? this.s.standardSize : this.s.wideSize}</button>`)}
           </span>
         </div>
         <div class="grid">
@@ -497,7 +497,7 @@ export class CyclicCountdownEditor extends LitElement {
     .due-preview strong { font-size: 13px; }
     .style-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
     .size-field { display: flex; flex-direction: column; gap: 7px; margin: 0 0 13px; color: var(--secondary-text-color); font-size: 12px; font-weight: 650; }
-    .size-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .size-picker { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
     .size-picker button { min-height: 40px; border: 1px solid var(--divider-color); font-size: 13px; }
     .size-picker button.selected { border-color: var(--primary-color); color: var(--primary-color); background: color-mix(in srgb, var(--primary-color) 10%, var(--card-background-color)); }
     button { min-height: 44px; border: 0; border-radius: 12px; padding: 9px 14px; font: inherit; font-weight: 650; cursor: pointer; color: var(--primary-text-color); background: var(--secondary-background-color, rgba(127,127,127,.12)); }

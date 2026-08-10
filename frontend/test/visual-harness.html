@@ -26,7 +26,7 @@
         set icon(value) { this.textContent = value?.includes("bacteria") ? "⚙" : value?.includes("filter") ? "✦" : "◈"; }
       });
     </script>
-    <script type="module" src="/custom_components/cyclic_countdown/frontend/cyclic-countdown-card.js?v=0.1.8"></script>
+    <script type="module" src="/custom_components/cyclic_countdown/frontend/cyclic-countdown-card.js?v=0.1.9"></script>
   </head>
   <body>
     <main id="root"></main>
@@ -56,7 +56,7 @@
             },
           };
           const card = document.createElement("cyclic-countdown-card");
-          const verticalSize = index % 2 ? "wide" : "standard";
+          const verticalSize = ["compact", "standard", "wide"][index % 3];
           card.setConfig({
             type: "custom:cyclic-countdown-card", task_id: taskId,
             style: index % 2 ? "fill" : "bar", reverse_progress: index === 1,

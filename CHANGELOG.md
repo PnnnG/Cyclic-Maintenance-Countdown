@@ -2,6 +2,11 @@
 
 All notable changes to Cyclic Maintenance Countdown are documented here.
 
+## 0.1.9 — 2026-08-10
+
+- Add a one-row Compact height with a smaller icon and day count, a thinner progress bar, and no secondary line.
+- Keep secondary-line preferences stored so switching back to Standard or Wide restores them.
+
 ## 0.1.8 — 2026-08-10
 
 - Make Standard and Wide update the actual Lovelace grid height (`auto` or two rows) while leaving the horizontal width unchanged.

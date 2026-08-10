@@ -1,5 +1,5 @@
 export type CardStyle = "bar" | "fill";
-export type CardVerticalSize = "standard" | "wide";
+export type CardVerticalSize = "compact" | "standard" | "wide";
 export type CardAction = "complete" | "more-info" | "none";
 export type TaskPhase = "normal" | "warning" | "due" | "overdue";
 export type PreviewPhase = "auto" | TaskPhase;
