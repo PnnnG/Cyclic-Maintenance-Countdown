@@ -54,6 +54,24 @@ describe("cyclic-countdown-editor", () => {
       customElements.define("ha-icon-picker", class extends HTMLElement {
         items: unknown[] = [];
 
+        attachComboBox() {
+          const generic = this.shadowRoot?.querySelector("ha-generic-picker");
+          if (!generic?.shadowRoot) return undefined;
+          const comboBox = document.createElement("ha-picker-combo-box") as HTMLElement & {
+            items?: string[];
+            refreshItems?: ReturnType<typeof vi.fn>;
+            search?: (value: string) => string[];
+          };
+          comboBox.items = [];
+          comboBox.refreshItems = vi.fn(() => {
+            comboBox.items = [...this.items] as string[];
+          });
+          comboBox.search = (value: string) =>
+            comboBox.items!.filter((item) => item.includes(value));
+          generic.shadowRoot.append(comboBox);
+          return comboBox;
+        }
+
         connectedCallback() {
           if (this.shadowRoot) return;
           const root = this.attachShadow({ mode: "open" });
@@ -61,8 +79,14 @@ describe("cyclic-countdown-editor", () => {
             getItems?: () => unknown[];
             refreshItems?: ReturnType<typeof vi.fn>;
           };
+          const genericRoot = generic.attachShadow({ mode: "open" });
           generic.getItems = () => this.items;
-          generic.refreshItems = vi.fn();
+          generic.refreshItems = vi.fn(() => {
+            const comboBox = genericRoot.querySelector("ha-picker-combo-box") as
+              | (HTMLElement & { refreshItems?: () => void })
+              | null;
+            comboBox?.refreshItems?.();
+          });
           root.append(generic);
         }
       });
@@ -150,14 +174,11 @@ describe("cyclic-countdown-editor", () => {
     await editor.updateComplete;
 
     const taskSelect = editor.shadowRoot?.querySelector<HTMLSelectElement>("section select");
-    expect([...taskSelect!.options].map((option) => option.value)).toEqual(["", "task-1"]);
-    taskSelect!.value = "task-1";
-    taskSelect!.dispatchEvent(new Event("change"));
-    await editor.updateComplete;
-
+    expect([...taskSelect!.options].map((option) => option.value)).toEqual(["task-1"]);
+    expect(taskSelect?.value).toBe("task-1");
     expect((changed.mock.calls.at(-1)?.[0] as CustomEvent).detail.config.task_id).toBe("task-1");
-    const selectedTaskSelect = editor.shadowRoot!.querySelector<HTMLSelectElement>("section select")!;
-    expect([...selectedTaskSelect.options].map((option) => option.value)).toEqual(["task-1"]);
+    expect(editor.shadowRoot?.querySelector(".task-empty")).toBeNull();
+    expect(editor.shadowRoot?.textContent).not.toContain("Task not found");
 
     editor.shadowRoot?.querySelectorAll<HTMLButtonElement>(".task-mode-picker button")[0].click();
     await editor.updateComplete;
@@ -176,7 +197,7 @@ describe("cyclic-countdown-editor", () => {
     expect((changed.mock.calls.at(-1)?.[0] as CustomEvent).detail.config.task_id).toBe("task-1");
   });
 
-  it("does not offer task creation while editing an existing card", async () => {
+  it("shows reversible task modes while editing an existing card", async () => {
     mountEditor({ ...config, task_id: task.task_id });
     editor.hass = {
       language: "en",
@@ -187,10 +208,29 @@ describe("cyclic-countdown-editor", () => {
       },
     };
     await settle(editor);
+    const changed = vi.fn();
+    editor.addEventListener("config-changed", changed);
     const taskSelect = editor.shadowRoot?.querySelector<HTMLSelectElement>("section select");
     expect([...taskSelect!.options].map((option) => option.value)).toEqual(["task-1"]);
-    expect(editor.shadowRoot?.querySelector(".task-mode-picker")).toBeNull();
-    expect(editor.shadowRoot?.textContent).not.toContain("New task");
+    const modeButtons = editor.shadowRoot?.querySelectorAll<HTMLButtonElement>(
+      ".task-mode-picker button",
+    );
+    expect(modeButtons).toHaveLength(2);
+    expect(modeButtons?.[1].getAttribute("aria-selected")).toBe("true");
+
+    modeButtons?.[0].click();
+    await editor.updateComplete;
+    expect(editor.shadowRoot?.querySelector<HTMLInputElement>('input[required]')?.value).toBe("");
+    expect((changed.mock.calls.at(-1)?.[0] as CustomEvent).detail.config).not.toHaveProperty(
+      "task_id",
+    );
+
+    editor.shadowRoot?.querySelectorAll<HTMLButtonElement>(".task-mode-picker button")[1].click();
+    await editor.updateComplete;
+    expect(editor.shadowRoot?.querySelector<HTMLInputElement>('input[required]')?.value).toBe(
+      "Bacteria",
+    );
+    expect((changed.mock.calls.at(-1)?.[0] as CustomEvent).detail.config.task_id).toBe("task-1");
   });
 
   it("writes the selected height into Home Assistant grid options without changing columns", async () => {
@@ -412,6 +452,10 @@ describe("cyclic-countdown-editor", () => {
     await settle(editor);
     const picker = editor.shadowRoot?.querySelector("ha-icon-picker") as HTMLElement & {
       items: unknown[];
+      attachComboBox: () => HTMLElement & {
+        refreshItems: ReturnType<typeof vi.fn>;
+        search: (value: string) => string[];
+      };
     };
     const generic = picker.shadowRoot?.querySelector("ha-generic-picker") as HTMLElement & {
       refreshItems: ReturnType<typeof vi.fn>;
@@ -423,8 +467,15 @@ describe("cyclic-countdown-editor", () => {
 
       picker.items = ["mdi:bacteria"];
       await vi.advanceTimersByTimeAsync(100);
+      expect(generic.refreshItems).not.toHaveBeenCalled();
+
+      const comboBox = picker.attachComboBox();
+      await vi.advanceTimersByTimeAsync(100);
 
       expect(generic.refreshItems).toHaveBeenCalledOnce();
+      expect(comboBox.refreshItems).toHaveBeenCalledOnce();
+      expect(comboBox.search("bac")).toEqual(["mdi:bacteria"]);
+      expect(comboBox.search("bacter")).toEqual(["mdi:bacteria"]);
       picker.dispatchEvent(new CustomEvent("picker-closed"));
     } finally {
       vi.useRealTimers();

@@ -2,6 +2,12 @@
 
 All notable changes to Cyclic Maintenance Countdown are documented here.
 
+## 0.2.4 — 2026-08-10
+
+- Refresh the native Home Assistant icon picker only after both its asynchronous icon index and its mobile combo box are ready, keeping search responsive from the first task onward.
+- Show New task and Existing task modes in both new and existing card editors while preserving drafts and saved task selections across switches.
+- Select and load the first saved task explicitly when entering Existing task mode without a prior selection, preventing a visually selected task from rendering as missing.
+
 ## 0.2.3 — 2026-08-10
 
 - Replace the ambiguous new-task label with reversible New task and Existing task modes while preserving both the unsaved draft and selected existing task.

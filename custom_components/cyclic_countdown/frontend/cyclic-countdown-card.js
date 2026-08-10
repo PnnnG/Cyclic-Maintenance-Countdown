@@ -775,7 +775,7 @@ var De = {
 	notification_targets: [...e.notification_targets]
 }), ke = class extends U {
 	constructor(...e) {
-		super(...e), this._tasks = [], this._targets = [], this._draft = X(), this._previewPhase = "auto", this._loading = !0, this._saving = !1, this._testing = !1, this._iconPickerReady = !!customElements.get("ha-icon-picker"), this._taskMode = "new", this._canCreateTask = !1, this._sessionInitialized = !1, this._newTaskDraft = X(), this._error = "", this._notice = "", this._loadFailed = !1;
+		super(...e), this._tasks = [], this._targets = [], this._draft = X(), this._previewPhase = "auto", this._loading = !0, this._saving = !1, this._testing = !1, this._iconPickerReady = !!customElements.get("ha-icon-picker"), this._taskMode = "new", this._sessionInitialized = !1, this._newTaskDraft = X(), this._error = "", this._notice = "", this._loadFailed = !1;
 	}
 	static {
 		this.properties = {
@@ -825,10 +825,10 @@ var De = {
 		});
 	}
 	disconnectedCallback() {
-		super.disconnectedCallback(), this._iconRefreshTimer && window.clearTimeout(this._iconRefreshTimer);
+		super.disconnectedCallback(), this.iconPickerClosed();
 	}
 	initializeTaskSession(e) {
-		this._sessionInitialized = !0, this._canCreateTask = !e.task_id, this._taskMode = e.task_id ? "existing" : "new", this._existingTaskId = e.task_id;
+		this._sessionInitialized = !0, this._taskMode = e.task_id ? "existing" : "new", this._existingTaskId = e.task_id;
 	}
 	setConfig(e) {
 		!this._sessionInitialized && this.isConnected && this.initializeTaskSession(e);
@@ -850,7 +850,7 @@ var De = {
 			try {
 				let [e, t] = await Promise.all([this.hass.connection.sendMessagePromise({ type: "cyclic_countdown/tasks/list" }), this.hass.connection.sendMessagePromise({ type: "cyclic_countdown/notification_targets/list" })]);
 				this._tasks = e, this._targets = t;
-				let n = e.find((e) => e.task_id === this._config?.task_id);
+				let n = e.find((e) => e.task_id === (this._existingTaskId || this._config?.task_id));
 				n && this._taskMode === "existing" && (this._existingTaskId = n.task_id, this._draft = Z(n));
 			} catch {
 				this._loadFailed = !0, this._error = this.s.integrationNotLoaded;
@@ -888,20 +888,20 @@ var De = {
 		n && (this._taskMode = "existing", this._existingTaskId = t, this._draft = Z(n), this.emitConfig({ task_id: t }));
 	}
 	selectTaskMode(e) {
-		if (!this._canCreateTask || e === this._taskMode) return;
+		if (e === this._taskMode) return;
 		if (this._error = "", this._notice = "", e === "new") {
 			this._taskMode = "new", this._draft = Z(this._newTaskDraft), this.emitConfig({ task_id: void 0 });
 			return;
 		}
 		this._newTaskDraft = Z(this._draft), this._taskMode = "existing";
-		let t = this._tasks.find((e) => e.task_id === this._existingTaskId);
-		t ? (this._draft = Z(t), this.emitConfig({ task_id: t.task_id })) : (this._draft = X(), this.emitConfig({ task_id: void 0 }));
+		let t = this._tasks.find((e) => e.task_id === this._existingTaskId) || this._tasks[0];
+		t ? (this._existingTaskId = t.task_id, this._draft = Z(t), this.emitConfig({ task_id: t.task_id })) : (this._draft = X(), this.emitConfig({ task_id: void 0 }));
 	}
 	updateDraft(e, t) {
 		this._draft = {
 			...this._draft,
 			[e]: t
-		}, this._canCreateTask && this._taskMode === "new" && (this._newTaskDraft = Z(this._draft));
+		}, this._taskMode === "new" && (this._newTaskDraft = Z(this._draft));
 	}
 	input(e, t) {
 		this.updateDraft(e, t.target.value);
@@ -951,7 +951,7 @@ var De = {
 					...e ? { task_id: e } : {},
 					...this.payload()
 				}), n = this._tasks.filter((e) => e.task_id !== t.task_id);
-				this._tasks = [...n, t].sort((e, t) => e.name.localeCompare(t.name)), this._draft = Z(t), this._taskMode = "existing", this._existingTaskId = t.task_id, this._canCreateTask = !1, this.emitConfig({ task_id: t.task_id }), this._notice = e ? this.s.changesSaved : this.s.taskCreated;
+				this._tasks = [...n, t].sort((e, t) => e.name.localeCompare(t.name)), this._draft = Z(t), this._taskMode = "existing", this._existingTaskId = t.task_id, this._newTaskDraft = X(), this.emitConfig({ task_id: t.task_id }), this._notice = e ? this.s.changesSaved : this.s.taskCreated;
 			} catch (e) {
 				this._error = this.saveErrorMessage(e);
 			} finally {
@@ -968,7 +968,9 @@ var De = {
 			await this.hass.connection.sendMessagePromise({
 				type: "cyclic_countdown/tasks/delete",
 				task_id: this._draft.task_id
-			}), this._tasks = this._tasks.filter((e) => e.task_id !== this._draft.task_id), this._draft = X(), this._existingTaskId = void 0, this.emitConfig({ task_id: void 0 }), this._notice = this.s.taskDeleted;
+			}), this._tasks = this._tasks.filter((e) => e.task_id !== this._draft.task_id);
+			let e = this._tasks[0];
+			e ? (this._taskMode = "existing", this._existingTaskId = e.task_id, this._draft = Z(e), this.emitConfig({ task_id: e.task_id })) : (this._taskMode = "new", this._existingTaskId = void 0, this._newTaskDraft = X(), this._draft = Z(this._newTaskDraft), this.emitConfig({ task_id: void 0 })), this._notice = this.s.taskDeleted;
 		} catch {
 			this._error = this.s.deleteFailed;
 		}
@@ -1030,22 +1032,22 @@ var De = {
 	}
 	iconPickerOpened(e) {
 		this.iconPickerClosed();
-		let t = e.currentTarget, n = 0, r = () => {
+		let t = e.currentTarget, n = () => {
 			if (!t.isConnected) return;
-			let e = t.shadowRoot?.querySelector("ha-generic-picker");
-			if (e?.getItems?.()?.length) {
+			let e = t.shadowRoot?.querySelector("ha-generic-picker"), r = e?.getItems?.(), i = e?.shadowRoot?.querySelector("ha-picker-combo-box");
+			if (r?.length && i) {
 				e?.refreshItems?.(), this._iconRefreshTimer = void 0;
 				return;
 			}
-			n += 1, n < 50 && (this._iconRefreshTimer = window.setTimeout(r, 100));
+			this._iconRefreshTimer = window.setTimeout(n, 100);
 		};
-		r();
+		n();
 	}
 	iconPickerClosed() {
 		this._iconRefreshTimer && window.clearTimeout(this._iconRefreshTimer), this._iconRefreshTimer = void 0;
 	}
 	renderTaskSelector() {
-		let e = this._existingTaskId || this._config?.task_id, t = this._canCreateTask ? M`
+		let e = this._existingTaskId || this._config?.task_id, t = M`
       <div class="task-mode-picker" role="tablist" aria-label=${this.s.taskMode}>
         <button
           role="tab"
@@ -1061,7 +1063,7 @@ var De = {
           @click=${() => this.selectTaskMode("existing")}
         ><ha-icon icon="mdi:format-list-bulleted"></ha-icon>${this.s.existingTask}</button>
       </div>
-    ` : P;
+    `;
 		if (this._taskMode === "new") return t;
 		let n = this._tasks.some((t) => t.task_id === e);
 		return M`${t}<label>${this.s.selectedTask}

@@ -94,7 +94,6 @@ export class CyclicCountdownEditor extends LitElement {
   private _testing = false;
   private _iconPickerReady = Boolean(customElements.get("ha-icon-picker"));
   private _taskMode: TaskMode = "new";
-  private _canCreateTask = false;
   private _sessionInitialized = false;
   private _newTaskDraft: Draft = newDraft();
   private _existingTaskId?: string;
@@ -156,12 +155,11 @@ export class CyclicCountdownEditor extends LitElement {
 
   disconnectedCallback(): void {
     super.disconnectedCallback();
-    if (this._iconRefreshTimer) window.clearTimeout(this._iconRefreshTimer);
+    this.iconPickerClosed();
   }
 
   private initializeTaskSession(config: CardConfig): void {
     this._sessionInitialized = true;
-    this._canCreateTask = !config.task_id;
     this._taskMode = config.task_id ? "existing" : "new";
     this._existingTaskId = config.task_id;
   }
@@ -208,7 +206,9 @@ export class CyclicCountdownEditor extends LitElement {
       ]);
       this._tasks = tasks;
       this._targets = targets;
-      const selected = tasks.find((task) => task.task_id === this._config?.task_id);
+      const selected = tasks.find(
+        (task) => task.task_id === (this._existingTaskId || this._config?.task_id),
+      );
       if (selected && this._taskMode === "existing") {
         this._existingTaskId = selected.task_id;
         this._draft = cloneDraft(selected);
@@ -259,7 +259,7 @@ export class CyclicCountdownEditor extends LitElement {
   }
 
   private selectTaskMode(mode: TaskMode): void {
-    if (!this._canCreateTask || mode === this._taskMode) return;
+    if (mode === this._taskMode) return;
     this._error = "";
     this._notice = "";
     if (mode === "new") {
@@ -270,8 +270,10 @@ export class CyclicCountdownEditor extends LitElement {
     }
     this._newTaskDraft = cloneDraft(this._draft);
     this._taskMode = "existing";
-    const selected = this._tasks.find((task) => task.task_id === this._existingTaskId);
+    const selected = this._tasks.find((task) => task.task_id === this._existingTaskId)
+      || this._tasks[0];
     if (selected) {
+      this._existingTaskId = selected.task_id;
       this._draft = cloneDraft(selected);
       this.emitConfig({ task_id: selected.task_id });
     } else {
@@ -282,7 +284,7 @@ export class CyclicCountdownEditor extends LitElement {
 
   private updateDraft(key: keyof Draft, value: unknown): void {
     this._draft = { ...this._draft, [key]: value };
-    if (this._canCreateTask && this._taskMode === "new") {
+    if (this._taskMode === "new") {
       this._newTaskDraft = cloneDraft(this._draft);
     }
   }
@@ -365,7 +367,7 @@ export class CyclicCountdownEditor extends LitElement {
       this._draft = cloneDraft(result);
       this._taskMode = "existing";
       this._existingTaskId = result.task_id;
-      this._canCreateTask = false;
+      this._newTaskDraft = newDraft();
       this.emitConfig({ task_id: result.task_id });
       this._notice = existing ? this.s.changesSaved : this.s.taskCreated;
     } catch (error) {
@@ -394,9 +396,19 @@ export class CyclicCountdownEditor extends LitElement {
         task_id: this._draft.task_id,
       });
       this._tasks = this._tasks.filter((task) => task.task_id !== this._draft.task_id);
-      this._draft = newDraft();
-      this._existingTaskId = undefined;
-      this.emitConfig({ task_id: undefined });
+      const nextTask = this._tasks[0];
+      if (nextTask) {
+        this._taskMode = "existing";
+        this._existingTaskId = nextTask.task_id;
+        this._draft = cloneDraft(nextTask);
+        this.emitConfig({ task_id: nextTask.task_id });
+      } else {
+        this._taskMode = "new";
+        this._existingTaskId = undefined;
+        this._newTaskDraft = newDraft();
+        this._draft = cloneDraft(this._newTaskDraft);
+        this.emitConfig({ task_id: undefined });
+      }
       this._notice = this.s.taskDeleted;
     } catch {
       this._error = this.s.deleteFailed;
@@ -485,7 +497,6 @@ export class CyclicCountdownEditor extends LitElement {
   private iconPickerOpened(event: Event): void {
     this.iconPickerClosed();
     const picker = event.currentTarget as HTMLElement;
-    let attempts = 0;
     const refreshWhenReady = () => {
       if (!picker.isConnected) return;
       const generic = picker.shadowRoot?.querySelector("ha-generic-picker") as
@@ -495,15 +506,16 @@ export class CyclicCountdownEditor extends LitElement {
           })
         | null;
       const items = generic?.getItems?.();
-      if (items?.length) {
+      const comboBox = generic?.shadowRoot?.querySelector("ha-picker-combo-box");
+      // HA 20260729.6 can finish loading the global icon index before the
+      // mobile bottom sheet creates its combo box. Refreshing before both are
+      // ready is a silent no-op and leaves the combo box with an empty snapshot.
+      if (items?.length && comboBox) {
         generic?.refreshItems?.();
         this._iconRefreshTimer = undefined;
         return;
       }
-      attempts += 1;
-      if (attempts < 50) {
-        this._iconRefreshTimer = window.setTimeout(refreshWhenReady, 100);
-      }
+      this._iconRefreshTimer = window.setTimeout(refreshWhenReady, 100);
     };
     refreshWhenReady();
   }
@@ -515,7 +527,7 @@ export class CyclicCountdownEditor extends LitElement {
 
   private renderTaskSelector() {
     const selectedId = this._existingTaskId || this._config?.task_id;
-    const modePicker = this._canCreateTask ? html`
+    const modePicker = html`
       <div class="task-mode-picker" role="tablist" aria-label=${this.s.taskMode}>
         <button
           role="tab"
@@ -531,7 +543,7 @@ export class CyclicCountdownEditor extends LitElement {
           @click=${() => this.selectTaskMode("existing")}
         ><ha-icon icon="mdi:format-list-bulleted"></ha-icon>${this.s.existingTask}</button>
       </div>
-    ` : nothing;
+    `;
     if (this._taskMode === "new") return modePicker;
     const selectedExists = this._tasks.some((task) => task.task_id === selectedId);
     return html`${modePicker}<label>${this.s.selectedTask}
