@@ -2,6 +2,11 @@
 
 All notable changes to Cyclic Maintenance Countdown are documented here.
 
+## 0.2.0 — 2026-08-10
+
+- Center the three height labels explicitly in their editor cells.
+- Use the native Home Assistant card radius instead of forcing larger Bar and Fill corner radii.
+
 ## 0.1.9 — 2026-08-10
 
 - Add a one-row Compact height with a smaller icon and day count, a thinner progress bar, and no secondary line.

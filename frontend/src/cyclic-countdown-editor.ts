@@ -498,7 +498,7 @@ export class CyclicCountdownEditor extends LitElement {
     .style-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
     .size-field { display: flex; flex-direction: column; gap: 7px; margin: 0 0 13px; color: var(--secondary-text-color); font-size: 12px; font-weight: 650; }
     .size-picker { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-    .size-picker button { min-height: 40px; border: 1px solid var(--divider-color); font-size: 13px; }
+    .size-picker button { min-height: 40px; padding: 8px 6px; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid var(--divider-color); font-size: 13px; line-height: 1.2; }
     .size-picker button.selected { border-color: var(--primary-color); color: var(--primary-color); background: color-mix(in srgb, var(--primary-color) 10%, var(--card-background-color)); }
     button { min-height: 44px; border: 0; border-radius: 12px; padding: 9px 14px; font: inherit; font-weight: 650; cursor: pointer; color: var(--primary-text-color); background: var(--secondary-background-color, rgba(127,127,127,.12)); }
     button:disabled { opacity: .48; cursor: default; }

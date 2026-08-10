@@ -44,7 +44,7 @@ async def test_user_flow_creates_loaded_integration(hass: HomeAssistant) -> None
     await hass.async_block_till_done()
     assert len(hass.config_entries.async_entries(DOMAIN)) == 1
     assert DOMAIN in hass.data
-    assert f"{FRONTEND_PATH}?v=0.1.9" in hass.data[DATA_EXTRA_MODULE_URL].urls
+    assert f"{FRONTEND_PATH}?v=0.2.0" in hass.data[DATA_EXTRA_MODULE_URL].urls
 
 
 @pytest.mark.usefixtures("enable_custom_integrations")

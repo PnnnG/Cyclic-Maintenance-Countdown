@@ -1097,7 +1097,7 @@ var Ce = {
     .style-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
     .size-field { display: flex; flex-direction: column; gap: 7px; margin: 0 0 13px; color: var(--secondary-text-color); font-size: 12px; font-weight: 650; }
     .size-picker { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-    .size-picker button { min-height: 40px; border: 1px solid var(--divider-color); font-size: 13px; }
+    .size-picker button { min-height: 40px; padding: 8px 6px; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid var(--divider-color); font-size: 13px; line-height: 1.2; }
     .size-picker button.selected { border-color: var(--primary-color); color: var(--primary-color); background: color-mix(in srgb, var(--primary-color) 10%, var(--card-background-color)); }
     button { min-height: 44px; border: 0; border-radius: 12px; padding: 9px 14px; font: inherit; font-weight: 650; cursor: pointer; color: var(--primary-text-color); background: var(--secondary-background-color, rgba(127,127,127,.12)); }
     button:disabled { opacity: .48; cursor: default; }
@@ -1368,7 +1368,7 @@ var Te = {
     ha-card { box-sizing: border-box; color: var(--primary-text-color); }
     .card {
       display: block; width: 100%; position: relative; min-height: 112px; overflow: hidden; cursor: pointer; isolation: isolate; touch-action: manipulation;
-      border-radius: var(--cyclic-countdown-radius, max(var(--ha-card-border-radius, 24px), 24px));
+      border-radius: var(--cyclic-countdown-radius, var(--ha-card-border-radius, var(--ha-border-radius-lg, 12px)));
       background: var(--cyclic-countdown-background, var(--ha-card-background, var(--card-background-color, #fff)));
       border: var(--cyclic-countdown-border, var(--ha-card-border-width, 1px) solid var(--ha-card-border-color, rgba(127,127,127,.18)));
       box-shadow: var(--cyclic-countdown-shadow, var(--ha-card-box-shadow, 0 3px 14px rgba(0,0,0,.08)));
@@ -1395,8 +1395,6 @@ var Te = {
     .compact .track { height: 4px; margin-top: 5px; }
     .card:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 70%, white); outline-offset: 3px; }
     .card:active { transform: scale(.995); }
-    .bar { --cyclic-countdown-radius: max(var(--ha-card-border-radius, 30px), 30px); }
-    .fill { --cyclic-countdown-radius: max(var(--ha-card-border-radius, 24px), 24px); }
     .content { position: relative; z-index: 2; min-height: 112px; padding: 12px 16px; display: grid; grid-template-columns: 70px minmax(0,1fr) 82px; gap: 16px; align-items: center; box-sizing: border-box; }
     .icon-tile { position: relative; z-index: 3; width: 70px; height: 70px; display: grid; place-items: center; border-radius: 22px; background: var(--cyclic-countdown-icon-background, color-mix(in srgb, var(--accent) 13%, var(--secondary-background-color, var(--primary-background-color, #20242c)))); border: var(--cyclic-countdown-icon-border, 1px solid color-mix(in srgb, var(--accent) 10%, var(--divider-color, transparent))); box-shadow: var(--cyclic-countdown-icon-shadow, 0 5px 14px color-mix(in srgb, black 7%, transparent), inset 0 1px 0 color-mix(in srgb, white 8%, transparent)); -webkit-backdrop-filter: var(--cyclic-countdown-icon-backdrop-filter, none); backdrop-filter: var(--cyclic-countdown-icon-backdrop-filter, none); color: var(--accent); }
     .icon-tile ha-icon { position: relative; z-index: 1; --mdc-icon-size: 34px; }
