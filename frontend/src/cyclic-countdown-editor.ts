@@ -175,6 +175,16 @@ export class CyclicCountdownEditor extends LitElement {
     );
   }
 
+  private selectVerticalSize(vertical_size: CardConfig["vertical_size"]): void {
+    this.emitConfig({
+      vertical_size,
+      grid_options: {
+        ...this._config?.grid_options,
+        rows: vertical_size === "wide" ? 2 : "auto",
+      },
+    });
+  }
+
   private selectTask(event: Event): void {
     const taskId = (event.target as HTMLSelectElement).value;
     if (taskId === "__new") {
@@ -413,7 +423,7 @@ export class CyclicCountdownEditor extends LitElement {
           <span class="size-picker" role="radiogroup" aria-label=${this.s.verticalSizeAria}>
             ${(["standard", "wide"] as const).map((vertical_size) => html`<button
               class=${this._config?.vertical_size === vertical_size ? "selected" : ""}
-              @click=${() => this.emitConfig({ vertical_size })}
+              @click=${() => this.selectVerticalSize(vertical_size)}
               aria-pressed=${this._config?.vertical_size === vertical_size ? "true" : "false"}
             >${vertical_size === "standard" ? this.s.standardSize : this.s.wideSize}</button>`)}
           </span>

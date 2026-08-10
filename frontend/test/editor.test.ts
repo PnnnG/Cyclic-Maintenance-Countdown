@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import "../src/cyclic-countdown-card";
-import type { HomeAssistant } from "../src/models/types";
+import type { CardConfig, HomeAssistant } from "../src/models/types";
 
-const config = {
+const config: CardConfig = {
   type: "custom:cyclic-countdown-card" as const,
   style: "bar" as const,
   vertical_size: "standard" as const,
@@ -80,6 +80,49 @@ describe("cyclic-countdown-editor", () => {
     styleButtons?.[1].click();
     expect(changed).toHaveBeenCalledOnce();
     expect((changed.mock.calls[0][0] as CustomEvent).detail.config.style).toBe("fill");
+  });
+
+  it("writes the selected height into Home Assistant grid options without changing columns", async () => {
+    editor.setConfig({
+      ...config,
+      grid_options: { columns: 8, min_columns: 4 },
+    });
+    editor.hass = {
+      language: "en",
+      states: {},
+      connection: {
+        sendMessagePromise: vi.fn(async () => []) as unknown as HomeAssistant["connection"]["sendMessagePromise"],
+      },
+    };
+    await settle(editor);
+    const changed = vi.fn();
+    editor.addEventListener("config-changed", changed);
+    const sizeButtons = editor.shadowRoot?.querySelectorAll<HTMLButtonElement>(".size-picker button");
+
+    sizeButtons?.[1].click();
+    expect((changed.mock.calls[0][0] as CustomEvent).detail.config).toEqual(
+      expect.objectContaining({
+        vertical_size: "wide",
+        grid_options: { columns: 8, min_columns: 4, rows: 2 },
+      }),
+    );
+    await editor.updateComplete;
+    const preview = editor.shadowRoot?.querySelector("cyclic-countdown-card") as HTMLElement & {
+      updateComplete: Promise<unknown>;
+    };
+    await preview.updateComplete;
+    expect(preview.shadowRoot?.querySelector("ha-card")?.classList.contains("wide")).toBe(true);
+
+    sizeButtons?.[0].click();
+    expect((changed.mock.calls[1][0] as CustomEvent).detail.config).toEqual(
+      expect.objectContaining({
+        vertical_size: "standard",
+        grid_options: { columns: 8, min_columns: 4, rows: "auto" },
+      }),
+    );
+    await editor.updateComplete;
+    await preview.updateComplete;
+    expect(preview.shadowRoot?.querySelector("ha-card")?.classList.contains("standard")).toBe(true);
   });
 
   it("offers the same three actions for tap, hold, and double tap", async () => {

@@ -2,6 +2,11 @@
 
 All notable changes to Cyclic Maintenance Countdown are documented here.
 
+## 0.1.8 — 2026-08-10
+
+- Make Standard and Wide update the actual Lovelace grid height (`auto` or two rows) while leaving the horizontal width unchanged.
+- Preserve existing column sizing and other Home Assistant grid options when changing the card height.
+
 ## 0.1.7 — 2026-08-10
 
 - Restore native Home Assistant horizontal card width.

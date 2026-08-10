@@ -598,8 +598,8 @@ var be = {
 	nextDueDate: "Next due date",
 	appearance: "Appearance",
 	styleAria: "Card style",
-	verticalSize: "Vertical card size",
-	verticalSizeAria: "Vertical card size",
+	verticalSize: "Card height",
+	verticalSizeAria: "Card height",
 	standardSize: "Standard",
 	wideSize: "Wide",
 	bar: "Bar",
@@ -667,10 +667,10 @@ var be = {
 	nextDueDate: "Следующий срок",
 	appearance: "Внешний вид",
 	styleAria: "Стиль карточки",
-	verticalSize: "Размер карточки по вертикали",
-	verticalSizeAria: "Размер карточки по вертикали",
-	standardSize: "Стандартный",
-	wideSize: "Широкий",
+	verticalSize: "Высота карточки",
+	verticalSizeAria: "Высота карточки",
+	standardSize: "Стандартная",
+	wideSize: "Широкая",
 	bar: "Полоса",
 	cardFill: "Заливка карточки",
 	reverseProgress: "Обратное направление прогресса",
@@ -830,6 +830,15 @@ var Ce = {
 			composed: !0,
 			detail: { config: this._config }
 		}));
+	}
+	selectVerticalSize(e) {
+		this.emitConfig({
+			vertical_size: e,
+			grid_options: {
+				...this._config?.grid_options,
+				rows: e === "wide" ? 2 : "auto"
+			}
+		});
 	}
 	selectTask(e) {
 		let t = e.target.value;
@@ -1005,7 +1014,7 @@ var Ce = {
           <span class="size-picker" role="radiogroup" aria-label=${this.s.verticalSizeAria}>
             ${["standard", "wide"].map((e) => I`<button
               class=${this._config?.vertical_size === e ? "selected" : ""}
-              @click=${() => this.emitConfig({ vertical_size: e })}
+              @click=${() => this.selectVerticalSize(e)}
               aria-pressed=${this._config?.vertical_size === e ? "true" : "false"}
             >${e === "standard" ? this.s.standardSize : this.s.wideSize}</button>`)}
           </span>

@@ -45,6 +45,14 @@ export interface CardConfig {
   task_id?: string;
   style: CardStyle;
   vertical_size: CardVerticalSize;
+  grid_options?: {
+    columns?: number | "full";
+    rows?: number | "auto";
+    min_columns?: number;
+    min_rows?: number;
+    max_columns?: number;
+    max_rows?: number;
+  };
   reverse_progress: boolean;
   confirm_complete: boolean;
   show_secondary: boolean;

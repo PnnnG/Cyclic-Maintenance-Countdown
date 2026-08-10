@@ -108,7 +108,7 @@ describe("cyclic-countdown-card", () => {
     expect(card.shadowRoot?.querySelector("ha-card")?.classList.contains(vertical_size)).toBe(true);
   });
 
-  it("uses natural standard height and a two-row wide height", () => {
+  it("uses automatic standard height and a two-row wide height without changing columns", () => {
     card.setConfig(config({ vertical_size: "standard" }));
     expect(card.getGridOptions().columns).toBe(6);
     expect(card.getGridOptions().rows).toBeUndefined();
@@ -117,7 +117,7 @@ describe("cyclic-countdown-card", () => {
     expect(card.getGridOptions().rows).toBe(2);
   });
 
-  it("maps the obsolete horizontal width setting to vertical size", () => {
+  it("maps the obsolete width setting to vertical size", () => {
     card.setConfig({ type: "custom:cyclic-countdown-card", width: "wide" } as Partial<CardConfig>);
     const configured = card as unknown as { _config: CardConfig & { width?: string } };
     expect(configured._config.vertical_size).toBe("wide");
