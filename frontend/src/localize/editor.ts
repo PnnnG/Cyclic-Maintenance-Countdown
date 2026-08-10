@@ -2,9 +2,11 @@ import { language } from "./localize";
 
 const en = {
   integrationNotLoaded: "Cyclic Maintenance Countdown is not loaded. Add it in Settings → Devices & services, then refresh this page.",
-  changesSaved: "Changes saved",
+  changesSaved: "Task changes saved. You can close the card editor.",
   taskCreated: "Task created",
   saveFailed: "Could not save task",
+  invalidIcon: "Enter an icon name such as bacteria or mdi:bacteria",
+  iconHint: "You can also type a name such as bacteria",
   deleteConfirm: (name: string) => `Delete “${name}”? Existing cards will remain and show that the task is missing.`,
   taskDeleted: "Task deleted",
   deleteFailed: "Could not delete task",
@@ -70,6 +72,7 @@ const en = {
   saving: "Saving…",
   saveTask: "Save task",
   createTask: "Create task",
+  taskSaveHint: "Task data is saved separately from the card settings.",
 } as const;
 
 export type EditorStrings = {
@@ -80,9 +83,11 @@ export type EditorStrings = {
 
 const ru: EditorStrings = {
   integrationNotLoaded: "Интеграция Cyclic Maintenance Countdown не загружена. Добавьте её в Настройки → Устройства и службы и обновите страницу.",
-  changesSaved: "Изменения сохранены",
+  changesSaved: "Изменения задачи сохранены. Редактор карточки можно закрыть.",
   taskCreated: "Задача создана",
   saveFailed: "Не удалось сохранить задачу",
+  invalidIcon: "Введите имя иконки, например bacteria или mdi:bacteria",
+  iconHint: "Можно также ввести имя, например bacteria",
   deleteConfirm: (name: string) => `Удалить задачу «${name}»? Карточки сохранятся и покажут, что задача не найдена.`,
   taskDeleted: "Задача удалена",
   deleteFailed: "Не удалось удалить задачу",
@@ -148,6 +153,7 @@ const ru: EditorStrings = {
   saving: "Сохранение…",
   saveTask: "Сохранить задачу",
   createTask: "Создать задачу",
+  taskSaveHint: "Данные задачи сохраняются отдельно от настроек карточки.",
 };
 
 export function editorStrings(locale?: string): EditorStrings {

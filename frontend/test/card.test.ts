@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import "../src/cyclic-countdown-card";
-import type { CyclicCountdownCard } from "../src/cyclic-countdown-card";
+import {
+  registerCardPickerEntry,
+  type CyclicCountdownCard,
+} from "../src/cyclic-countdown-card";
 import type { CardConfig, HomeAssistant } from "../src/models/types";
 
 const config = (overrides: Partial<CardConfig> = {}): CardConfig => ({
@@ -69,6 +72,24 @@ describe("cyclic-countdown-card", () => {
     );
   });
 
+  it("refreshes stale picker metadata left by an older loaded version", () => {
+    const stale = {
+      type: "cyclic-countdown-card",
+      name: "Циклическое обслуживание",
+      preview: true,
+    };
+    window.customCards = [stale];
+
+    registerCardPickerEntry();
+
+    expect(window.customCards).toHaveLength(1);
+    expect(stale).toEqual(expect.objectContaining({
+      name: "Cyclic Maintenance Countdown",
+      preview: false,
+      documentationURL: expect.any(String),
+    }));
+  });
+
   it("registers the element and returns a stub without the card type", () => {
     const cardClass = customElements.get("cyclic-countdown-card") as
       | (CustomElementConstructor & { getStubConfig(): Record<string, unknown> })
@@ -81,6 +102,32 @@ describe("cyclic-countdown-card", () => {
       hold_action: "complete",
       double_tap_action: "none",
     }));
+  });
+
+  it("resolves the Home Assistant picker stub synchronously", async () => {
+    const cardClass = customElements.get("cyclic-countdown-card") as
+      | (CustomElementConstructor & {
+          getStubConfig(
+            hass: HomeAssistant,
+            entities: string[],
+            entitiesFallback: string[],
+          ): Record<string, unknown> | Promise<Record<string, unknown>>;
+        })
+      | undefined;
+
+    const stub = await Promise.race([
+      Promise.resolve(cardClass?.getStubConfig(hass, [], [])),
+      new Promise<never>((_, reject) => {
+        window.setTimeout(() => reject(new Error("picker stub timed out")), 100);
+      }),
+    ]);
+
+    expect({ type: "custom:cyclic-countdown-card", ...stub }).toEqual(
+      expect.objectContaining({
+        type: "custom:cyclic-countdown-card",
+        vertical_size: "standard",
+      }),
+    );
   });
 
   it("preserves actions stored by an existing card", () => {

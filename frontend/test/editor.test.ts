@@ -16,6 +16,26 @@ const config: CardConfig = {
   double_tap_action: "none" as const,
 };
 
+const task = {
+  task_id: "task-1",
+  name: "Bacteria",
+  icon: "mdi:bacteria",
+  interval_days: 14,
+  last_completed_date: "2026-08-10",
+  due_date: "2026-08-24",
+  warning_days: 1,
+  notifications_enabled: false,
+  persistent_notification_enabled: false,
+  notification_targets: [],
+  notification_title: "",
+  notification_message: "{name}: {days} · {due_date}",
+  notify_on_warning: true,
+  notify_on_due: true,
+  remaining_days: 14,
+  elapsed_progress: 0,
+  phase: "normal" as const,
+};
+
 async function settle(element: HTMLElement & { updateComplete: Promise<unknown> }) {
   await element.updateComplete;
   await new Promise((resolve) => setTimeout(resolve, 0));
@@ -30,6 +50,9 @@ describe("cyclic-countdown-editor", () => {
   };
 
   beforeEach(() => {
+    if (!customElements.get("ha-icon-picker")) {
+      customElements.define("ha-icon-picker", class extends HTMLElement {});
+    }
     editor = document.createElement("cyclic-countdown-editor") as typeof editor;
     editor.setConfig(config);
     document.body.replaceChildren(editor);
@@ -181,5 +204,41 @@ describe("cyclic-countdown-editor", () => {
     };
     expect(preview.previewTask.remaining_days).toBe(3);
     expect(preview.previewTask.phase).toBe("normal");
+  });
+
+  it("normalizes a typed icon name and saves an existing task", async () => {
+    editor.setConfig({ ...config, task_id: task.task_id });
+    const request = vi.fn(async (message: Record<string, unknown>) => {
+      if (message.type === "cyclic_countdown/tasks/list") return [task];
+      if (message.type === "cyclic_countdown/notification_targets/list") return [];
+      if (message.type === "cyclic_countdown/tasks/update") {
+        return { ...task, ...message };
+      }
+      return [];
+    }) as unknown as HomeAssistant["connection"]["sendMessagePromise"];
+    editor.hass = {
+      language: "ru",
+      states: {},
+      connection: { sendMessagePromise: request },
+    };
+    await settle(editor);
+
+    const picker = editor.shadowRoot?.querySelector("ha-icon-picker") as HTMLElement & {
+      value?: string;
+    };
+    picker.dispatchEvent(new CustomEvent("value-changed", {
+      detail: { value: "Bacteria" },
+    }));
+    await editor.updateComplete;
+    expect(picker.value).toBe("mdi:bacteria");
+
+    editor.shadowRoot?.querySelector<HTMLButtonElement>("button.save")?.click();
+    await settle(editor);
+
+    const update = (request as unknown as ReturnType<typeof vi.fn>).mock.calls
+      .map((call) => call[0] as Record<string, unknown>)
+      .find((message) => message.type === "cyclic_countdown/tasks/update");
+    expect(update?.icon).toBe("mdi:bacteria");
+    expect(editor.shadowRoot?.textContent).toContain("Редактор карточки можно закрыть");
   });
 });

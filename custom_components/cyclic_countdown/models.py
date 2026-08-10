@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import asdict, dataclass, field
 from datetime import date, timedelta
 from typing import Any
@@ -17,6 +18,9 @@ from .const import (
 
 class TaskValidationError(ValueError):
     """Raised when task input is invalid."""
+
+
+ICON_PATTERN = re.compile(r"^[a-z0-9_-]+:[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 
 def parse_date(value: str | date) -> date:
@@ -169,8 +173,8 @@ def validate_task_data(data: dict[str, Any], *, partial: bool, today: date) -> d
 
     if not partial or "icon" in data:
         icon = str(data.get("icon", DEFAULT_ICON)).strip() or DEFAULT_ICON
-        if not icon.startswith("mdi:") or len(icon) > 128:
-            raise TaskValidationError("icon must be an MDI icon")
+        if not ICON_PATTERN.fullmatch(icon) or len(icon) > 128:
+            raise TaskValidationError("icon must be a Home Assistant icon identifier")
         result["icon"] = icon
 
     if not partial or "interval_days" in data:

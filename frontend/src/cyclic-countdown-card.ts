@@ -412,13 +412,24 @@ if (!customElements.get("cyclic-countdown-card")) {
   customElements.define("cyclic-countdown-card", CyclicCountdownCard);
 }
 
-window.customCards = window.customCards || [];
-if (!window.customCards.some((card) => card.type === "cyclic-countdown-card")) {
-  window.customCards.push({
-    type: "cyclic-countdown-card",
-    name: "Cyclic Maintenance Countdown",
-    description: "A theme-aware calendar-day maintenance countdown",
-    preview: false,
-    documentationURL: "https://github.com/PnnnG/Cyclic-Maintenance-Countdown",
-  });
-}
+const CARD_PICKER_ENTRY = {
+  type: "cyclic-countdown-card",
+  name: "Cyclic Maintenance Countdown",
+  description: "A theme-aware calendar-day maintenance countdown",
+  preview: false,
+  documentationURL: "https://github.com/PnnnG/Cyclic-Maintenance-Countdown",
+};
+
+export const registerCardPickerEntry = (): void => {
+  window.customCards = window.customCards || [];
+  const existing = window.customCards.find(
+    (card) => card.type === CARD_PICKER_ENTRY.type,
+  );
+  if (existing) {
+    Object.assign(existing, CARD_PICKER_ENTRY);
+    return;
+  }
+  window.customCards.push({ ...CARD_PICKER_ENTRY });
+};
+
+registerCardPickerEntry();

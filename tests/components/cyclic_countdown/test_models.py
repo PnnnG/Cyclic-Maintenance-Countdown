@@ -79,6 +79,35 @@ def test_interval_update_keeps_last_completed_date() -> None:
     assert task.due_date == "2026-09-30"
 
 
+def test_home_assistant_custom_icon_identifier_is_accepted() -> None:
+    task = CountdownTask.create(
+        {
+            "name": "Filter",
+            "icon": "custom_icons:air-filter",
+            "interval_days": 30,
+            "last_completed_date": "2026-08-01",
+            "warning_days": 1,
+        },
+        date(2026, 8, 1),
+    )
+    assert task.icon == "custom_icons:air-filter"
+
+
+@pytest.mark.parametrize("icon", ["bacteria", "mdi:", "mdi:bad icon", "MDI:bacteria"])
+def test_invalid_icon_identifier_is_rejected(icon: str) -> None:
+    with pytest.raises(TaskValidationError):
+        CountdownTask.create(
+            {
+                "name": "Invalid icon",
+                "icon": icon,
+                "interval_days": 30,
+                "last_completed_date": "2026-08-01",
+                "warning_days": 1,
+            },
+            date(2026, 8, 1),
+        )
+
+
 @pytest.mark.parametrize("interval", [0, -1, 3651, True])
 def test_invalid_interval_rejected(interval) -> None:
     with pytest.raises(TaskValidationError):

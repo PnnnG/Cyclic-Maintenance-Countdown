@@ -32,6 +32,14 @@ const todayIso = () => {
   ).padStart(2, "0")}`;
 };
 
+const ICON_PATTERN = /^[a-z0-9_-]+:[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+const normalizeIcon = (value: string): string => {
+  const normalized = value.trim().toLowerCase().replace(/\s+/g, "-");
+  if (!normalized) return "mdi:wrench-clock";
+  return normalized.includes(":") ? normalized : `mdi:${normalized}`;
+};
+
 const newDraft = (): Draft => ({
   name: "",
   icon: "mdi:wrench-clock",
@@ -104,6 +112,7 @@ export class CyclicCountdownEditor extends LitElement {
     return (
       this._saving ||
       !this._draft.name.trim() ||
+      !ICON_PATTERN.test(this._draft.icon) ||
       this._draft.interval_days < 1 ||
       this._draft.warning_days < 0 ||
       this._draft.warning_days > this._draft.interval_days ||
@@ -249,7 +258,7 @@ export class CyclicCountdownEditor extends LitElement {
     } = this._draft;
     return {
       name,
-      icon,
+      icon: normalizeIcon(icon),
       interval_days,
       last_completed_date,
       warning_days,
@@ -281,10 +290,20 @@ export class CyclicCountdownEditor extends LitElement {
       this.emitConfig({ task_id: result.task_id });
       this._notice = existing ? this.s.changesSaved : this.s.taskCreated;
     } catch (error) {
-      this._error = error instanceof Error ? error.message : this.s.saveFailed;
+      this._error = this.saveErrorMessage(error);
     } finally {
       this._saving = false;
     }
+  }
+
+  private saveErrorMessage(error: unknown): string {
+    const message = error instanceof Error
+      ? error.message
+      : typeof error === "object" && error !== null && "message" in error
+        ? String((error as { message: unknown }).message)
+        : "";
+    if (message.toLowerCase().includes("icon")) return this.s.invalidIcon;
+    return message || this.s.saveFailed;
   }
 
   private async deleteTask(): Promise<void> {
@@ -367,10 +386,16 @@ export class CyclicCountdownEditor extends LitElement {
       return html`<ha-icon-picker
         .hass=${this.hass}
         .value=${this._draft.icon}
-        @value-changed=${(event: CustomEvent<{ value: string }>) => this.updateDraft("icon", event.detail.value)}
-      ></ha-icon-picker>`;
+        .invalid=${!ICON_PATTERN.test(this._draft.icon)}
+        .errorMessage=${this.s.invalidIcon}
+        @value-changed=${(event: CustomEvent<{ value: string }>) => this.updateDraft("icon", normalizeIcon(event.detail.value))}
+      ></ha-icon-picker><small>${this.s.iconHint}</small>`;
     }
-    return html`<input value=${this._draft.icon} @input=${(event: Event) => this.input("icon", event)} placeholder="mdi:wrench-clock" />`;
+    return html`<input
+      .value=${this._draft.icon}
+      @change=${(event: Event) => this.updateDraft("icon", normalizeIcon((event.target as HTMLInputElement).value))}
+      placeholder="mdi:wrench-clock"
+    /><small>${this.s.iconHint}</small>`;
   }
 
   private renderActionSelect(
@@ -469,6 +494,7 @@ export class CyclicCountdownEditor extends LitElement {
         ${this._draft.task_id ? html`<button class="danger" @click=${this.deleteTask}>${this.s.deleteTask}</button>` : html`<span></span>`}
         <button class="save" ?disabled=${this.saveDisabled} @click=${this.saveTask}>${this._saving ? this.s.saving : this._draft.task_id ? this.s.saveTask : this.s.createTask}</button>
       </footer>
+      <small class="task-save-hint">${this.s.taskSaveHint}</small>
     `;
   }
 
@@ -517,6 +543,7 @@ export class CyclicCountdownEditor extends LitElement {
     .notification-preview span { font-weight: 700; }
     .notification-preview p { margin: 5px 0 0; color: var(--secondary-text-color); font-size: 13px; }
     footer { position: sticky; bottom: 0; z-index: 5; display: flex; justify-content: space-between; gap: 12px; padding: 13px 0 4px; background: var(--card-background-color); }
+    .task-save-hint { display: block; margin-top: 6px; color: var(--secondary-text-color); text-align: end; }
     .save { background: var(--primary-color); color: var(--text-primary-color, #fff); }
     .danger { color: var(--error-color, #d85f58); }
     .ghost { border: 1px solid var(--divider-color); background: transparent; }
