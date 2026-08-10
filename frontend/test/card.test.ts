@@ -189,6 +189,7 @@ describe("cyclic-countdown-card", () => {
     card.setConfig(config({ task_id: "missing" }));
     await card.updateComplete;
     expect(card.shadowRoot?.textContent).toContain("Задача не найдена");
+    expect(card.shadowRoot?.querySelector("button")).toBeNull();
   });
 
   it.each([

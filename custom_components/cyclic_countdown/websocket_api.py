@@ -12,7 +12,7 @@ from homeassistant.exceptions import Unauthorized
 from homeassistant.helpers import entity_registry as er
 
 from .const import DOMAIN
-from .models import TaskValidationError
+from .models import CountdownTask, TaskValidationError
 from .notifications import async_send_test, list_notification_targets
 from .storage import TaskManager
 
@@ -167,19 +167,25 @@ async def ws_list_notification_targets(hass, connection, msg) -> None:
 @websocket_api.websocket_command(
     {
         vol.Required("type"): "cyclic_countdown/notifications/test",
-        vol.Required("task_id"): str,
+        vol.Optional("task_id"): str,
+        **TASK_FIELDS,
         vol.Optional("targets"): [str],
     }
 )
 @websocket_api.require_admin
 @websocket_api.async_response
 async def ws_test_notification(hass, connection, msg) -> None:
-    """Send a test notification."""
+    """Send a test notification from the current, possibly unsaved draft."""
     try:
         manager = _manager(hass)
-        task = manager.get_task(msg["task_id"])
-        if task is None:
-            raise TaskValidationError("Task not found")
+        payload = _task_payload(msg)
+        if payload:
+            task = CountdownTask.create(payload, manager.today)
+            task.task_id = msg.get("task_id", "test")
+        else:
+            task = manager.get_task(msg.get("task_id", ""))
+            if task is None:
+                raise TaskValidationError("Task not found")
         connection.send_result(msg["id"], await async_send_test(manager, task, msg.get("targets")))
     except TaskValidationError as err:
         _error(connection, msg["id"], err)

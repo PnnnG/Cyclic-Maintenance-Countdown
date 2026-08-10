@@ -105,6 +105,49 @@ describe("cyclic-countdown-editor", () => {
     expect((changed.mock.calls[0][0] as CustomEvent).detail.config.style).toBe("fill");
   });
 
+  it("creates tasks only for a new card and switches to an existing task directly", async () => {
+    const request = vi.fn(async (message: Record<string, unknown>) => {
+      if (message.type === "cyclic_countdown/tasks/list") return [task];
+      return [];
+    }) as unknown as HomeAssistant["connection"]["sendMessagePromise"];
+    editor.hass = {
+      language: "en",
+      states: {},
+      connection: { sendMessagePromise: request },
+    };
+    await settle(editor);
+    const changed = vi.fn();
+    editor.addEventListener("config-changed", changed);
+
+    const taskSelect = editor.shadowRoot?.querySelector<HTMLSelectElement>("section select");
+    expect([...taskSelect!.options].map((option) => option.value)).toEqual(["", "task-1"]);
+    taskSelect!.value = "task-1";
+    taskSelect!.dispatchEvent(new Event("change"));
+    await editor.updateComplete;
+
+    expect((changed.mock.calls[0][0] as CustomEvent).detail.config.task_id).toBe("task-1");
+    const selectedTaskSelect = editor.shadowRoot!.querySelectorAll<HTMLSelectElement>(
+      "section select",
+    )[0];
+    expect([...selectedTaskSelect.options].map((option) => option.value)).toEqual(["task-1"]);
+  });
+
+  it("does not offer task creation while editing an existing card", async () => {
+    editor.setConfig({ ...config, task_id: task.task_id });
+    editor.hass = {
+      language: "en",
+      states: {},
+      connection: {
+        sendMessagePromise: vi.fn(async (message: Record<string, unknown>) =>
+          message.type === "cyclic_countdown/tasks/list" ? [task] : []) as unknown as HomeAssistant["connection"]["sendMessagePromise"],
+      },
+    };
+    await settle(editor);
+    const taskSelect = editor.shadowRoot?.querySelector<HTMLSelectElement>("section select");
+    expect([...taskSelect!.options].map((option) => option.value)).toEqual(["task-1"]);
+    expect(editor.shadowRoot?.textContent).not.toContain("Create a new task");
+  });
+
   it("writes the selected height into Home Assistant grid options without changing columns", async () => {
     editor.setConfig({
       ...config,
@@ -240,5 +283,76 @@ describe("cyclic-countdown-editor", () => {
       .find((message) => message.type === "cyclic_countdown/tasks/update");
     expect(update?.icon).toBe("mdi:bacteria");
     expect(editor.shadowRoot?.textContent).toContain("Редактор карточки можно закрыть");
+  });
+
+  it("uses the current unsaved draft when sending a test notification", async () => {
+    const notificationTask = {
+      ...task,
+      notifications_enabled: true,
+      notification_targets: ["notify.ipad"],
+      notification_message: "Old message",
+    };
+    editor.setConfig({ ...config, task_id: task.task_id });
+    const request = vi.fn(async (message: Record<string, unknown>) => {
+      if (message.type === "cyclic_countdown/tasks/list") return [notificationTask];
+      if (message.type === "cyclic_countdown/notification_targets/list") {
+        return [{
+          id: "notify.ipad",
+          name: "iPad",
+          available: true,
+          kind: "entity",
+        }];
+      }
+      if (message.type === "cyclic_countdown/notifications/test") {
+        return { delivered: ["notify.ipad"], failed: [] };
+      }
+      return [];
+    }) as unknown as HomeAssistant["connection"]["sendMessagePromise"];
+    editor.hass = {
+      language: "en",
+      states: {},
+      connection: { sendMessagePromise: request },
+    };
+    await settle(editor);
+
+    const notifications = [...(editor.shadowRoot?.querySelectorAll("section") || [])][3];
+    const message = notifications.querySelector("textarea")!;
+    message.value = "Current {name}: {days}";
+    message.dispatchEvent(new Event("input"));
+    await editor.updateComplete;
+    notifications.querySelector<HTMLButtonElement>("button.ghost")?.click();
+    await settle(editor);
+
+    const testRequest = (request as unknown as ReturnType<typeof vi.fn>).mock.calls
+      .map((call) => call[0] as Record<string, unknown>)
+      .find((item) => item.type === "cyclic_countdown/notifications/test");
+    expect(testRequest).toEqual(expect.objectContaining({
+      notification_message: "Current {name}: {days}",
+      name: "Bacteria",
+      task_id: "task-1",
+      targets: ["notify.ipad"],
+    }));
+    expect(editor.shadowRoot?.textContent).toContain("Test sent: 1; failed: 0");
+  });
+
+  it("updates the icon picker for a new task", async () => {
+    editor.hass = {
+      language: "en",
+      states: {},
+      connection: {
+        sendMessagePromise: vi.fn(async () => []) as unknown as HomeAssistant["connection"]["sendMessagePromise"],
+      },
+    };
+    await settle(editor);
+    const picker = editor.shadowRoot?.querySelector("ha-icon-picker") as HTMLElement & {
+      value?: string;
+    };
+
+    picker.dispatchEvent(new CustomEvent("value-changed", {
+      detail: { value: "Water-Pump" },
+    }));
+    await editor.updateComplete;
+
+    expect(picker.value).toBe("mdi:water-pump");
   });
 });

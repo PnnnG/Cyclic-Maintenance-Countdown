@@ -69,6 +69,8 @@ export class CyclicCountdownEditor extends LitElement {
     _previewPhase: { state: true },
     _loading: { state: true },
     _saving: { state: true },
+    _testing: { state: true },
+    _iconPickerReady: { state: true },
     _error: { state: true },
     _notice: { state: true },
     _loadFailed: { state: true },
@@ -82,6 +84,8 @@ export class CyclicCountdownEditor extends LitElement {
   private _previewPhase: PreviewPhase = "auto";
   private _loading = true;
   private _saving = false;
+  private _testing = false;
+  private _iconPickerReady = Boolean(customElements.get("ha-icon-picker"));
   private _error = "";
   private _notice = "";
   private _loadFailed = false;
@@ -108,9 +112,8 @@ export class CyclicCountdownEditor extends LitElement {
     return [...this._targets, ...missing];
   }
 
-  private get saveDisabled(): boolean {
+  private get draftInvalid(): boolean {
     return (
-      this._saving ||
       !this._draft.name.trim() ||
       !ICON_PATTERN.test(this._draft.icon) ||
       this._draft.interval_days < 1 ||
@@ -118,6 +121,19 @@ export class CyclicCountdownEditor extends LitElement {
       this._draft.warning_days > this._draft.interval_days ||
       (this._draft.notifications_enabled && !this._draft.notification_message.trim())
     );
+  }
+
+  private get saveDisabled(): boolean {
+    return this._saving || this.draftInvalid;
+  }
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    if (!this._iconPickerReady) {
+      void customElements.whenDefined("ha-icon-picker").then(() => {
+        this._iconPickerReady = true;
+      });
+    }
   }
 
   setConfig(config: CardConfig): void {
@@ -196,11 +212,7 @@ export class CyclicCountdownEditor extends LitElement {
 
   private selectTask(event: Event): void {
     const taskId = (event.target as HTMLSelectElement).value;
-    if (taskId === "__new") {
-      this._draft = newDraft();
-      this.emitConfig({ task_id: undefined });
-      return;
-    }
+    if (!taskId) return;
     const task = this._tasks.find((item) => item.task_id === taskId);
     if (!task) return;
     this._draft = { ...task, notification_targets: [...task.notification_targets] };
@@ -329,20 +341,22 @@ export class CyclicCountdownEditor extends LitElement {
   }
 
   private async testNotification(): Promise<void> {
-    if (!this.hass || !this._draft.task_id) {
-      this._error = this.s.saveFirst;
-      return;
-    }
+    if (!this.hass || this._testing || this.draftInvalid) return;
+    this._testing = true;
     this._error = "";
+    this._notice = "";
     try {
       const result = await this.hass.connection.sendMessagePromise<{ delivered: string[]; failed: string[] }>({
         type: "cyclic_countdown/notifications/test",
-        task_id: this._draft.task_id,
+        ...(this._draft.task_id ? { task_id: this._draft.task_id } : {}),
+        ...this.payload(),
         targets: this._draft.notification_targets,
       });
       this._notice = this.s.testSent(result.delivered.length, result.failed.length);
     } catch {
       this._error = this.s.testFailed;
+    } finally {
+      this._testing = false;
     }
   }
 
@@ -382,7 +396,7 @@ export class CyclicCountdownEditor extends LitElement {
   }
 
   private renderIconPicker() {
-    if (customElements.get("ha-icon-picker")) {
+    if (this._iconPickerReady) {
       return html`<ha-icon-picker
         .hass=${this.hass}
         .value=${this._draft.icon}
@@ -396,6 +410,36 @@ export class CyclicCountdownEditor extends LitElement {
       @change=${(event: Event) => this.updateDraft("icon", normalizeIcon((event.target as HTMLInputElement).value))}
       placeholder="mdi:wrench-clock"
     /><small>${this.s.iconHint}</small>`;
+  }
+
+  private renderTaskSelector() {
+    const selectedId = this._config?.task_id;
+    if (!selectedId) {
+      return html`
+        <div class="new-task-title">＋ ${this.s.createNewTask}</div>
+        ${this._tasks.length ? html`<label>${this.s.chooseExistingTask}
+          <select @change=${this.selectTask} .value=${""}>
+            <option value="" disabled>${this.s.chooseTask}</option>
+            ${this._tasks.map((task) => html`<option value=${task.task_id}>${task.name}</option>`)}
+          </select>
+        </label>` : nothing}
+      `;
+    }
+    const selectedExists = this._tasks.some((task) => task.task_id === selectedId);
+    return html`<label>${this.s.selectedTask}
+      <select @change=${this.selectTask} .value=${selectedId}>
+        ${selectedExists
+          ? nothing
+          : html`<option value=${selectedId} disabled>${this.s.missingTask}</option>`}
+        ${this._tasks.map((task) => html`<option value=${task.task_id}>${task.name}</option>`)}
+      </select>
+    </label>`;
+  }
+
+  private targetLabel(target: NotificationTarget): string {
+    return target.kind === "legacy_service"
+      ? this.s.compatibilityTarget(target.name, target.id)
+      : target.name;
   }
 
   private renderActionSelect(
@@ -412,7 +456,12 @@ export class CyclicCountdownEditor extends LitElement {
 
   render() {
     if (!this._config) return nothing;
-    if (this._loading) return html`<div class="status">${this.s.loading}</div>`;
+    if (this._loading) return html`
+      ${this._iconPickerReady
+        ? html`<ha-icon-picker class="icon-preload" aria-hidden="true"></ha-icon-picker>`
+        : nothing}
+      <div class="status">${this.s.loading}</div>
+    `;
     if (this._loadFailed) return html`<div class="integration-error">${this._error}<button @click=${this.load}>${this.s.retry}</button></div>`;
     return html`
       ${this._error ? html`<div class="message error" role="alert">${this._error}</div>` : nothing}
@@ -420,12 +469,7 @@ export class CyclicCountdownEditor extends LitElement {
 
       <section>
         <h3><ha-icon icon="mdi:calendar-sync"></ha-icon>${this.s.task}</h3>
-        <label>${this.s.selectedTask}
-          <select @change=${this.selectTask} .value=${this._config.task_id || "__new"}>
-            <option value="__new">＋ ${this.s.createNewTask}</option>
-            ${this._tasks.map((task) => html`<option value=${task.task_id}>${task.name}</option>`)}
-          </select>
-        </label>
+        ${this.renderTaskSelector()}
         <div class="grid">
           <label>${this.s.name}<input required maxlength="128" .value=${this._draft.name} @input=${(event: Event) => this.input("name", event)} placeholder=${this.s.namePlaceholder} /></label>
           <label>${this.s.icon}${this.renderIconPicker()}</label>
@@ -477,7 +521,7 @@ export class CyclicCountdownEditor extends LitElement {
         <h3><ha-icon icon="mdi:bell-outline"></ha-icon>${this.s.notifications}</h3>
         <label class="toggle"><input type="checkbox" .checked=${this._draft.notifications_enabled} @change=${(event: Event) => this.boolInput("notifications_enabled", event)} /><span>${this.s.sendNotifications}</span></label>
         ${this._draft.notifications_enabled ? html`
-          <label>${this.s.notificationTargets}<select multiple size="${Math.min(6, Math.max(3, this.visibleTargets.length))}" @change=${this.targetChanged}>${this.visibleTargets.map((target) => html`<option value=${target.id} ?selected=${this._draft.notification_targets.includes(target.id)}>${target.name}${target.available ? "" : this.s.unavailable}</option>`)}</select></label>
+          <label>${this.s.notificationTargets}<select multiple size="${Math.min(6, Math.max(3, this.visibleTargets.length))}" @change=${this.targetChanged}>${this.visibleTargets.map((target) => html`<option value=${target.id} ?selected=${this._draft.notification_targets.includes(target.id)}>${this.targetLabel(target)}${target.available ? "" : this.s.unavailable}</option>`)}</select></label>
           <div class="grid">
             <label>${this.s.optionalTitle}<input .value=${this._draft.notification_title} @input=${(event: Event) => this.input("notification_title", event)} /></label>
             <label class="toggle"><input type="checkbox" .checked=${this._draft.persistent_notification_enabled} @change=${(event: Event) => this.boolInput("persistent_notification_enabled", event)} /><span>${this.s.persistentNotification}</span></label>
@@ -486,13 +530,15 @@ export class CyclicCountdownEditor extends LitElement {
           </div>
           <label>${this.s.message}<textarea required .value=${this._draft.notification_message} @input=${(event: Event) => this.input("notification_message", event)}></textarea><small>${this.s.placeholders}: {name}, {days}, {due_date}</small></label>
           <div class="notification-preview"><span>${this._draft.notification_title || this.s.notification}</span><p>${this._draft.notification_message.replaceAll("{name}", this._draft.name || this.s.previewTaskName).replaceAll("{days}", String(this.previewTask.remaining_days)).replaceAll("{due_date}", this.computedDueIso() === "—" ? todayIso() : this.computedDueIso())}</p></div>
-          <button class="ghost" @click=${this.testNotification}>${this.s.sendTest}</button>
+          <button class="ghost" ?disabled=${this._testing || this.draftInvalid} @click=${this.testNotification}>${this.s.sendTest}</button>
         ` : nothing}
       </section>
 
       <footer>
         ${this._draft.task_id ? html`<button class="danger" @click=${this.deleteTask}>${this.s.deleteTask}</button>` : html`<span></span>`}
-        <button class="save" ?disabled=${this.saveDisabled} @click=${this.saveTask}>${this._saving ? this.s.saving : this._draft.task_id ? this.s.saveTask : this.s.createTask}</button>
+        ${this._config.task_id && !this._draft.task_id
+          ? nothing
+          : html`<button class="save" ?disabled=${this.saveDisabled} @click=${this.saveTask}>${this._saving ? this.s.saving : this._draft.task_id ? this.s.saveTask : this.s.createTask}</button>`}
       </footer>
       <small class="task-save-hint">${this.s.taskSaveHint}</small>
     `;
@@ -503,6 +549,7 @@ export class CyclicCountdownEditor extends LitElement {
     section { margin: 0 0 16px; padding: 16px; border: 1px solid var(--divider-color, rgba(127,127,127,.22)); border-radius: 18px; background: color-mix(in srgb, var(--secondary-background-color, transparent) 42%, transparent); }
     h3 { margin: 0 0 16px; display: flex; align-items: center; gap: 9px; font-size: 17px; }
     h3 ha-icon { color: var(--primary-color); --mdc-icon-size: 21px; }
+    .new-task-title { margin: 0 0 13px; color: var(--primary-text-color); font-size: 14px; font-weight: 700; }
     label { display: flex; flex-direction: column; gap: 7px; margin: 0 0 13px; color: var(--secondary-text-color); font-size: 12px; font-weight: 650; }
     input, select, textarea { box-sizing: border-box; width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--divider-color, #888); border-radius: 12px; color: var(--primary-text-color); background: var(--card-background-color, #fff); font: inherit; font-size: 14px; }
     input:focus, select:focus, textarea:focus, button:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
@@ -550,6 +597,7 @@ export class CyclicCountdownEditor extends LitElement {
     .message, .integration-error, .status { margin-bottom: 14px; padding: 13px 15px; border-radius: 13px; font-size: 13px; }
     .message.error, .integration-error { background: color-mix(in srgb, var(--error-color, #d85f58) 14%, transparent); }
     .message.notice { background: color-mix(in srgb, var(--success-color, #43a66d) 14%, transparent); }
+    .icon-preload { position: fixed; width: 1px; height: 1px; visibility: hidden; pointer-events: none; }
     @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } .style-picker { grid-template-columns: 1fr; } footer { flex-wrap: wrap; } footer button { flex: 1; } }
   `;
 }

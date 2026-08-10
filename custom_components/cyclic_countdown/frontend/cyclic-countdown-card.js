@@ -58,23 +58,23 @@ var e = globalThis, t = e.ShadowRoot && (e.ShadyCSS === void 0 || e.ShadyCSS.nat
 		}
 		return n;
 	}
-}, ae = (e, t) => !l(e, t), g = {
+}, g = (e, t) => !l(e, t), _ = {
 	attribute: !0,
 	type: String,
 	converter: h,
 	reflect: !1,
 	useDefault: !1,
-	hasChanged: ae
+	hasChanged: g
 };
 Symbol.metadata ??= Symbol("metadata"), f.litPropertyMetadata ??= /* @__PURE__ */ new WeakMap();
-var _ = class extends HTMLElement {
+var v = class extends HTMLElement {
 	static addInitializer(e) {
 		this._$Ei(), (this.l ??= []).push(e);
 	}
 	static get observedAttributes() {
 		return this.finalize(), this._$Eh && [...this._$Eh.keys()];
 	}
-	static createProperty(e, t = g) {
+	static createProperty(e, t = _) {
 		if (t.state && (t.attribute = !1), this._$Ei(), this.prototype.hasOwnProperty(e) && ((t = Object.create(t)).wrapped = !0), this.elementProperties.set(e, t), !t.noAccessor) {
 			let n = Symbol(), r = this.getPropertyDescriptor(e, n, t);
 			r !== void 0 && u(this.prototype, e, r);
@@ -100,7 +100,7 @@ var _ = class extends HTMLElement {
 		};
 	}
 	static getPropertyOptions(e) {
-		return this.elementProperties.get(e) ?? g;
+		return this.elementProperties.get(e) ?? _;
 	}
 	static _$Ei() {
 		if (this.hasOwnProperty(m("elementProperties"))) return;
@@ -187,7 +187,7 @@ var _ = class extends HTMLElement {
 	requestUpdate(e, t, n, r = !1, i) {
 		if (e !== void 0) {
 			let a = this.constructor;
-			if (!1 === r && (i = this[e]), n ??= a.getPropertyOptions(e), !((n.hasChanged ?? ae)(i, t) || n.useDefault && n.reflect && i === this._$Ej?.get(e) && !this.hasAttribute(a._$Eu(e, n)))) return;
+			if (!1 === r && (i = this[e]), n ??= a.getPropertyOptions(e), !((n.hasChanged ?? g)(i, t) || n.useDefault && n.reflect && i === this._$Ej?.get(e) && !this.hasAttribute(a._$Eu(e, n)))) return;
 			this.C(e, t, n);
 		}
 		!1 === this.isUpdatePending && (this._$ES = this._$EP());
@@ -251,87 +251,87 @@ var _ = class extends HTMLElement {
 	updated(e) {}
 	firstUpdated(e) {}
 };
-_.elementStyles = [], _.shadowRootOptions = { mode: "open" }, _[m("elementProperties")] = /* @__PURE__ */ new Map(), _[m("finalized")] = /* @__PURE__ */ new Map(), ie?.({ ReactiveElement: _ }), (f.reactiveElementVersions ??= []).push("2.1.2");
+v.elementStyles = [], v.shadowRootOptions = { mode: "open" }, v[m("elementProperties")] = /* @__PURE__ */ new Map(), v[m("finalized")] = /* @__PURE__ */ new Map(), ie?.({ ReactiveElement: v }), (f.reactiveElementVersions ??= []).push("2.1.2");
 //#endregion
 //#region node_modules/.pnpm/lit-html@3.3.3/node_modules/lit-html/lit-html.js
-var v = globalThis, oe = (e) => e, y = v.trustedTypes, b = y ? y.createPolicy("lit-html", { createHTML: (e) => e }) : void 0, x = "$lit$", S = `lit$${Math.random().toFixed(9).slice(2)}$`, C = "?" + S, se = `<${C}>`, w = document, T = () => w.createComment(""), E = (e) => e === null || typeof e != "object" && typeof e != "function", D = Array.isArray, ce = (e) => D(e) || typeof e?.[Symbol.iterator] == "function", O = "[ 	\n\f\r]", k = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, A = /-->/g, le = />/g, j = RegExp(`>|${O}(?:([^\\s"'>=/]+)(${O}*=${O}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`, "g"), ue = /'/g, M = /"/g, N = /^(?:script|style|textarea|title)$/i, P = ((e) => (t, ...n) => ({
+var y = globalThis, ae = (e) => e, b = y.trustedTypes, x = b ? b.createPolicy("lit-html", { createHTML: (e) => e }) : void 0, S = "$lit$", C = `lit$${Math.random().toFixed(9).slice(2)}$`, w = "?" + C, oe = `<${w}>`, T = document, E = () => T.createComment(""), D = (e) => e === null || typeof e != "object" && typeof e != "function", O = Array.isArray, se = (e) => O(e) || typeof e?.[Symbol.iterator] == "function", k = "[ 	\n\f\r]", A = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, j = /-->/g, ce = />/g, M = RegExp(`>|${k}(?:([^\\s"'>=/]+)(${k}*=${k}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`, "g"), le = /'/g, N = /"/g, P = /^(?:script|style|textarea|title)$/i, F = ((e) => (t, ...n) => ({
 	_$litType$: e,
 	strings: t,
 	values: n
-}))(1), F = Symbol.for("lit-noChange"), I = Symbol.for("lit-nothing"), L = /* @__PURE__ */ new WeakMap(), R = w.createTreeWalker(w, 129);
-function z(e, t) {
-	if (!D(e) || !e.hasOwnProperty("raw")) throw Error("invalid template strings array");
-	return b === void 0 ? t : b.createHTML(t);
+}))(1), I = Symbol.for("lit-noChange"), L = Symbol.for("lit-nothing"), R = /* @__PURE__ */ new WeakMap(), z = T.createTreeWalker(T, 129);
+function B(e, t) {
+	if (!O(e) || !e.hasOwnProperty("raw")) throw Error("invalid template strings array");
+	return x === void 0 ? t : x.createHTML(t);
 }
-var de = (e, t) => {
-	let n = e.length - 1, r = [], i, a = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", o = k;
+var ue = (e, t) => {
+	let n = e.length - 1, r = [], i, a = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", o = A;
 	for (let t = 0; t < n; t++) {
 		let n = e[t], s, c, l = -1, u = 0;
-		for (; u < n.length && (o.lastIndex = u, c = o.exec(n), c !== null);) u = o.lastIndex, o === k ? c[1] === "!--" ? o = A : c[1] === void 0 ? c[2] === void 0 ? c[3] !== void 0 && (o = j) : (N.test(c[2]) && (i = RegExp("</" + c[2], "g")), o = j) : o = le : o === j ? c[0] === ">" ? (o = i ?? k, l = -1) : c[1] === void 0 ? l = -2 : (l = o.lastIndex - c[2].length, s = c[1], o = c[3] === void 0 ? j : c[3] === "\"" ? M : ue) : o === M || o === ue ? o = j : o === A || o === le ? o = k : (o = j, i = void 0);
-		let d = o === j && e[t + 1].startsWith("/>") ? " " : "";
-		a += o === k ? n + se : l >= 0 ? (r.push(s), n.slice(0, l) + x + n.slice(l) + S + d) : n + S + (l === -2 ? t : d);
+		for (; u < n.length && (o.lastIndex = u, c = o.exec(n), c !== null);) u = o.lastIndex, o === A ? c[1] === "!--" ? o = j : c[1] === void 0 ? c[2] === void 0 ? c[3] !== void 0 && (o = M) : (P.test(c[2]) && (i = RegExp("</" + c[2], "g")), o = M) : o = ce : o === M ? c[0] === ">" ? (o = i ?? A, l = -1) : c[1] === void 0 ? l = -2 : (l = o.lastIndex - c[2].length, s = c[1], o = c[3] === void 0 ? M : c[3] === "\"" ? N : le) : o === N || o === le ? o = M : o === j || o === ce ? o = A : (o = M, i = void 0);
+		let d = o === M && e[t + 1].startsWith("/>") ? " " : "";
+		a += o === A ? n + oe : l >= 0 ? (r.push(s), n.slice(0, l) + S + n.slice(l) + C + d) : n + C + (l === -2 ? t : d);
 	}
-	return [z(e, a + (e[n] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), r];
-}, B = class e {
+	return [B(e, a + (e[n] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), r];
+}, V = class e {
 	constructor({ strings: t, _$litType$: n }, r) {
 		let i;
 		this.parts = [];
-		let a = 0, o = 0, s = t.length - 1, c = this.parts, [l, u] = de(t, n);
-		if (this.el = e.createElement(l, r), R.currentNode = this.el.content, n === 2 || n === 3) {
+		let a = 0, o = 0, s = t.length - 1, c = this.parts, [l, u] = ue(t, n);
+		if (this.el = e.createElement(l, r), z.currentNode = this.el.content, n === 2 || n === 3) {
 			let e = this.el.content.firstChild;
 			e.replaceWith(...e.childNodes);
 		}
-		for (; (i = R.nextNode()) !== null && c.length < s;) {
+		for (; (i = z.nextNode()) !== null && c.length < s;) {
 			if (i.nodeType === 1) {
-				if (i.hasAttributes()) for (let e of i.getAttributeNames()) if (e.endsWith(x)) {
-					let t = u[o++], n = i.getAttribute(e).split(S), r = /([.?@])?(.*)/.exec(t);
+				if (i.hasAttributes()) for (let e of i.getAttributeNames()) if (e.endsWith(S)) {
+					let t = u[o++], n = i.getAttribute(e).split(C), r = /([.?@])?(.*)/.exec(t);
 					c.push({
 						type: 1,
 						index: a,
 						name: r[2],
 						strings: n,
-						ctor: r[1] === "." ? pe : r[1] === "?" ? me : r[1] === "@" ? he : U
+						ctor: r[1] === "." ? fe : r[1] === "?" ? pe : r[1] === "@" ? me : W
 					}), i.removeAttribute(e);
-				} else e.startsWith(S) && (c.push({
+				} else e.startsWith(C) && (c.push({
 					type: 6,
 					index: a
 				}), i.removeAttribute(e));
-				if (N.test(i.tagName)) {
-					let e = i.textContent.split(S), t = e.length - 1;
+				if (P.test(i.tagName)) {
+					let e = i.textContent.split(C), t = e.length - 1;
 					if (t > 0) {
-						i.textContent = y ? y.emptyScript : "";
-						for (let n = 0; n < t; n++) i.append(e[n], T()), R.nextNode(), c.push({
+						i.textContent = b ? b.emptyScript : "";
+						for (let n = 0; n < t; n++) i.append(e[n], E()), z.nextNode(), c.push({
 							type: 2,
 							index: ++a
 						});
-						i.append(e[t], T());
+						i.append(e[t], E());
 					}
 				}
-			} else if (i.nodeType === 8) if (i.data === C) c.push({
+			} else if (i.nodeType === 8) if (i.data === w) c.push({
 				type: 2,
 				index: a
 			});
 			else {
 				let e = -1;
-				for (; (e = i.data.indexOf(S, e + 1)) !== -1;) c.push({
+				for (; (e = i.data.indexOf(C, e + 1)) !== -1;) c.push({
 					type: 7,
 					index: a
-				}), e += S.length - 1;
+				}), e += C.length - 1;
 			}
 			a++;
 		}
 	}
 	static createElement(e, t) {
-		let n = w.createElement("template");
+		let n = T.createElement("template");
 		return n.innerHTML = e, n;
 	}
 };
-function V(e, t, n = e, r) {
-	if (t === F) return t;
-	let i = r === void 0 ? n._$Cl : n._$Co?.[r], a = E(t) ? void 0 : t._$litDirective$;
-	return i?.constructor !== a && (i?._$AO?.(!1), a === void 0 ? i = void 0 : (i = new a(e), i._$AT(e, n, r)), r === void 0 ? n._$Cl = i : (n._$Co ??= [])[r] = i), i !== void 0 && (t = V(e, i._$AS(e, t.values), i, r)), t;
+function H(e, t, n = e, r) {
+	if (t === I) return t;
+	let i = r === void 0 ? n._$Cl : n._$Co?.[r], a = D(t) ? void 0 : t._$litDirective$;
+	return i?.constructor !== a && (i?._$AO?.(!1), a === void 0 ? i = void 0 : (i = new a(e), i._$AT(e, n, r)), r === void 0 ? n._$Cl = i : (n._$Co ??= [])[r] = i), i !== void 0 && (t = H(e, i._$AS(e, t.values), i, r)), t;
 }
-var fe = class {
+var de = class {
 	constructor(e, t) {
 		this._$AV = [], this._$AN = void 0, this._$AD = e, this._$AM = t;
 	}
@@ -342,28 +342,28 @@ var fe = class {
 		return this._$AM._$AU;
 	}
 	u(e) {
-		let { el: { content: t }, parts: n } = this._$AD, r = (e?.creationScope ?? w).importNode(t, !0);
-		R.currentNode = r;
-		let i = R.nextNode(), a = 0, o = 0, s = n[0];
+		let { el: { content: t }, parts: n } = this._$AD, r = (e?.creationScope ?? T).importNode(t, !0);
+		z.currentNode = r;
+		let i = z.nextNode(), a = 0, o = 0, s = n[0];
 		for (; s !== void 0;) {
 			if (a === s.index) {
 				let t;
-				s.type === 2 ? t = new H(i, i.nextSibling, this, e) : s.type === 1 ? t = new s.ctor(i, s.name, s.strings, this, e) : s.type === 6 && (t = new ge(i, this, e)), this._$AV.push(t), s = n[++o];
+				s.type === 2 ? t = new U(i, i.nextSibling, this, e) : s.type === 1 ? t = new s.ctor(i, s.name, s.strings, this, e) : s.type === 6 && (t = new he(i, this, e)), this._$AV.push(t), s = n[++o];
 			}
-			a !== s?.index && (i = R.nextNode(), a++);
+			a !== s?.index && (i = z.nextNode(), a++);
 		}
-		return R.currentNode = w, r;
+		return z.currentNode = T, r;
 	}
 	p(e) {
 		let t = 0;
 		for (let n of this._$AV) n !== void 0 && (n.strings === void 0 ? n._$AI(e[t]) : (n._$AI(e, n, t), t += n.strings.length - 2)), t++;
 	}
-}, H = class e {
+}, U = class e {
 	get _$AU() {
 		return this._$AM?._$AU ?? this._$Cv;
 	}
 	constructor(e, t, n, r) {
-		this.type = 2, this._$AH = I, this._$AN = void 0, this._$AA = e, this._$AB = t, this._$AM = n, this.options = r, this._$Cv = r?.isConnected ?? !0;
+		this.type = 2, this._$AH = L, this._$AN = void 0, this._$AA = e, this._$AB = t, this._$AM = n, this.options = r, this._$Cv = r?.isConnected ?? !0;
 	}
 	get parentNode() {
 		let e = this._$AA.parentNode, t = this._$AM;
@@ -376,7 +376,7 @@ var fe = class {
 		return this._$AB;
 	}
 	_$AI(e, t = this) {
-		e = V(this, e, t), E(e) ? e === I || e == null || e === "" ? (this._$AH !== I && this._$AR(), this._$AH = I) : e !== this._$AH && e !== F && this._(e) : e._$litType$ === void 0 ? e.nodeType === void 0 ? ce(e) ? this.k(e) : this._(e) : this.T(e) : this.$(e);
+		e = H(this, e, t), D(e) ? e === L || e == null || e === "" ? (this._$AH !== L && this._$AR(), this._$AH = L) : e !== this._$AH && e !== I && this._(e) : e._$litType$ === void 0 ? e.nodeType === void 0 ? se(e) ? this.k(e) : this._(e) : this.T(e) : this.$(e);
 	}
 	O(e) {
 		return this._$AA.parentNode.insertBefore(e, this._$AB);
@@ -385,36 +385,36 @@ var fe = class {
 		this._$AH !== e && (this._$AR(), this._$AH = this.O(e));
 	}
 	_(e) {
-		this._$AH !== I && E(this._$AH) ? this._$AA.nextSibling.data = e : this.T(w.createTextNode(e)), this._$AH = e;
+		this._$AH !== L && D(this._$AH) ? this._$AA.nextSibling.data = e : this.T(T.createTextNode(e)), this._$AH = e;
 	}
 	$(e) {
-		let { values: t, _$litType$: n } = e, r = typeof n == "number" ? this._$AC(e) : (n.el === void 0 && (n.el = B.createElement(z(n.h, n.h[0]), this.options)), n);
+		let { values: t, _$litType$: n } = e, r = typeof n == "number" ? this._$AC(e) : (n.el === void 0 && (n.el = V.createElement(B(n.h, n.h[0]), this.options)), n);
 		if (this._$AH?._$AD === r) this._$AH.p(t);
 		else {
-			let e = new fe(r, this), n = e.u(this.options);
+			let e = new de(r, this), n = e.u(this.options);
 			e.p(t), this.T(n), this._$AH = e;
 		}
 	}
 	_$AC(e) {
-		let t = L.get(e.strings);
-		return t === void 0 && L.set(e.strings, t = new B(e)), t;
+		let t = R.get(e.strings);
+		return t === void 0 && R.set(e.strings, t = new V(e)), t;
 	}
 	k(t) {
-		D(this._$AH) || (this._$AH = [], this._$AR());
+		O(this._$AH) || (this._$AH = [], this._$AR());
 		let n = this._$AH, r, i = 0;
-		for (let a of t) i === n.length ? n.push(r = new e(this.O(T()), this.O(T()), this, this.options)) : r = n[i], r._$AI(a), i++;
+		for (let a of t) i === n.length ? n.push(r = new e(this.O(E()), this.O(E()), this, this.options)) : r = n[i], r._$AI(a), i++;
 		i < n.length && (this._$AR(r && r._$AB.nextSibling, i), n.length = i);
 	}
 	_$AR(e = this._$AA.nextSibling, t) {
 		for (this._$AP?.(!1, !0, t); e !== this._$AB;) {
-			let t = oe(e).nextSibling;
-			oe(e).remove(), e = t;
+			let t = ae(e).nextSibling;
+			ae(e).remove(), e = t;
 		}
 	}
 	setConnected(e) {
 		this._$AM === void 0 && (this._$Cv = e, this._$AP?.(e));
 	}
-}, U = class {
+}, W = class {
 	get tagName() {
 		return this.element.tagName;
 	}
@@ -422,47 +422,47 @@ var fe = class {
 		return this._$AM._$AU;
 	}
 	constructor(e, t, n, r, i) {
-		this.type = 1, this._$AH = I, this._$AN = void 0, this.element = e, this.name = t, this._$AM = r, this.options = i, n.length > 2 || n[0] !== "" || n[1] !== "" ? (this._$AH = Array(n.length - 1).fill(/* @__PURE__ */ new String()), this.strings = n) : this._$AH = I;
+		this.type = 1, this._$AH = L, this._$AN = void 0, this.element = e, this.name = t, this._$AM = r, this.options = i, n.length > 2 || n[0] !== "" || n[1] !== "" ? (this._$AH = Array(n.length - 1).fill(/* @__PURE__ */ new String()), this.strings = n) : this._$AH = L;
 	}
 	_$AI(e, t = this, n, r) {
 		let i = this.strings, a = !1;
-		if (i === void 0) e = V(this, e, t, 0), a = !E(e) || e !== this._$AH && e !== F, a && (this._$AH = e);
+		if (i === void 0) e = H(this, e, t, 0), a = !D(e) || e !== this._$AH && e !== I, a && (this._$AH = e);
 		else {
 			let r = e, o, s;
-			for (e = i[0], o = 0; o < i.length - 1; o++) s = V(this, r[n + o], t, o), s === F && (s = this._$AH[o]), a ||= !E(s) || s !== this._$AH[o], s === I ? e = I : e !== I && (e += (s ?? "") + i[o + 1]), this._$AH[o] = s;
+			for (e = i[0], o = 0; o < i.length - 1; o++) s = H(this, r[n + o], t, o), s === I && (s = this._$AH[o]), a ||= !D(s) || s !== this._$AH[o], s === L ? e = L : e !== L && (e += (s ?? "") + i[o + 1]), this._$AH[o] = s;
 		}
 		a && !r && this.j(e);
 	}
 	j(e) {
-		e === I ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, e ?? "");
+		e === L ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, e ?? "");
 	}
-}, pe = class extends U {
+}, fe = class extends W {
 	constructor() {
 		super(...arguments), this.type = 3;
 	}
 	j(e) {
-		this.element[this.name] = e === I ? void 0 : e;
+		this.element[this.name] = e === L ? void 0 : e;
 	}
-}, me = class extends U {
+}, pe = class extends W {
 	constructor() {
 		super(...arguments), this.type = 4;
 	}
 	j(e) {
-		this.element.toggleAttribute(this.name, !!e && e !== I);
+		this.element.toggleAttribute(this.name, !!e && e !== L);
 	}
-}, he = class extends U {
+}, me = class extends W {
 	constructor(e, t, n, r, i) {
 		super(e, t, n, r, i), this.type = 5;
 	}
 	_$AI(e, t = this) {
-		if ((e = V(this, e, t, 0) ?? I) === F) return;
-		let n = this._$AH, r = e === I && n !== I || e.capture !== n.capture || e.once !== n.once || e.passive !== n.passive, i = e !== I && (n === I || r);
+		if ((e = H(this, e, t, 0) ?? L) === I) return;
+		let n = this._$AH, r = e === L && n !== L || e.capture !== n.capture || e.once !== n.once || e.passive !== n.passive, i = e !== L && (n === L || r);
 		r && this.element.removeEventListener(this.name, this, n), i && this.element.addEventListener(this.name, this, e), this._$AH = e;
 	}
 	handleEvent(e) {
 		typeof this._$AH == "function" ? this._$AH.call(this.options?.host ?? this.element, e) : this._$AH.handleEvent(e);
 	}
-}, ge = class {
+}, he = class {
 	constructor(e, t, n) {
 		this.element = e, this.type = 6, this._$AN = void 0, this._$AM = t, this.options = n;
 	}
@@ -470,18 +470,18 @@ var fe = class {
 		return this._$AM._$AU;
 	}
 	_$AI(e) {
-		V(this, e);
+		H(this, e);
 	}
-}, _e = v.litHtmlPolyfillSupport;
-_e?.(B, H), (v.litHtmlVersions ??= []).push("3.3.3");
-var ve = (e, t, n) => {
+}, ge = y.litHtmlPolyfillSupport;
+ge?.(V, U), (y.litHtmlVersions ??= []).push("3.3.3");
+var _e = (e, t, n) => {
 	let r = n?.renderBefore ?? t, i = r._$litPart$;
 	if (i === void 0) {
 		let e = n?.renderBefore ?? null;
-		r._$litPart$ = i = new H(t.insertBefore(T(), e), e, void 0, n ?? {});
+		r._$litPart$ = i = new U(t.insertBefore(E(), e), e, void 0, n ?? {});
 	}
 	return i._$AI(e), i;
-}, W = globalThis, G = class extends _ {
+}, G = globalThis, K = class extends v {
 	constructor() {
 		super(...arguments), this.renderOptions = { host: this }, this._$Do = void 0;
 	}
@@ -491,7 +491,7 @@ var ve = (e, t, n) => {
 	}
 	update(e) {
 		let t = this.render();
-		this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(e), this._$Do = ve(t, this.renderRoot, this.renderOptions);
+		this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(e), this._$Do = _e(t, this.renderRoot, this.renderOptions);
 	}
 	connectedCallback() {
 		super.connectedCallback(), this._$Do?.setConnected(!0);
@@ -500,15 +500,15 @@ var ve = (e, t, n) => {
 		super.disconnectedCallback(), this._$Do?.setConnected(!1);
 	}
 	render() {
-		return F;
+		return I;
 	}
 };
-G._$litElement$ = !0, G.finalized = !0, W.litElementHydrateSupport?.({ LitElement: G });
-var ye = W.litElementPolyfillSupport;
-ye?.({ LitElement: G }), (W.litElementVersions ??= []).push("4.2.2");
+K._$litElement$ = !0, K.finalized = !0, G.litElementHydrateSupport?.({ LitElement: K });
+var ve = G.litElementPolyfillSupport;
+ve?.({ LitElement: K }), (G.litElementVersions ??= []).push("4.2.2");
 //#endregion
 //#region src/localize/localize.ts
-var be = {
+var ye = {
 	en: {
 		dayOne: "day",
 		dayFew: "days",
@@ -544,21 +544,21 @@ var be = {
 		backendError: "Не удалось сохранить выполнение. Попробуйте ещё раз."
 	}
 };
-function K(e) {
+function q(e) {
 	return e?.toLowerCase().startsWith("ru") ? "ru" : "en";
 }
-function q(e, t) {
-	return be[K(e)][t];
-}
 function J(e, t) {
-	if (K(t) === "en") return Math.abs(e) === 1 ? "day" : "days";
+	return ye[q(e)][t];
+}
+function Y(e, t) {
+	if (q(t) === "en") return Math.abs(e) === 1 ? "day" : "days";
 	let n = Math.abs(e), r = n % 10, i = n % 100;
 	return r === 1 && i !== 11 ? "день" : r >= 2 && r <= 4 && (i < 12 || i > 14) ? "дня" : "дней";
 }
-function Y(e, t) {
-	return e === "overdue" ? q(t, "overdue") : e === "due" ? q(t, "due") : e === "warning" ? q(t, "warning") : q(t, "remaining");
+function X(e, t) {
+	return e === "overdue" ? J(t, "overdue") : e === "due" ? J(t, "due") : e === "warning" ? J(t, "warning") : J(t, "remaining");
 }
-function xe(e, t, n = !1) {
+function be(e, t, n = !1) {
 	let r = /* @__PURE__ */ new Date(`${e}T12:00:00`);
 	return Number.isNaN(r.getTime()) ? e : new Intl.DateTimeFormat(t || "en", {
 		weekday: "short",
@@ -572,7 +572,7 @@ function xe(e, t, n = !1) {
 }
 //#endregion
 //#region src/localize/editor.ts
-var Se = {
+var xe = {
 	integrationNotLoaded: "Cyclic Maintenance Countdown is not loaded. Add it in Settings → Devices & services, then refresh this page.",
 	changesSaved: "Task changes saved. You can close the card editor.",
 	taskCreated: "Task created",
@@ -582,7 +582,6 @@ var Se = {
 	deleteConfirm: (e) => `Delete “${e}”? Existing cards will remain and show that the task is missing.`,
 	taskDeleted: "Task deleted",
 	deleteFailed: "Could not delete task",
-	saveFirst: "Save the task first",
 	testSent: (e, t) => `Test sent: ${e}; failed: ${t}`,
 	testFailed: "Could not send test notification",
 	loading: "Loading tasks…",
@@ -590,6 +589,9 @@ var Se = {
 	task: "Task",
 	selectedTask: "Selected task",
 	createNewTask: "Create a new task",
+	chooseExistingTask: "Or use an existing task",
+	chooseTask: "Choose a task…",
+	missingTask: "The selected task no longer exists",
 	name: "Name",
 	namePlaceholder: "For example, Water filter",
 	icon: "Icon",
@@ -625,6 +627,7 @@ var Se = {
 	sendNotifications: "Send notifications",
 	persistentNotification: "Create a persistent Home Assistant notification",
 	notificationTargets: "Notification targets",
+	compatibilityTarget: (e, t) => `${e} — compatible action (${t})`,
 	unavailable: " — unavailable",
 	optionalTitle: "Optional title",
 	onWarning: "On entering warning",
@@ -645,7 +648,7 @@ var Se = {
 	saveTask: "Save task",
 	createTask: "Create task",
 	taskSaveHint: "Task data is saved separately from the card settings."
-}, Ce = {
+}, Se = {
 	integrationNotLoaded: "Интеграция Cyclic Maintenance Countdown не загружена. Добавьте её в Настройки → Устройства и службы и обновите страницу.",
 	changesSaved: "Изменения задачи сохранены. Редактор карточки можно закрыть.",
 	taskCreated: "Задача создана",
@@ -655,7 +658,6 @@ var Se = {
 	deleteConfirm: (e) => `Удалить задачу «${e}»? Карточки сохранятся и покажут, что задача не найдена.`,
 	taskDeleted: "Задача удалена",
 	deleteFailed: "Не удалось удалить задачу",
-	saveFirst: "Сначала сохраните задачу",
 	testSent: (e, t) => `Тест отправлен: ${e}; ошибок: ${t}`,
 	testFailed: "Не удалось отправить тестовое уведомление",
 	loading: "Загрузка задач…",
@@ -663,6 +665,9 @@ var Se = {
 	task: "Задача",
 	selectedTask: "Выбранная задача",
 	createNewTask: "Создать новую задачу",
+	chooseExistingTask: "Или использовать существующую задачу",
+	chooseTask: "Выберите задачу…",
+	missingTask: "Выбранная задача больше не существует",
 	name: "Название",
 	namePlaceholder: "Например, Заменить фильтр",
 	icon: "Иконка",
@@ -698,6 +703,7 @@ var Se = {
 	sendNotifications: "Отправлять уведомления",
 	persistentNotification: "Создавать постоянное уведомление Home Assistant",
 	notificationTargets: "Цели уведомлений",
+	compatibilityTarget: (e, t) => `${e} — совместимое действие (${t})`,
 	unavailable: " — недоступна",
 	optionalTitle: "Заголовок, необязательно",
 	onWarning: "При входе в warning",
@@ -719,12 +725,12 @@ var Se = {
 	createTask: "Создать задачу",
 	taskSaveHint: "Данные задачи сохраняются отдельно от настроек карточки."
 };
-function we(e) {
-	return K(e) === "ru" ? Ce : Se;
+function Ce(e) {
+	return q(e) === "ru" ? Se : xe;
 }
 //#endregion
 //#region src/cyclic-countdown-editor.ts
-var Te = {
+var we = {
 	type: "custom:cyclic-countdown-card",
 	style: "bar",
 	vertical_size: "standard",
@@ -735,17 +741,17 @@ var Te = {
 	tap_action: "more-info",
 	hold_action: "complete",
 	double_tap_action: "none"
-}, X = () => {
+}, Z = () => {
 	let e = /* @__PURE__ */ new Date();
 	return `${e.getFullYear()}-${String(e.getMonth() + 1).padStart(2, "0")}-${String(e.getDate()).padStart(2, "0")}`;
-}, Ee = /^[a-z0-9_-]+:[a-z0-9]+(?:-[a-z0-9]+)*$/, Z = (e) => {
+}, Te = /^[a-z0-9_-]+:[a-z0-9]+(?:-[a-z0-9]+)*$/, Q = (e) => {
 	let t = e.trim().toLowerCase().replace(/\s+/g, "-");
 	return t ? t.includes(":") ? t : `mdi:${t}` : "mdi:wrench-clock";
-}, Q = () => ({
+}, Ee = () => ({
 	name: "",
 	icon: "mdi:wrench-clock",
 	interval_days: 14,
-	last_completed_date: X(),
+	last_completed_date: Z(),
 	due_date: "",
 	warning_days: 1,
 	notifications_enabled: !1,
@@ -758,9 +764,9 @@ var Te = {
 	remaining_days: 14,
 	elapsed_progress: 0,
 	phase: "normal"
-}), De = class extends G {
+}), De = class extends K {
 	constructor(...e) {
-		super(...e), this._tasks = [], this._targets = [], this._draft = Q(), this._previewPhase = "auto", this._loading = !0, this._saving = !1, this._error = "", this._notice = "", this._loadFailed = !1;
+		super(...e), this._tasks = [], this._targets = [], this._draft = Ee(), this._previewPhase = "auto", this._loading = !0, this._saving = !1, this._testing = !1, this._iconPickerReady = !!customElements.get("ha-icon-picker"), this._error = "", this._notice = "", this._loadFailed = !1;
 	}
 	static {
 		this.properties = {
@@ -772,6 +778,8 @@ var Te = {
 			_previewPhase: { state: !0 },
 			_loading: { state: !0 },
 			_saving: { state: !0 },
+			_testing: { state: !0 },
+			_iconPickerReady: { state: !0 },
 			_error: { state: !0 },
 			_notice: { state: !0 },
 			_loadFailed: { state: !0 }
@@ -781,7 +789,7 @@ var Te = {
 		return this.hass?.locale?.language || this.hass?.language || navigator.language;
 	}
 	get s() {
-		return we(this.locale);
+		return Ce(this.locale);
 	}
 	get visibleTargets() {
 		let e = new Set(this._targets.map((e) => e.id)), t = this._draft.notification_targets.filter((t) => !e.has(t)).map((e) => ({
@@ -792,13 +800,21 @@ var Te = {
 		}));
 		return [...this._targets, ...t];
 	}
+	get draftInvalid() {
+		return !this._draft.name.trim() || !Te.test(this._draft.icon) || this._draft.interval_days < 1 || this._draft.warning_days < 0 || this._draft.warning_days > this._draft.interval_days || this._draft.notifications_enabled && !this._draft.notification_message.trim();
+	}
 	get saveDisabled() {
-		return this._saving || !this._draft.name.trim() || !Ee.test(this._draft.icon) || this._draft.interval_days < 1 || this._draft.warning_days < 0 || this._draft.warning_days > this._draft.interval_days || this._draft.notifications_enabled && !this._draft.notification_message.trim();
+		return this._saving || this.draftInvalid;
+	}
+	connectedCallback() {
+		super.connectedCallback(), this._iconPickerReady || customElements.whenDefined("ha-icon-picker").then(() => {
+			this._iconPickerReady = !0;
+		});
 	}
 	setConfig(e) {
 		let t = e.width, n = { ...e };
 		delete n.width, this._config = {
-			...Te,
+			...we,
 			...n,
 			vertical_size: e.vertical_size || t || "standard"
 		};
@@ -853,10 +869,7 @@ var Te = {
 	}
 	selectTask(e) {
 		let t = e.target.value;
-		if (t === "__new") {
-			this._draft = Q(), this.emitConfig({ task_id: void 0 });
-			return;
-		}
+		if (!t) return;
 		let n = this._tasks.find((e) => e.task_id === t);
 		n && (this._draft = {
 			...n,
@@ -895,7 +908,7 @@ var Te = {
 		let { name: e, icon: t, interval_days: n, last_completed_date: r, warning_days: i, notifications_enabled: a, persistent_notification_enabled: o, notification_targets: s, notification_title: c, notification_message: l, notify_on_warning: u, notify_on_due: d } = this._draft;
 		return {
 			name: e,
-			icon: Z(t),
+			icon: Q(t),
 			interval_days: n,
 			last_completed_date: r,
 			warning_days: i,
@@ -937,7 +950,7 @@ var Te = {
 			await this.hass.connection.sendMessagePromise({
 				type: "cyclic_countdown/tasks/delete",
 				task_id: this._draft.task_id
-			}), this._tasks = this._tasks.filter((e) => e.task_id !== this._draft.task_id), this._draft = Q(), this.emitConfig({ task_id: void 0 }), this._notice = this.s.taskDeleted;
+			}), this._tasks = this._tasks.filter((e) => e.task_id !== this._draft.task_id), this._draft = Ee(), this.emitConfig({ task_id: void 0 }), this._notice = this.s.taskDeleted;
 		} catch {
 			this._error = this.s.deleteFailed;
 		}
@@ -947,24 +960,25 @@ var Te = {
 		this.updateDraft("notification_targets", t.map((e) => e.value));
 	}
 	async testNotification() {
-		if (!this.hass || !this._draft.task_id) {
-			this._error = this.s.saveFirst;
-			return;
-		}
-		this._error = "";
-		try {
-			let e = await this.hass.connection.sendMessagePromise({
-				type: "cyclic_countdown/notifications/test",
-				task_id: this._draft.task_id,
-				targets: this._draft.notification_targets
-			});
-			this._notice = this.s.testSent(e.delivered.length, e.failed.length);
-		} catch {
-			this._error = this.s.testFailed;
+		if (!(!this.hass || this._testing || this.draftInvalid)) {
+			this._testing = !0, this._error = "", this._notice = "";
+			try {
+				let e = await this.hass.connection.sendMessagePromise({
+					type: "cyclic_countdown/notifications/test",
+					...this._draft.task_id ? { task_id: this._draft.task_id } : {},
+					...this.payload(),
+					targets: this._draft.notification_targets
+				});
+				this._notice = this.s.testSent(e.delivered.length, e.failed.length);
+			} catch {
+				this._error = this.s.testFailed;
+			} finally {
+				this._testing = !1;
+			}
 		}
 	}
 	get previewTask() {
-		let e = this.computedDueIso() === "—" ? X() : this.computedDueIso(), t = /* @__PURE__ */ new Date(`${e}T12:00:00`), n = /* @__PURE__ */ new Date(`${X()}T12:00:00`), r = Math.round((t.getTime() - n.getTime()) / 864e5), i = this._previewPhase === "auto" ? r : {
+		let e = this.computedDueIso() === "—" ? Z() : this.computedDueIso(), t = /* @__PURE__ */ new Date(`${e}T12:00:00`), n = /* @__PURE__ */ new Date(`${Z()}T12:00:00`), r = Math.round((t.getTime() - n.getTime()) / 864e5), i = this._previewPhase === "auto" ? r : {
 			normal: Math.max(this._draft.warning_days + 1, Math.ceil(this._draft.interval_days / 2)),
 			warning: Math.max(1, this._draft.warning_days || 1),
 			due: 0,
@@ -982,42 +996,62 @@ var Te = {
 		};
 	}
 	renderIconPicker() {
-		return customElements.get("ha-icon-picker") ? P`<ha-icon-picker
+		return this._iconPickerReady ? F`<ha-icon-picker
         .hass=${this.hass}
         .value=${this._draft.icon}
-        .invalid=${!Ee.test(this._draft.icon)}
+        .invalid=${!Te.test(this._draft.icon)}
         .errorMessage=${this.s.invalidIcon}
-        @value-changed=${(e) => this.updateDraft("icon", Z(e.detail.value))}
-      ></ha-icon-picker><small>${this.s.iconHint}</small>` : P`<input
+        @value-changed=${(e) => this.updateDraft("icon", Q(e.detail.value))}
+      ></ha-icon-picker><small>${this.s.iconHint}</small>` : F`<input
       .value=${this._draft.icon}
-      @change=${(e) => this.updateDraft("icon", Z(e.target.value))}
+      @change=${(e) => this.updateDraft("icon", Q(e.target.value))}
       placeholder="mdi:wrench-clock"
     /><small>${this.s.iconHint}</small>`;
 	}
+	renderTaskSelector() {
+		let e = this._config?.task_id;
+		if (!e) return F`
+        <div class="new-task-title">＋ ${this.s.createNewTask}</div>
+        ${this._tasks.length ? F`<label>${this.s.chooseExistingTask}
+          <select @change=${this.selectTask} .value=${""}>
+            <option value="" disabled>${this.s.chooseTask}</option>
+            ${this._tasks.map((e) => F`<option value=${e.task_id}>${e.name}</option>`)}
+          </select>
+        </label>` : L}
+      `;
+		let t = this._tasks.some((t) => t.task_id === e);
+		return F`<label>${this.s.selectedTask}
+      <select @change=${this.selectTask} .value=${e}>
+        ${t ? L : F`<option value=${e} disabled>${this.s.missingTask}</option>`}
+        ${this._tasks.map((e) => F`<option value=${e.task_id}>${e.name}</option>`)}
+      </select>
+    </label>`;
+	}
+	targetLabel(e) {
+		return e.kind === "legacy_service" ? this.s.compatibilityTarget(e.name, e.id) : e.name;
+	}
 	renderActionSelect(e, t) {
-		return P`<label>${e}<select
+		return F`<label>${e}<select
       .value=${this._config?.[t] || "none"}
       @change=${(e) => this.emitConfig({ [t]: e.target.value })}
     ><option value="complete">${this.s.complete}</option><option value="more-info">${this.s.moreInfo}</option><option value="none">${this.s.noAction}</option></select></label>`;
 	}
 	render() {
-		return this._config ? this._loading ? P`<div class="status">${this.s.loading}</div>` : this._loadFailed ? P`<div class="integration-error">${this._error}<button @click=${this.load}>${this.s.retry}</button></div>` : P`
-      ${this._error ? P`<div class="message error" role="alert">${this._error}</div>` : I}
-      ${this._notice ? P`<div class="message notice" role="status">${this._notice}</div>` : I}
+		return this._config ? this._loading ? F`
+      ${this._iconPickerReady ? F`<ha-icon-picker class="icon-preload" aria-hidden="true"></ha-icon-picker>` : L}
+      <div class="status">${this.s.loading}</div>
+    ` : this._loadFailed ? F`<div class="integration-error">${this._error}<button @click=${this.load}>${this.s.retry}</button></div>` : F`
+      ${this._error ? F`<div class="message error" role="alert">${this._error}</div>` : L}
+      ${this._notice ? F`<div class="message notice" role="status">${this._notice}</div>` : L}
 
       <section>
         <h3><ha-icon icon="mdi:calendar-sync"></ha-icon>${this.s.task}</h3>
-        <label>${this.s.selectedTask}
-          <select @change=${this.selectTask} .value=${this._config.task_id || "__new"}>
-            <option value="__new">＋ ${this.s.createNewTask}</option>
-            ${this._tasks.map((e) => P`<option value=${e.task_id}>${e.name}</option>`)}
-          </select>
-        </label>
+        ${this.renderTaskSelector()}
         <div class="grid">
           <label>${this.s.name}<input required maxlength="128" .value=${this._draft.name} @input=${(e) => this.input("name", e)} placeholder=${this.s.namePlaceholder} /></label>
           <label>${this.s.icon}${this.renderIconPicker()}</label>
           <label>${this.s.intervalDays}<input type="number" min="1" max="3650" .value=${String(this._draft.interval_days)} @input=${(e) => this.numberInput("interval_days", e)} /></label>
-          <label>${this.s.lastCompleted}<span class="inline-field"><input type="date" .value=${this._draft.last_completed_date} @input=${(e) => this.input("last_completed_date", e)} /><button @click=${() => this.updateDraft("last_completed_date", X())}>${this.s.today}</button></span></label>
+          <label>${this.s.lastCompleted}<span class="inline-field"><input type="date" .value=${this._draft.last_completed_date} @input=${(e) => this.input("last_completed_date", e)} /><button @click=${() => this.updateDraft("last_completed_date", Z())}>${this.s.today}</button></span></label>
           <label>${this.s.warningWindow}<input type="number" min="0" .max=${String(this._draft.interval_days)} .value=${String(this._draft.warning_days)} @input=${(e) => this.numberInput("warning_days", e)} /></label>
           <div class="due-preview"><span>${this.s.nextDueDate}</span><strong>${this.dueDate()}</strong></div>
         </div>
@@ -1026,7 +1060,7 @@ var Te = {
       <section>
         <h3><ha-icon icon="mdi:palette-outline"></ha-icon>${this.s.appearance}</h3>
         <div class="style-picker" role="radiogroup" aria-label=${this.s.styleAria}>
-          ${["bar", "fill"].map((e) => P`
+          ${["bar", "fill"].map((e) => F`
             <button class="style-option ${this._config?.style === e ? "selected" : ""}" @click=${() => this.emitConfig({ style: e })}>
               <span class="mini ${e}"><i></i><b></b><em></em></span>${e === "bar" ? this.s.bar : this.s.cardFill}
             </button>`)}
@@ -1037,7 +1071,7 @@ var Te = {
 			"compact",
 			"standard",
 			"wide"
-		].map((e) => P`<button
+		].map((e) => F`<button
               class=${this._config?.vertical_size === e ? "selected" : ""}
               @click=${() => this.selectVerticalSize(e)}
               aria-pressed=${this._config?.vertical_size === e ? "true" : "false"}
@@ -1069,8 +1103,8 @@ var Te = {
       <section>
         <h3><ha-icon icon="mdi:bell-outline"></ha-icon>${this.s.notifications}</h3>
         <label class="toggle"><input type="checkbox" .checked=${this._draft.notifications_enabled} @change=${(e) => this.boolInput("notifications_enabled", e)} /><span>${this.s.sendNotifications}</span></label>
-        ${this._draft.notifications_enabled ? P`
-          <label>${this.s.notificationTargets}<select multiple size="${Math.min(6, Math.max(3, this.visibleTargets.length))}" @change=${this.targetChanged}>${this.visibleTargets.map((e) => P`<option value=${e.id} ?selected=${this._draft.notification_targets.includes(e.id)}>${e.name}${e.available ? "" : this.s.unavailable}</option>`)}</select></label>
+        ${this._draft.notifications_enabled ? F`
+          <label>${this.s.notificationTargets}<select multiple size="${Math.min(6, Math.max(3, this.visibleTargets.length))}" @change=${this.targetChanged}>${this.visibleTargets.map((e) => F`<option value=${e.id} ?selected=${this._draft.notification_targets.includes(e.id)}>${this.targetLabel(e)}${e.available ? "" : this.s.unavailable}</option>`)}</select></label>
           <div class="grid">
             <label>${this.s.optionalTitle}<input .value=${this._draft.notification_title} @input=${(e) => this.input("notification_title", e)} /></label>
             <label class="toggle"><input type="checkbox" .checked=${this._draft.persistent_notification_enabled} @change=${(e) => this.boolInput("persistent_notification_enabled", e)} /><span>${this.s.persistentNotification}</span></label>
@@ -1078,17 +1112,17 @@ var Te = {
             <label class="toggle"><input type="checkbox" .checked=${this._draft.notify_on_due} @change=${(e) => this.boolInput("notify_on_due", e)} /><span>${this.s.onDue}</span></label>
           </div>
           <label>${this.s.message}<textarea required .value=${this._draft.notification_message} @input=${(e) => this.input("notification_message", e)}></textarea><small>${this.s.placeholders}: {name}, {days}, {due_date}</small></label>
-          <div class="notification-preview"><span>${this._draft.notification_title || this.s.notification}</span><p>${this._draft.notification_message.replaceAll("{name}", this._draft.name || this.s.previewTaskName).replaceAll("{days}", String(this.previewTask.remaining_days)).replaceAll("{due_date}", this.computedDueIso() === "—" ? X() : this.computedDueIso())}</p></div>
-          <button class="ghost" @click=${this.testNotification}>${this.s.sendTest}</button>
-        ` : I}
+          <div class="notification-preview"><span>${this._draft.notification_title || this.s.notification}</span><p>${this._draft.notification_message.replaceAll("{name}", this._draft.name || this.s.previewTaskName).replaceAll("{days}", String(this.previewTask.remaining_days)).replaceAll("{due_date}", this.computedDueIso() === "—" ? Z() : this.computedDueIso())}</p></div>
+          <button class="ghost" ?disabled=${this._testing || this.draftInvalid} @click=${this.testNotification}>${this.s.sendTest}</button>
+        ` : L}
       </section>
 
       <footer>
-        ${this._draft.task_id ? P`<button class="danger" @click=${this.deleteTask}>${this.s.deleteTask}</button>` : P`<span></span>`}
-        <button class="save" ?disabled=${this.saveDisabled} @click=${this.saveTask}>${this._saving ? this.s.saving : this._draft.task_id ? this.s.saveTask : this.s.createTask}</button>
+        ${this._draft.task_id ? F`<button class="danger" @click=${this.deleteTask}>${this.s.deleteTask}</button>` : F`<span></span>`}
+        ${this._config.task_id && !this._draft.task_id ? L : F`<button class="save" ?disabled=${this.saveDisabled} @click=${this.saveTask}>${this._saving ? this.s.saving : this._draft.task_id ? this.s.saveTask : this.s.createTask}</button>`}
       </footer>
       <small class="task-save-hint">${this.s.taskSaveHint}</small>
-    ` : I;
+    ` : L;
 	}
 	static {
 		this.styles = o`
@@ -1096,6 +1130,7 @@ var Te = {
     section { margin: 0 0 16px; padding: 16px; border: 1px solid var(--divider-color, rgba(127,127,127,.22)); border-radius: 18px; background: color-mix(in srgb, var(--secondary-background-color, transparent) 42%, transparent); }
     h3 { margin: 0 0 16px; display: flex; align-items: center; gap: 9px; font-size: 17px; }
     h3 ha-icon { color: var(--primary-color); --mdc-icon-size: 21px; }
+    .new-task-title { margin: 0 0 13px; color: var(--primary-text-color); font-size: 14px; font-weight: 700; }
     label { display: flex; flex-direction: column; gap: 7px; margin: 0 0 13px; color: var(--secondary-text-color); font-size: 12px; font-weight: 650; }
     input, select, textarea { box-sizing: border-box; width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--divider-color, #888); border-radius: 12px; color: var(--primary-text-color); background: var(--card-background-color, #fff); font: inherit; font-size: 14px; }
     input:focus, select:focus, textarea:focus, button:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
@@ -1143,6 +1178,7 @@ var Te = {
     .message, .integration-error, .status { margin-bottom: 14px; padding: 13px 15px; border-radius: 13px; font-size: 13px; }
     .message.error, .integration-error { background: color-mix(in srgb, var(--error-color, #d85f58) 14%, transparent); }
     .message.notice { background: color-mix(in srgb, var(--success-color, #43a66d) 14%, transparent); }
+    .icon-preload { position: fixed; width: 1px; height: 1px; visibility: hidden; pointer-events: none; }
     @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } .style-picker { grid-template-columns: 1fr; } footer { flex-wrap: wrap; } footer button { flex: 1; } }
   `;
 	}
@@ -1163,7 +1199,7 @@ var Oe = {
 }, ke = {
 	type: "custom:cyclic-countdown-card",
 	...Oe
-}, Ae = class extends G {
+}, Ae = class extends K {
 	constructor(...e) {
 		super(...e), this._config = { ...ke }, this._confirmOpen = !1, this._busy = !1, this._error = "", this._justCompleted = !1, this._held = !1;
 	}
@@ -1240,10 +1276,10 @@ var Oe = {
 	}
 	secondary(e) {
 		let t = this._config.secondary_info === "due_date";
-		return `${t ? q(this.locale, "dueDate") : q(this.locale, "lastCompleted")}: ${xe(t ? e.due_date : e.last_completed_date, this.locale)}`;
+		return `${t ? J(this.locale, "dueDate") : J(this.locale, "lastCompleted")}: ${be(t ? e.due_date : e.last_completed_date, this.locale)}`;
 	}
 	buildAriaLabel(e) {
-		return `${e.name}, ${Y(e.phase, this.locale)}, ${e.remaining_days} ${J(e.remaining_days, this.locale)}. ${this._config.tap_action === "complete" ? q(this.locale, "complete") : ""}`;
+		return `${e.name}, ${X(e.phase, this.locale)}, ${e.remaining_days} ${Y(e.remaining_days, this.locale)}. ${this._config.tap_action === "complete" ? J(this.locale, "complete") : ""}`;
 	}
 	pointerDown() {
 		this._held = !1, !(this._config.hold_action === "none" || this._busy || this.previewTask) && (this._holdTimer = window.setTimeout(() => {
@@ -1311,26 +1347,19 @@ var Oe = {
 				this._justCompleted = !1, this._optimisticTask = void 0;
 			}, 1800);
 		} catch {
-			this._optimisticTask = t, this._error = q(this.locale, "backendError");
+			this._optimisticTask = t, this._error = J(this.locale, "backendError");
 		} finally {
 			this._busy = !1;
 		}
 	}
-	configure(e) {
-		e.stopPropagation(), this.dispatchEvent(new CustomEvent("ll-edit-card", {
-			bubbles: !0,
-			composed: !0
-		}));
-	}
 	render() {
 		let e = this.task;
-		if (!e) return P`<ha-card class="missing">
+		if (!e) return F`<ha-card class="missing">
         <ha-icon icon="mdi:wrench-clock"></ha-icon>
-        <div><strong>${q(this.locale, "notFound")}</strong><small>cyclic_countdown</small></div>
-        <button @click=${this.configure}>${q(this.locale, "configure")}</button>
+        <div><strong>${J(this.locale, "notFound")}</strong><small>cyclic_countdown</small></div>
       </ha-card>`;
 		let t = `--progress:${this.progress}%;--accent:${this._config.accent_color || "var(--primary-color, #6d78e8)"}`;
-		return P`
+		return F`
       <ha-card
         class="card ${this._config.style} ${this._config.vertical_size} ${e.phase} ${this._justCompleted ? "just-completed" : ""}"
         style=${t}
@@ -1351,27 +1380,27 @@ var Oe = {
           <div class="details">
             <div class="title-row">
               <div class="title">${e.name}</div>
-              <span class="phase-label">${Y(e.phase, this.locale)}</span>
+              <span class="phase-label">${X(e.phase, this.locale)}</span>
             </div>
-            ${this._config.show_secondary ? P`<div class="secondary">${this.secondary(e)}</div>` : I}
-            ${this._config.style === "bar" ? P`<div class="track"><div class="bar-progress"></div></div>` : I}
+            ${this._config.show_secondary ? F`<div class="secondary">${this.secondary(e)}</div>` : L}
+            ${this._config.style === "bar" ? F`<div class="track"><div class="bar-progress"></div></div>` : L}
           </div>
           <div class="days">
             <strong>${e.remaining_days}</strong>
-            <span>${J(e.remaining_days, this.locale)}</span>
+            <span>${Y(e.remaining_days, this.locale)}</span>
           </div>
         </div>
-        ${this._error ? P`<div class="error" role="alert">${this._error}</div>` : I}
+        ${this._error ? F`<div class="error" role="alert">${this._error}</div>` : L}
       </ha-card>
       <dialog @cancel=${this.closeConfirm} @click=${(e) => {
 			e.target === e.currentTarget && this.closeConfirm();
 		}}>
         <div class="dialog-body">
-          <h2>${q(this.locale, "confirmTitle")}</h2>
+          <h2>${J(this.locale, "confirmTitle")}</h2>
           <p>${e.name} · ${this.secondary(e)}</p>
           <div class="dialog-actions">
-            <button class="secondary-button" @click=${this.closeConfirm}>${q(this.locale, "cancel")}</button>
-            <button class="primary-button" @click=${this.complete}>${q(this.locale, "complete")}</button>
+            <button class="secondary-button" @click=${this.closeConfirm}>${J(this.locale, "cancel")}</button>
+            <button class="primary-button" @click=${this.complete}>${J(this.locale, "complete")}</button>
           </div>
         </div>
       </dialog>

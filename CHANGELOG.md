@@ -2,6 +2,14 @@
 
 All notable changes to Cyclic Maintenance Countdown are documented here.
 
+## 0.2.2 — 2026-08-10
+
+- Keep task creation exclusive to new cards; existing cards now edit or switch between existing tasks without replacing their configured task with an empty draft.
+- Send test notifications from the current unsaved editor values while retaining compatibility with cached older frontend clients.
+- Hide legacy Mobile App notification actions only when Home Assistant can prove that a matching modern notify entity exists, and clearly label other compatible actions.
+- Preload Home Assistant's native icon picker so its complete search index is ready when creating the first task.
+- Remove the non-functional Configure button from missing-task cards.
+
 ## 0.2.1 — 2026-08-10
 
 - Keep card-picker metadata current after a frontend update without requiring a full Home Assistant restart.

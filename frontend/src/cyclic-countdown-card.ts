@@ -247,18 +247,12 @@ export class CyclicCountdownCard extends LitElement {
     }
   }
 
-  private configure(event: Event): void {
-    event.stopPropagation();
-    this.dispatchEvent(new CustomEvent("ll-edit-card", { bubbles: true, composed: true }));
-  }
-
   render() {
     const task = this.task;
     if (!task) {
       return html`<ha-card class="missing">
         <ha-icon icon="mdi:wrench-clock"></ha-icon>
         <div><strong>${t(this.locale, "notFound")}</strong><small>cyclic_countdown</small></div>
-        <button @click=${this.configure}>${t(this.locale, "configure")}</button>
       </ha-card>`;
     }
     const style = `--progress:${this.progress}%;--accent:${this._config.accent_color || "var(--primary-color, #6d78e8)"}`;

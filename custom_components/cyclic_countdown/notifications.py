@@ -8,6 +8,8 @@ from datetime import date
 from typing import Any
 
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
+from homeassistant.util import slugify
 
 from .models import CountdownTask, calculate_remaining_days, parse_date
 from .storage import TaskManager
@@ -19,6 +21,8 @@ _PLACEHOLDERS = {"name", "days", "due_date"}
 def list_notification_targets(hass: HomeAssistant) -> list[dict[str, Any]]:
     """List modern notify entities and compatible legacy notify actions."""
     targets: list[dict[str, Any]] = []
+    legacy_mobile_duplicates: set[str] = set()
+    registry = er.async_get(hass)
     for state in sorted(hass.states.async_all("notify"), key=lambda item: item.entity_id):
         targets.append(
             {
@@ -28,12 +32,27 @@ def list_notification_targets(hass: HomeAssistant) -> list[dict[str, Any]]:
                 "kind": "entity",
             }
         )
+        registry_entry = registry.async_get(state.entity_id)
+        if (
+            registry_entry is None
+            or registry_entry.platform != "mobile_app"
+            or registry_entry.config_entry_id is None
+        ):
+            continue
+        config_entry = hass.config_entries.async_get_entry(registry_entry.config_entry_id)
+        device_name = config_entry.data.get("device_name") if config_entry else None
+        if isinstance(device_name, str) and device_name:
+            legacy_mobile_duplicates.add(
+                f"notify.{slugify(f'mobile_app_{device_name}')}"
+            )
 
     services = hass.services.async_services().get("notify", {})
     ignored = {"send_message", "persistent_notification"}
     for service in sorted(set(services) - ignored):
         target_id = f"notify.{service}"
-        if any(item["id"] == target_id for item in targets):
+        if target_id in legacy_mobile_duplicates or any(
+            item["id"] == target_id for item in targets
+        ):
             continue
         targets.append(
             {
