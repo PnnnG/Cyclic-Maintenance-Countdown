@@ -2,6 +2,12 @@
 
 All notable changes to Cyclic Maintenance Countdown are documented here.
 
+## 0.1.5 — 2026-08-10
+
+- Migrate cards created with the original gesture defaults to tap for More info and hold for Complete.
+- Make Standard cards visibly compact with a fluid 28 rem cap while Wide cards use the full available container.
+- Request the native six-column standard and twelve-column wide spans in Home Assistant Sections views.
+
 ## 0.1.4 — 2026-08-10
 
 - Recalculate the live preview immediately from the edited completion date, interval, and warning window; keep manual phase simulation as an explicit preview mode.

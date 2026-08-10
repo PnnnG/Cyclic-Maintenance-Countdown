@@ -6,6 +6,7 @@ import type { CardConfig, HomeAssistant } from "../src/models/types";
 
 const config = (overrides: Partial<CardConfig> = {}): CardConfig => ({
   type: "custom:cyclic-countdown-card",
+  config_version: 2,
   task_id: "task-1",
   style: "bar",
   width: "standard",
@@ -83,6 +84,22 @@ describe("cyclic-countdown-card", () => {
     }));
   });
 
+  it("migrates the legacy default gestures without changing explicit new configs", () => {
+    card.setConfig({
+      type: "custom:cyclic-countdown-card",
+      tap_action: "complete",
+      hold_action: "more-info",
+    });
+    const migrated = card as unknown as { _config: CardConfig };
+    expect(migrated._config.tap_action).toBe("more-info");
+    expect(migrated._config.hold_action).toBe("complete");
+    expect(migrated._config.config_version).toBe(2);
+
+    card.setConfig(config({ tap_action: "complete", hold_action: "more-info" }));
+    expect(migrated._config.tap_action).toBe("complete");
+    expect(migrated._config.hold_action).toBe("more-info");
+  });
+
   it("renders a large day count instead of percent", async () => {
     await card.updateComplete;
     expect(card.shadowRoot?.querySelector(".days strong")?.textContent).toBe("13");
@@ -99,6 +116,13 @@ describe("cyclic-countdown-card", () => {
     card.setConfig(config({ width }));
     await card.updateComplete;
     expect(card.shadowRoot?.querySelector("ha-card")?.classList.contains(width)).toBe(true);
+  });
+
+  it("requests standard and wide Home Assistant grid spans", () => {
+    card.setConfig(config({ width: "standard" }));
+    expect(card.getGridOptions().columns).toBe(6);
+    card.setConfig(config({ width: "wide" }));
+    expect(card.getGridOptions().columns).toBe(12);
   });
 
   it("reverses only visual progress", async () => {

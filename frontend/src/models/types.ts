@@ -42,6 +42,7 @@ export interface CountdownTask {
 
 export interface CardConfig {
   type: "custom:cyclic-countdown-card";
+  config_version?: number;
   task_id?: string;
   style: CardStyle;
   width: CardWidth;

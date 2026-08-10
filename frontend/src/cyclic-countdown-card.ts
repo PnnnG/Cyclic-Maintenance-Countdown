@@ -12,6 +12,7 @@ import type {
 } from "./models/types";
 
 const DEFAULT_OPTIONS: Omit<CardConfig, "type"> = {
+  config_version: 2,
   style: "bar",
   width: "standard",
   reverse_progress: false,
@@ -62,9 +63,17 @@ export class CyclicCountdownCard extends LitElement {
 
   setConfig(config: Partial<CardConfig>): void {
     if (!config) throw new Error("Card configuration is required");
+    const migrateLegacyDefaults =
+      config.config_version === undefined &&
+      config.tap_action === "complete" &&
+      config.hold_action === "more-info";
     this._config = {
       ...DEFAULT_CONFIG,
       ...config,
+      ...(migrateLegacyDefaults
+        ? { tap_action: "more-info" as const, hold_action: "complete" as const }
+        : {}),
+      config_version: 2,
       type: "custom:cyclic-countdown-card",
     };
   }
@@ -75,8 +84,8 @@ export class CyclicCountdownCard extends LitElement {
 
   getGridOptions(): Record<string, number> {
     return this._config.width === "wide"
-      ? { rows: 2, columns: 6, min_rows: 2, min_columns: 4 }
-      : { rows: 2, columns: 4, min_rows: 2, min_columns: 3 };
+      ? { rows: 2, columns: 12, min_rows: 2, min_columns: 4 }
+      : { rows: 2, columns: 6, min_rows: 2, min_columns: 3 };
   }
 
   protected updated(changed: PropertyValues): void {
@@ -323,7 +332,7 @@ export class CyclicCountdownCard extends LitElement {
       backdrop-filter: var(--cyclic-countdown-backdrop-filter, var(--ha-card-backdrop-filter, none));
       transition: transform 180ms ease, box-shadow 180ms ease;
     }
-    .card.standard { width: min(100%, var(--cyclic-countdown-standard-width, 36rem)); margin-inline: auto; }
+    .card.standard { width: min(100%, var(--cyclic-countdown-standard-width, 28rem)); margin-inline: auto; }
     .card.wide { width: 100%; }
     .card:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 70%, white); outline-offset: 3px; }
     .card:active { transform: scale(.995); }

@@ -718,6 +718,7 @@ function Se(e) {
 //#region src/cyclic-countdown-editor.ts
 var Ce = {
 	type: "custom:cyclic-countdown-card",
+	config_version: 2,
 	style: "bar",
 	width: "standard",
 	reverse_progress: !1,
@@ -785,14 +786,20 @@ var Ce = {
 		return this._saving || !this._draft.name.trim() || this._draft.interval_days < 1 || this._draft.warning_days < 0 || this._draft.warning_days > this._draft.interval_days || this._draft.notifications_enabled && !this._draft.notification_message.trim();
 	}
 	setConfig(e) {
+		let t = e.config_version === void 0 && e.tap_action === "complete" && e.hold_action === "more-info";
 		this._config = {
 			...Ce,
-			...e
+			...e,
+			...t ? {
+				tap_action: "more-info",
+				hold_action: "complete"
+			} : {},
+			config_version: 2
 		};
-		let t = this._tasks.find((t) => t.task_id === e.task_id);
-		t && (this._draft = {
-			...t,
-			notification_targets: [...t.notification_targets]
+		let n = this._tasks.find((t) => t.task_id === e.task_id);
+		n && (this._draft = {
+			...n,
+			notification_targets: [...n.notification_targets]
 		});
 	}
 	updated(e) {
@@ -1113,6 +1120,7 @@ customElements.get("cyclic-countdown-editor") || customElements.define("cyclic-c
 //#endregion
 //#region src/cyclic-countdown-card.ts
 var Te = {
+	config_version: 2,
 	style: "bar",
 	width: "standard",
 	reverse_progress: !1,
@@ -1149,9 +1157,15 @@ var Te = {
 	}
 	setConfig(e) {
 		if (!e) throw Error("Card configuration is required");
+		let t = e.config_version === void 0 && e.tap_action === "complete" && e.hold_action === "more-info";
 		this._config = {
 			...Ee,
 			...e,
+			...t ? {
+				tap_action: "more-info",
+				hold_action: "complete"
+			} : {},
+			config_version: 2,
 			type: "custom:cyclic-countdown-card"
 		};
 	}
@@ -1161,12 +1175,12 @@ var Te = {
 	getGridOptions() {
 		return this._config.width === "wide" ? {
 			rows: 2,
-			columns: 6,
+			columns: 12,
 			min_rows: 2,
 			min_columns: 4
 		} : {
 			rows: 2,
-			columns: 4,
+			columns: 6,
 			min_rows: 2,
 			min_columns: 3
 		};
@@ -1354,7 +1368,7 @@ var Te = {
       backdrop-filter: var(--cyclic-countdown-backdrop-filter, var(--ha-card-backdrop-filter, none));
       transition: transform 180ms ease, box-shadow 180ms ease;
     }
-    .card.standard { width: min(100%, var(--cyclic-countdown-standard-width, 36rem)); margin-inline: auto; }
+    .card.standard { width: min(100%, var(--cyclic-countdown-standard-width, 28rem)); margin-inline: auto; }
     .card.wide { width: 100%; }
     .card:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 70%, white); outline-offset: 3px; }
     .card:active { transform: scale(.995); }
