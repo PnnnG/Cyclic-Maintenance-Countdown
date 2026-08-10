@@ -15,7 +15,7 @@ type Draft = Omit<CountdownTask, "task_id" | "cycle_id"> & { task_id?: string };
 const DEFAULT_CARD_CONFIG: CardConfig = {
   type: "custom:cyclic-countdown-card",
   style: "bar",
-  width: "standard",
+  vertical_size: "standard",
   reverse_progress: false,
   confirm_complete: true,
   show_secondary: true,
@@ -112,7 +112,16 @@ export class CyclicCountdownEditor extends LitElement {
   }
 
   setConfig(config: CardConfig): void {
-    this._config = { ...DEFAULT_CARD_CONFIG, ...config };
+    const legacyWidth = (config as CardConfig & { width?: "standard" | "wide" }).width;
+    const cleanConfig = { ...config } as CardConfig & {
+      width?: "standard" | "wide";
+    };
+    delete cleanConfig.width;
+    this._config = {
+      ...DEFAULT_CARD_CONFIG,
+      ...cleanConfig,
+      vertical_size: config.vertical_size || legacyWidth || "standard",
+    };
     const selected = this._tasks.find((task) => task.task_id === config.task_id);
     if (selected) this._draft = { ...selected, notification_targets: [...selected.notification_targets] };
   }
@@ -400,13 +409,13 @@ export class CyclicCountdownEditor extends LitElement {
               <span class="mini ${style}"><i></i><b></b><em></em></span>${style === "bar" ? this.s.bar : this.s.cardFill}
             </button>`)}
         </div>
-        <div class="width-field"><span>${this.s.width}</span>
-          <span class="width-picker" role="radiogroup" aria-label=${this.s.widthAria}>
-            ${(["standard", "wide"] as const).map((width) => html`<button
-              class=${this._config?.width === width ? "selected" : ""}
-              @click=${() => this.emitConfig({ width })}
-              aria-pressed=${this._config?.width === width ? "true" : "false"}
-            >${width === "standard" ? this.s.standardWidth : this.s.wideWidth}</button>`)}
+        <div class="size-field"><span>${this.s.verticalSize}</span>
+          <span class="size-picker" role="radiogroup" aria-label=${this.s.verticalSizeAria}>
+            ${(["standard", "wide"] as const).map((vertical_size) => html`<button
+              class=${this._config?.vertical_size === vertical_size ? "selected" : ""}
+              @click=${() => this.emitConfig({ vertical_size })}
+              aria-pressed=${this._config?.vertical_size === vertical_size ? "true" : "false"}
+            >${vertical_size === "standard" ? this.s.standardSize : this.s.wideSize}</button>`)}
           </span>
         </div>
         <div class="grid">
@@ -477,10 +486,10 @@ export class CyclicCountdownEditor extends LitElement {
     .due-preview span { color: var(--secondary-text-color); font-size: 11px; }
     .due-preview strong { font-size: 13px; }
     .style-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-    .width-field { display: flex; flex-direction: column; gap: 7px; margin: 0 0 13px; color: var(--secondary-text-color); font-size: 12px; font-weight: 650; }
-    .width-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .width-picker button { min-height: 40px; border: 1px solid var(--divider-color); font-size: 13px; }
-    .width-picker button.selected { border-color: var(--primary-color); color: var(--primary-color); background: color-mix(in srgb, var(--primary-color) 10%, var(--card-background-color)); }
+    .size-field { display: flex; flex-direction: column; gap: 7px; margin: 0 0 13px; color: var(--secondary-text-color); font-size: 12px; font-weight: 650; }
+    .size-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .size-picker button { min-height: 40px; border: 1px solid var(--divider-color); font-size: 13px; }
+    .size-picker button.selected { border-color: var(--primary-color); color: var(--primary-color); background: color-mix(in srgb, var(--primary-color) 10%, var(--card-background-color)); }
     button { min-height: 44px; border: 0; border-radius: 12px; padding: 9px 14px; font: inherit; font-weight: 650; cursor: pointer; color: var(--primary-text-color); background: var(--secondary-background-color, rgba(127,127,127,.12)); }
     button:disabled { opacity: .48; cursor: default; }
     .style-option { min-height: 88px; display: flex; flex-direction: column; gap: 8px; align-items: stretch; font-size: 12px; border: 2px solid transparent; }

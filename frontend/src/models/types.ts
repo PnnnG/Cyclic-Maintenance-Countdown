@@ -1,5 +1,5 @@
 export type CardStyle = "bar" | "fill";
-export type CardWidth = "standard" | "wide";
+export type CardVerticalSize = "standard" | "wide";
 export type CardAction = "complete" | "more-info" | "none";
 export type TaskPhase = "normal" | "warning" | "due" | "overdue";
 export type PreviewPhase = "auto" | TaskPhase;
@@ -44,7 +44,7 @@ export interface CardConfig {
   type: "custom:cyclic-countdown-card";
   task_id?: string;
   style: CardStyle;
-  width: CardWidth;
+  vertical_size: CardVerticalSize;
   reverse_progress: boolean;
   confirm_complete: boolean;
   show_secondary: boolean;

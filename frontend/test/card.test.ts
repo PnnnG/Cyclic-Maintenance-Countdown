@@ -8,7 +8,7 @@ const config = (overrides: Partial<CardConfig> = {}): CardConfig => ({
   type: "custom:cyclic-countdown-card",
   task_id: "task-1",
   style: "bar",
-  width: "standard",
+  vertical_size: "standard",
   reverse_progress: false,
   confirm_complete: true,
   show_secondary: true,
@@ -76,7 +76,7 @@ describe("cyclic-countdown-card", () => {
     expect(cardClass).toBeDefined();
     expect(cardClass?.getStubConfig()).not.toHaveProperty("type");
     expect(cardClass?.getStubConfig()).toEqual(expect.objectContaining({
-      width: "standard",
+      vertical_size: "standard",
       tap_action: "more-info",
       hold_action: "complete",
       double_tap_action: "none",
@@ -102,17 +102,26 @@ describe("cyclic-countdown-card", () => {
     expect(card.shadowRoot?.querySelector("ha-card")?.classList.contains(style)).toBe(true);
   });
 
-  it.each(["standard", "wide"] as const)("renders %s width", async (width) => {
-    card.setConfig(config({ width }));
+  it.each(["standard", "wide"] as const)("renders %s vertical size", async (vertical_size) => {
+    card.setConfig(config({ vertical_size }));
     await card.updateComplete;
-    expect(card.shadowRoot?.querySelector("ha-card")?.classList.contains(width)).toBe(true);
+    expect(card.shadowRoot?.querySelector("ha-card")?.classList.contains(vertical_size)).toBe(true);
   });
 
-  it("requests standard and wide Home Assistant grid spans", () => {
-    card.setConfig(config({ width: "standard" }));
+  it("uses natural standard height and a two-row wide height", () => {
+    card.setConfig(config({ vertical_size: "standard" }));
     expect(card.getGridOptions().columns).toBe(6);
-    card.setConfig(config({ width: "wide" }));
-    expect(card.getGridOptions().columns).toBe(12);
+    expect(card.getGridOptions().rows).toBeUndefined();
+    card.setConfig(config({ vertical_size: "wide" }));
+    expect(card.getGridOptions().columns).toBe(6);
+    expect(card.getGridOptions().rows).toBe(2);
+  });
+
+  it("maps the obsolete horizontal width setting to vertical size", () => {
+    card.setConfig({ type: "custom:cyclic-countdown-card", width: "wide" } as Partial<CardConfig>);
+    const configured = card as unknown as { _config: CardConfig & { width?: string } };
+    expect(configured._config.vertical_size).toBe("wide");
+    expect(configured._config.width).toBeUndefined();
   });
 
   it("reverses only visual progress", async () => {

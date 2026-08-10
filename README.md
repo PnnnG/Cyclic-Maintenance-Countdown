@@ -9,7 +9,7 @@ Each card displays one maintenance task. The backend is the single source of tru
 - Calendar-day countdown in the Home Assistant local timezone: `13`, `0`, `-1`, and so on without automatically rolling overdue tasks forward.
 - A new cycle always starts from the actual completion date.
 - Two responsive presentation styles: `bar` and `fill`.
-- Standard fluid and wide card layouts for dashboards of different density.
+- Standard compact and wide vertical card layouts.
 - Normal and reversed visual progress direction.
 - Explicit `normal`, `warning`, `due`, `overdue`, and short `just_completed` states.
 - Soft theme-aware gradients and breathing effects with a static reduced-motion fallback.
@@ -73,7 +73,7 @@ The graphical editor includes:
 - task name, MDI icon, interval, last completion date, and warning window;
 - calculated due-date preview before saving;
 - `bar` and `fill` style thumbnails;
-- standard/wide width, reverse progress, optional accent color, secondary-line controls, and live phase preview;
+- standard/wide vertical size, reverse progress, optional accent color, secondary-line controls, and live phase preview;
 - completion confirmation plus independent tap, hold, and double-tap actions;
 - notification enablement, multiple targets, persistent Home Assistant notifications, title, message, event selection, preview, and test delivery;
 - clear missing-integration, missing-task, unavailable-target, and backend-error states.
@@ -111,7 +111,7 @@ The visual editor is the primary configuration method. An equivalent portable co
 type: custom:cyclic-countdown-card
 task_id: 2f96074a-8a53-4b35-bb80-d8ce560cf888
 style: bar
-width: standard
+vertical_size: standard
 reverse_progress: false
 confirm_complete: true
 show_secondary: true
@@ -152,7 +152,6 @@ Optional fine-grained variables:
 - `--cyclic-countdown-icon-backdrop-filter`
 - `--cyclic-countdown-warning-color`
 - `--cyclic-countdown-danger-color`
-- `--cyclic-countdown-standard-width`
 
 These variables can be provided by a theme or card-mod. card-mod is not a required dependency.
 

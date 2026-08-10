@@ -13,7 +13,7 @@ import type {
 
 const DEFAULT_OPTIONS: Omit<CardConfig, "type"> = {
   style: "bar",
-  width: "standard",
+  vertical_size: "standard",
   reverse_progress: false,
   confirm_complete: true,
   show_secondary: true,
@@ -62,9 +62,15 @@ export class CyclicCountdownCard extends LitElement {
 
   setConfig(config: Partial<CardConfig>): void {
     if (!config) throw new Error("Card configuration is required");
+    const legacyWidth = (config as Partial<CardConfig> & { width?: "standard" | "wide" }).width;
+    const cleanConfig = { ...config } as Partial<CardConfig> & {
+      width?: "standard" | "wide";
+    };
+    delete cleanConfig.width;
     this._config = {
       ...DEFAULT_CONFIG,
-      ...config,
+      ...cleanConfig,
+      vertical_size: config.vertical_size || legacyWidth || "standard",
       type: "custom:cyclic-countdown-card",
     };
   }
@@ -74,9 +80,9 @@ export class CyclicCountdownCard extends LitElement {
   }
 
   getGridOptions(): Record<string, number> {
-    return this._config.width === "wide"
-      ? { rows: 2, columns: 12, min_rows: 2, min_columns: 4 }
-      : { rows: 2, columns: 6, min_rows: 2, min_columns: 3 };
+    return this._config.vertical_size === "wide"
+      ? { rows: 2, columns: 6, min_rows: 2, min_columns: 3 }
+      : { columns: 6, min_columns: 3 };
   }
 
   protected updated(changed: PropertyValues): void {
@@ -254,7 +260,7 @@ export class CyclicCountdownCard extends LitElement {
     const style = `--progress:${this.progress}%;--accent:${this._config.accent_color || "var(--primary-color, #6d78e8)"}`;
     return html`
       <ha-card
-        class="card ${this._config.style} ${this._config.width} ${task.phase} ${this._justCompleted ? "just-completed" : ""}"
+        class="card ${this._config.style} ${this._config.vertical_size} ${task.phase} ${this._justCompleted ? "just-completed" : ""}"
         style=${style}
         role="button"
         tabindex="0"
@@ -323,8 +329,14 @@ export class CyclicCountdownCard extends LitElement {
       backdrop-filter: var(--cyclic-countdown-backdrop-filter, var(--ha-card-backdrop-filter, none));
       transition: transform 180ms ease, box-shadow 180ms ease;
     }
-    .card.standard { width: min(100%, var(--cyclic-countdown-standard-width, 28rem)); margin-inline: auto; }
-    .card.wide { width: 100%; }
+    .card.standard { min-height: auto; }
+    .standard .content { min-height: 88px; padding: 9px 14px; grid-template-columns: 58px minmax(0,1fr) 70px; gap: 12px; }
+    .standard .icon-tile { width: 58px; height: 58px; border-radius: 18px; }
+    .standard .icon-tile ha-icon { --mdc-icon-size: 30px; }
+    .standard .title { font-size: 19px; }
+    .standard .secondary { margin-top: 3px; font-size: 13px; }
+    .standard .days strong { font-size: 40px; }
+    .standard .track { margin-top: 9px; }
     .card:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 70%, white); outline-offset: 3px; }
     .card:active { transform: scale(.995); }
     .bar { --cyclic-countdown-radius: max(var(--ha-card-border-radius, 30px), 30px); }

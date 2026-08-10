@@ -598,10 +598,10 @@ var be = {
 	nextDueDate: "Next due date",
 	appearance: "Appearance",
 	styleAria: "Card style",
-	width: "Card width",
-	widthAria: "Card width",
-	standardWidth: "Standard",
-	wideWidth: "Wide",
+	verticalSize: "Vertical card size",
+	verticalSizeAria: "Vertical card size",
+	standardSize: "Standard",
+	wideSize: "Wide",
 	bar: "Bar",
 	cardFill: "Card fill",
 	reverseProgress: "Reverse progress direction",
@@ -667,10 +667,10 @@ var be = {
 	nextDueDate: "Следующий срок",
 	appearance: "Внешний вид",
 	styleAria: "Стиль карточки",
-	width: "Ширина карточки",
-	widthAria: "Ширина карточки",
-	standardWidth: "Стандартная",
-	wideWidth: "Широкая",
+	verticalSize: "Размер карточки по вертикали",
+	verticalSizeAria: "Размер карточки по вертикали",
+	standardSize: "Стандартный",
+	wideSize: "Широкий",
 	bar: "Полоса",
 	cardFill: "Заливка карточки",
 	reverseProgress: "Обратное направление прогресса",
@@ -719,7 +719,7 @@ function Se(e) {
 var Ce = {
 	type: "custom:cyclic-countdown-card",
 	style: "bar",
-	width: "standard",
+	vertical_size: "standard",
 	reverse_progress: !1,
 	confirm_complete: !0,
 	show_secondary: !0,
@@ -785,14 +785,16 @@ var Ce = {
 		return this._saving || !this._draft.name.trim() || this._draft.interval_days < 1 || this._draft.warning_days < 0 || this._draft.warning_days > this._draft.interval_days || this._draft.notifications_enabled && !this._draft.notification_message.trim();
 	}
 	setConfig(e) {
-		this._config = {
+		let t = e.width, n = { ...e };
+		delete n.width, this._config = {
 			...Ce,
-			...e
+			...n,
+			vertical_size: e.vertical_size || t || "standard"
 		};
-		let t = this._tasks.find((t) => t.task_id === e.task_id);
-		t && (this._draft = {
-			...t,
-			notification_targets: [...t.notification_targets]
+		let r = this._tasks.find((t) => t.task_id === e.task_id);
+		r && (this._draft = {
+			...r,
+			notification_targets: [...r.notification_targets]
 		});
 	}
 	updated(e) {
@@ -999,13 +1001,13 @@ var Ce = {
               <span class="mini ${e}"><i></i><b></b><em></em></span>${e === "bar" ? this.s.bar : this.s.cardFill}
             </button>`)}
         </div>
-        <div class="width-field"><span>${this.s.width}</span>
-          <span class="width-picker" role="radiogroup" aria-label=${this.s.widthAria}>
+        <div class="size-field"><span>${this.s.verticalSize}</span>
+          <span class="size-picker" role="radiogroup" aria-label=${this.s.verticalSizeAria}>
             ${["standard", "wide"].map((e) => I`<button
-              class=${this._config?.width === e ? "selected" : ""}
-              @click=${() => this.emitConfig({ width: e })}
-              aria-pressed=${this._config?.width === e ? "true" : "false"}
-            >${e === "standard" ? this.s.standardWidth : this.s.wideWidth}</button>`)}
+              class=${this._config?.vertical_size === e ? "selected" : ""}
+              @click=${() => this.emitConfig({ vertical_size: e })}
+              aria-pressed=${this._config?.vertical_size === e ? "true" : "false"}
+            >${e === "standard" ? this.s.standardSize : this.s.wideSize}</button>`)}
           </span>
         </div>
         <div class="grid">
@@ -1078,10 +1080,10 @@ var Ce = {
     .due-preview span { color: var(--secondary-text-color); font-size: 11px; }
     .due-preview strong { font-size: 13px; }
     .style-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-    .width-field { display: flex; flex-direction: column; gap: 7px; margin: 0 0 13px; color: var(--secondary-text-color); font-size: 12px; font-weight: 650; }
-    .width-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .width-picker button { min-height: 40px; border: 1px solid var(--divider-color); font-size: 13px; }
-    .width-picker button.selected { border-color: var(--primary-color); color: var(--primary-color); background: color-mix(in srgb, var(--primary-color) 10%, var(--card-background-color)); }
+    .size-field { display: flex; flex-direction: column; gap: 7px; margin: 0 0 13px; color: var(--secondary-text-color); font-size: 12px; font-weight: 650; }
+    .size-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .size-picker button { min-height: 40px; border: 1px solid var(--divider-color); font-size: 13px; }
+    .size-picker button.selected { border-color: var(--primary-color); color: var(--primary-color); background: color-mix(in srgb, var(--primary-color) 10%, var(--card-background-color)); }
     button { min-height: 44px; border: 0; border-radius: 12px; padding: 9px 14px; font: inherit; font-weight: 650; cursor: pointer; color: var(--primary-text-color); background: var(--secondary-background-color, rgba(127,127,127,.12)); }
     button:disabled { opacity: .48; cursor: default; }
     .style-option { min-height: 88px; display: flex; flex-direction: column; gap: 8px; align-items: stretch; font-size: 12px; border: 2px solid transparent; }
@@ -1114,7 +1116,7 @@ customElements.get("cyclic-countdown-editor") || customElements.define("cyclic-c
 //#region src/cyclic-countdown-card.ts
 var Te = {
 	style: "bar",
-	width: "standard",
+	vertical_size: "standard",
 	reverse_progress: !1,
 	confirm_complete: !0,
 	show_secondary: !0,
@@ -1149,9 +1151,11 @@ var Te = {
 	}
 	setConfig(e) {
 		if (!e) throw Error("Card configuration is required");
-		this._config = {
+		let t = e.width, n = { ...e };
+		delete n.width, this._config = {
 			...Ee,
-			...e,
+			...n,
+			vertical_size: e.vertical_size || t || "standard",
 			type: "custom:cyclic-countdown-card"
 		};
 	}
@@ -1159,15 +1163,13 @@ var Te = {
 		return 2;
 	}
 	getGridOptions() {
-		return this._config.width === "wide" ? {
-			rows: 2,
-			columns: 12,
-			min_rows: 2,
-			min_columns: 4
-		} : {
+		return this._config.vertical_size === "wide" ? {
 			rows: 2,
 			columns: 6,
 			min_rows: 2,
+			min_columns: 3
+		} : {
+			columns: 6,
 			min_columns: 3
 		};
 	}
@@ -1289,7 +1291,7 @@ var Te = {
 		let t = `--progress:${this.progress}%;--accent:${this._config.accent_color || "var(--primary-color, #6d78e8)"}`;
 		return I`
       <ha-card
-        class="card ${this._config.style} ${this._config.width} ${e.phase} ${this._justCompleted ? "just-completed" : ""}"
+        class="card ${this._config.style} ${this._config.vertical_size} ${e.phase} ${this._justCompleted ? "just-completed" : ""}"
         style=${t}
         role="button"
         tabindex="0"
@@ -1354,8 +1356,14 @@ var Te = {
       backdrop-filter: var(--cyclic-countdown-backdrop-filter, var(--ha-card-backdrop-filter, none));
       transition: transform 180ms ease, box-shadow 180ms ease;
     }
-    .card.standard { width: min(100%, var(--cyclic-countdown-standard-width, 28rem)); margin-inline: auto; }
-    .card.wide { width: 100%; }
+    .card.standard { min-height: auto; }
+    .standard .content { min-height: 88px; padding: 9px 14px; grid-template-columns: 58px minmax(0,1fr) 70px; gap: 12px; }
+    .standard .icon-tile { width: 58px; height: 58px; border-radius: 18px; }
+    .standard .icon-tile ha-icon { --mdc-icon-size: 30px; }
+    .standard .title { font-size: 19px; }
+    .standard .secondary { margin-top: 3px; font-size: 13px; }
+    .standard .days strong { font-size: 40px; }
+    .standard .track { margin-top: 9px; }
     .card:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 70%, white); outline-offset: 3px; }
     .card:active { transform: scale(.995); }
     .bar { --cyclic-countdown-radius: max(var(--ha-card-border-radius, 30px), 30px); }

@@ -2,6 +2,12 @@
 
 All notable changes to Cyclic Maintenance Countdown are documented here.
 
+## 0.1.7 — 2026-08-10
+
+- Restore native Home Assistant horizontal card width.
+- Apply Standard and Wide to the vertical card size: Standard uses natural compact height, while Wide keeps the taller two-row layout.
+- Convert the short-lived `width` option from 0.1.4–0.1.6 to `vertical_size` without losing the selected value.
+
 ## 0.1.6 — 2026-08-10
 
 - Preserve the explicitly stored actions of existing cards during updates.
