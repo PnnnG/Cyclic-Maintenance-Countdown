@@ -2,13 +2,16 @@
 
 All notable changes to Cyclic Maintenance Countdown are documented here.
 
+## 0.2.1 — 2026-08-10
+
+- Keep card-picker metadata current after a frontend update without requiring a full Home Assistant restart.
+- Normalize manually entered icon names, accept Home Assistant custom icon sets, and surface validation errors in the editor.
+- Clarify that task data is saved separately from the Lovelace card configuration.
+
 ## 0.2.0 — 2026-08-10
 
 - Center the three height labels explicitly in their editor cells.
 - Use the native Home Assistant card radius instead of forcing larger Bar and Fill corner radii.
-- Keep card-picker metadata current after a frontend update without requiring a full Home Assistant restart.
-- Normalize manually entered icon names, accept Home Assistant custom icon sets, and surface validation errors in the editor.
-- Clarify that task data is saved separately from the Lovelace card configuration.
 
 ## 0.1.9 — 2026-08-10
 
