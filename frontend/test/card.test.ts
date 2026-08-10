@@ -60,10 +60,18 @@ describe("cyclic-countdown-card", () => {
     expect(window.customCards).toContainEqual(
       expect.objectContaining({
         type: "cyclic-countdown-card",
-        name: expect.any(String),
-        preview: true,
+        name: "Cyclic Maintenance Countdown",
+        preview: false,
       }),
     );
+  });
+
+  it("registers the element and returns a stub without the card type", () => {
+    const cardClass = customElements.get("cyclic-countdown-card") as
+      | (CustomElementConstructor & { getStubConfig(): Record<string, unknown> })
+      | undefined;
+    expect(cardClass).toBeDefined();
+    expect(cardClass?.getStubConfig()).not.toHaveProperty("type");
   });
 
   it("renders a large day count instead of percent", async () => {

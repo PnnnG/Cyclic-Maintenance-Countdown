@@ -10,8 +10,7 @@ import type {
   HomeAssistant,
 } from "./models/types";
 
-const DEFAULT_CONFIG: CardConfig = {
-  type: "custom:cyclic-countdown-card",
+const DEFAULT_OPTIONS: Omit<CardConfig, "type"> = {
   style: "bar",
   reverse_progress: false,
   confirm_complete: true,
@@ -19,6 +18,11 @@ const DEFAULT_CONFIG: CardConfig = {
   secondary_info: "last_completed",
   tap_action: "complete",
   hold_action: "more-info",
+};
+
+const DEFAULT_CONFIG: CardConfig = {
+  type: "custom:cyclic-countdown-card",
+  ...DEFAULT_OPTIONS,
 };
 
 export class CyclicCountdownCard extends LitElement {
@@ -48,8 +52,8 @@ export class CyclicCountdownCard extends LitElement {
     return document.createElement("cyclic-countdown-editor");
   }
 
-  static getStubConfig(): Partial<CardConfig> {
-    return { ...DEFAULT_CONFIG };
+  static getStubConfig(): Omit<CardConfig, "type"> {
+    return { ...DEFAULT_OPTIONS };
   }
 
   setConfig(config: Partial<CardConfig>): void {
@@ -358,15 +362,11 @@ if (!customElements.get("cyclic-countdown-card")) {
 
 window.customCards = window.customCards || [];
 if (!window.customCards.some((card) => card.type === "cyclic-countdown-card")) {
-  const language = document.documentElement.lang || navigator.language || "en";
-  const russian = language.toLowerCase().startsWith("ru");
   window.customCards.push({
     type: "cyclic-countdown-card",
-    name: russian ? "Циклическое обслуживание" : "Cyclic Maintenance Countdown",
-    description: russian
-      ? "Адаптивный счётчик дней до циклического обслуживания"
-      : "A theme-aware calendar-day maintenance countdown",
-    preview: true,
+    name: "Cyclic Maintenance Countdown",
+    description: "A theme-aware calendar-day maintenance countdown",
+    preview: false,
     documentationURL: "https://github.com/PnnnG/Cyclic-Maintenance-Countdown",
   });
 }

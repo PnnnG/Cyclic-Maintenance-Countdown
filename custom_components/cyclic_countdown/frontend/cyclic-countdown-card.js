@@ -254,34 +254,34 @@ var v = class extends HTMLElement {
 v.elementStyles = [], v.shadowRootOptions = { mode: "open" }, v[m("elementProperties")] = /* @__PURE__ */ new Map(), v[m("finalized")] = /* @__PURE__ */ new Map(), ie?.({ ReactiveElement: v }), (f.reactiveElementVersions ??= []).push("2.1.2");
 //#endregion
 //#region node_modules/.pnpm/lit-html@3.3.3/node_modules/lit-html/lit-html.js
-var y = globalThis, ae = (e) => e, b = y.trustedTypes, x = b ? b.createPolicy("lit-html", { createHTML: (e) => e }) : void 0, S = "$lit$", C = `lit$${Math.random().toFixed(9).slice(2)}$`, w = "?" + C, oe = `<${w}>`, T = document, E = () => T.createComment(""), D = (e) => e === null || typeof e != "object" && typeof e != "function", O = Array.isArray, se = (e) => O(e) || typeof e?.[Symbol.iterator] == "function", k = "[ 	\n\f\r]", A = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, j = /-->/g, ce = />/g, M = RegExp(`>|${k}(?:([^\\s"'>=/]+)(${k}*=${k}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`, "g"), le = /'/g, N = /"/g, P = /^(?:script|style|textarea|title)$/i, F = ((e) => (t, ...n) => ({
+var y = globalThis, ae = (e) => e, b = y.trustedTypes, x = b ? b.createPolicy("lit-html", { createHTML: (e) => e }) : void 0, S = "$lit$", C = `lit$${Math.random().toFixed(9).slice(2)}$`, w = "?" + C, oe = `<${w}>`, T = document, E = () => T.createComment(""), D = (e) => e === null || typeof e != "object" && typeof e != "function", O = Array.isArray, se = (e) => O(e) || typeof e?.[Symbol.iterator] == "function", k = "[ 	\n\f\r]", A = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, j = /-->/g, ce = />/g, M = RegExp(`>|${k}(?:([^\\s"'>=/]+)(${k}*=${k}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`, "g"), N = /'/g, P = /"/g, F = /^(?:script|style|textarea|title)$/i, I = ((e) => (t, ...n) => ({
 	_$litType$: e,
 	strings: t,
 	values: n
-}))(1), I = Symbol.for("lit-noChange"), L = Symbol.for("lit-nothing"), R = /* @__PURE__ */ new WeakMap(), z = T.createTreeWalker(T, 129);
-function B(e, t) {
+}))(1), L = Symbol.for("lit-noChange"), R = Symbol.for("lit-nothing"), z = /* @__PURE__ */ new WeakMap(), B = T.createTreeWalker(T, 129);
+function V(e, t) {
 	if (!O(e) || !e.hasOwnProperty("raw")) throw Error("invalid template strings array");
 	return x === void 0 ? t : x.createHTML(t);
 }
-var ue = (e, t) => {
+var le = (e, t) => {
 	let n = e.length - 1, r = [], i, a = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", o = A;
 	for (let t = 0; t < n; t++) {
 		let n = e[t], s, c, l = -1, u = 0;
-		for (; u < n.length && (o.lastIndex = u, c = o.exec(n), c !== null);) u = o.lastIndex, o === A ? c[1] === "!--" ? o = j : c[1] === void 0 ? c[2] === void 0 ? c[3] !== void 0 && (o = M) : (P.test(c[2]) && (i = RegExp("</" + c[2], "g")), o = M) : o = ce : o === M ? c[0] === ">" ? (o = i ?? A, l = -1) : c[1] === void 0 ? l = -2 : (l = o.lastIndex - c[2].length, s = c[1], o = c[3] === void 0 ? M : c[3] === "\"" ? N : le) : o === N || o === le ? o = M : o === j || o === ce ? o = A : (o = M, i = void 0);
+		for (; u < n.length && (o.lastIndex = u, c = o.exec(n), c !== null);) u = o.lastIndex, o === A ? c[1] === "!--" ? o = j : c[1] === void 0 ? c[2] === void 0 ? c[3] !== void 0 && (o = M) : (F.test(c[2]) && (i = RegExp("</" + c[2], "g")), o = M) : o = ce : o === M ? c[0] === ">" ? (o = i ?? A, l = -1) : c[1] === void 0 ? l = -2 : (l = o.lastIndex - c[2].length, s = c[1], o = c[3] === void 0 ? M : c[3] === "\"" ? P : N) : o === P || o === N ? o = M : o === j || o === ce ? o = A : (o = M, i = void 0);
 		let d = o === M && e[t + 1].startsWith("/>") ? " " : "";
 		a += o === A ? n + oe : l >= 0 ? (r.push(s), n.slice(0, l) + S + n.slice(l) + C + d) : n + C + (l === -2 ? t : d);
 	}
-	return [B(e, a + (e[n] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), r];
-}, V = class e {
+	return [V(e, a + (e[n] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), r];
+}, H = class e {
 	constructor({ strings: t, _$litType$: n }, r) {
 		let i;
 		this.parts = [];
-		let a = 0, o = 0, s = t.length - 1, c = this.parts, [l, u] = ue(t, n);
-		if (this.el = e.createElement(l, r), z.currentNode = this.el.content, n === 2 || n === 3) {
+		let a = 0, o = 0, s = t.length - 1, c = this.parts, [l, u] = le(t, n);
+		if (this.el = e.createElement(l, r), B.currentNode = this.el.content, n === 2 || n === 3) {
 			let e = this.el.content.firstChild;
 			e.replaceWith(...e.childNodes);
 		}
-		for (; (i = z.nextNode()) !== null && c.length < s;) {
+		for (; (i = B.nextNode()) !== null && c.length < s;) {
 			if (i.nodeType === 1) {
 				if (i.hasAttributes()) for (let e of i.getAttributeNames()) if (e.endsWith(S)) {
 					let t = u[o++], n = i.getAttribute(e).split(C), r = /([.?@])?(.*)/.exec(t);
@@ -290,17 +290,17 @@ var ue = (e, t) => {
 						index: a,
 						name: r[2],
 						strings: n,
-						ctor: r[1] === "." ? fe : r[1] === "?" ? pe : r[1] === "@" ? me : W
+						ctor: r[1] === "." ? de : r[1] === "?" ? fe : r[1] === "@" ? pe : G
 					}), i.removeAttribute(e);
 				} else e.startsWith(C) && (c.push({
 					type: 6,
 					index: a
 				}), i.removeAttribute(e));
-				if (P.test(i.tagName)) {
+				if (F.test(i.tagName)) {
 					let e = i.textContent.split(C), t = e.length - 1;
 					if (t > 0) {
 						i.textContent = b ? b.emptyScript : "";
-						for (let n = 0; n < t; n++) i.append(e[n], E()), z.nextNode(), c.push({
+						for (let n = 0; n < t; n++) i.append(e[n], E()), B.nextNode(), c.push({
 							type: 2,
 							index: ++a
 						});
@@ -326,12 +326,12 @@ var ue = (e, t) => {
 		return n.innerHTML = e, n;
 	}
 };
-function H(e, t, n = e, r) {
-	if (t === I) return t;
+function U(e, t, n = e, r) {
+	if (t === L) return t;
 	let i = r === void 0 ? n._$Cl : n._$Co?.[r], a = D(t) ? void 0 : t._$litDirective$;
-	return i?.constructor !== a && (i?._$AO?.(!1), a === void 0 ? i = void 0 : (i = new a(e), i._$AT(e, n, r)), r === void 0 ? n._$Cl = i : (n._$Co ??= [])[r] = i), i !== void 0 && (t = H(e, i._$AS(e, t.values), i, r)), t;
+	return i?.constructor !== a && (i?._$AO?.(!1), a === void 0 ? i = void 0 : (i = new a(e), i._$AT(e, n, r)), r === void 0 ? n._$Cl = i : (n._$Co ??= [])[r] = i), i !== void 0 && (t = U(e, i._$AS(e, t.values), i, r)), t;
 }
-var de = class {
+var ue = class {
 	constructor(e, t) {
 		this._$AV = [], this._$AN = void 0, this._$AD = e, this._$AM = t;
 	}
@@ -343,27 +343,27 @@ var de = class {
 	}
 	u(e) {
 		let { el: { content: t }, parts: n } = this._$AD, r = (e?.creationScope ?? T).importNode(t, !0);
-		z.currentNode = r;
-		let i = z.nextNode(), a = 0, o = 0, s = n[0];
+		B.currentNode = r;
+		let i = B.nextNode(), a = 0, o = 0, s = n[0];
 		for (; s !== void 0;) {
 			if (a === s.index) {
 				let t;
-				s.type === 2 ? t = new U(i, i.nextSibling, this, e) : s.type === 1 ? t = new s.ctor(i, s.name, s.strings, this, e) : s.type === 6 && (t = new he(i, this, e)), this._$AV.push(t), s = n[++o];
+				s.type === 2 ? t = new W(i, i.nextSibling, this, e) : s.type === 1 ? t = new s.ctor(i, s.name, s.strings, this, e) : s.type === 6 && (t = new me(i, this, e)), this._$AV.push(t), s = n[++o];
 			}
-			a !== s?.index && (i = z.nextNode(), a++);
+			a !== s?.index && (i = B.nextNode(), a++);
 		}
-		return z.currentNode = T, r;
+		return B.currentNode = T, r;
 	}
 	p(e) {
 		let t = 0;
 		for (let n of this._$AV) n !== void 0 && (n.strings === void 0 ? n._$AI(e[t]) : (n._$AI(e, n, t), t += n.strings.length - 2)), t++;
 	}
-}, U = class e {
+}, W = class e {
 	get _$AU() {
 		return this._$AM?._$AU ?? this._$Cv;
 	}
 	constructor(e, t, n, r) {
-		this.type = 2, this._$AH = L, this._$AN = void 0, this._$AA = e, this._$AB = t, this._$AM = n, this.options = r, this._$Cv = r?.isConnected ?? !0;
+		this.type = 2, this._$AH = R, this._$AN = void 0, this._$AA = e, this._$AB = t, this._$AM = n, this.options = r, this._$Cv = r?.isConnected ?? !0;
 	}
 	get parentNode() {
 		let e = this._$AA.parentNode, t = this._$AM;
@@ -376,7 +376,7 @@ var de = class {
 		return this._$AB;
 	}
 	_$AI(e, t = this) {
-		e = H(this, e, t), D(e) ? e === L || e == null || e === "" ? (this._$AH !== L && this._$AR(), this._$AH = L) : e !== this._$AH && e !== I && this._(e) : e._$litType$ === void 0 ? e.nodeType === void 0 ? se(e) ? this.k(e) : this._(e) : this.T(e) : this.$(e);
+		e = U(this, e, t), D(e) ? e === R || e == null || e === "" ? (this._$AH !== R && this._$AR(), this._$AH = R) : e !== this._$AH && e !== L && this._(e) : e._$litType$ === void 0 ? e.nodeType === void 0 ? se(e) ? this.k(e) : this._(e) : this.T(e) : this.$(e);
 	}
 	O(e) {
 		return this._$AA.parentNode.insertBefore(e, this._$AB);
@@ -385,19 +385,19 @@ var de = class {
 		this._$AH !== e && (this._$AR(), this._$AH = this.O(e));
 	}
 	_(e) {
-		this._$AH !== L && D(this._$AH) ? this._$AA.nextSibling.data = e : this.T(T.createTextNode(e)), this._$AH = e;
+		this._$AH !== R && D(this._$AH) ? this._$AA.nextSibling.data = e : this.T(T.createTextNode(e)), this._$AH = e;
 	}
 	$(e) {
-		let { values: t, _$litType$: n } = e, r = typeof n == "number" ? this._$AC(e) : (n.el === void 0 && (n.el = V.createElement(B(n.h, n.h[0]), this.options)), n);
+		let { values: t, _$litType$: n } = e, r = typeof n == "number" ? this._$AC(e) : (n.el === void 0 && (n.el = H.createElement(V(n.h, n.h[0]), this.options)), n);
 		if (this._$AH?._$AD === r) this._$AH.p(t);
 		else {
-			let e = new de(r, this), n = e.u(this.options);
+			let e = new ue(r, this), n = e.u(this.options);
 			e.p(t), this.T(n), this._$AH = e;
 		}
 	}
 	_$AC(e) {
-		let t = R.get(e.strings);
-		return t === void 0 && R.set(e.strings, t = new V(e)), t;
+		let t = z.get(e.strings);
+		return t === void 0 && z.set(e.strings, t = new H(e)), t;
 	}
 	k(t) {
 		O(this._$AH) || (this._$AH = [], this._$AR());
@@ -414,7 +414,7 @@ var de = class {
 	setConnected(e) {
 		this._$AM === void 0 && (this._$Cv = e, this._$AP?.(e));
 	}
-}, W = class {
+}, G = class {
 	get tagName() {
 		return this.element.tagName;
 	}
@@ -422,47 +422,47 @@ var de = class {
 		return this._$AM._$AU;
 	}
 	constructor(e, t, n, r, i) {
-		this.type = 1, this._$AH = L, this._$AN = void 0, this.element = e, this.name = t, this._$AM = r, this.options = i, n.length > 2 || n[0] !== "" || n[1] !== "" ? (this._$AH = Array(n.length - 1).fill(/* @__PURE__ */ new String()), this.strings = n) : this._$AH = L;
+		this.type = 1, this._$AH = R, this._$AN = void 0, this.element = e, this.name = t, this._$AM = r, this.options = i, n.length > 2 || n[0] !== "" || n[1] !== "" ? (this._$AH = Array(n.length - 1).fill(/* @__PURE__ */ new String()), this.strings = n) : this._$AH = R;
 	}
 	_$AI(e, t = this, n, r) {
 		let i = this.strings, a = !1;
-		if (i === void 0) e = H(this, e, t, 0), a = !D(e) || e !== this._$AH && e !== I, a && (this._$AH = e);
+		if (i === void 0) e = U(this, e, t, 0), a = !D(e) || e !== this._$AH && e !== L, a && (this._$AH = e);
 		else {
 			let r = e, o, s;
-			for (e = i[0], o = 0; o < i.length - 1; o++) s = H(this, r[n + o], t, o), s === I && (s = this._$AH[o]), a ||= !D(s) || s !== this._$AH[o], s === L ? e = L : e !== L && (e += (s ?? "") + i[o + 1]), this._$AH[o] = s;
+			for (e = i[0], o = 0; o < i.length - 1; o++) s = U(this, r[n + o], t, o), s === L && (s = this._$AH[o]), a ||= !D(s) || s !== this._$AH[o], s === R ? e = R : e !== R && (e += (s ?? "") + i[o + 1]), this._$AH[o] = s;
 		}
 		a && !r && this.j(e);
 	}
 	j(e) {
-		e === L ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, e ?? "");
+		e === R ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, e ?? "");
 	}
-}, fe = class extends W {
+}, de = class extends G {
 	constructor() {
 		super(...arguments), this.type = 3;
 	}
 	j(e) {
-		this.element[this.name] = e === L ? void 0 : e;
+		this.element[this.name] = e === R ? void 0 : e;
 	}
-}, pe = class extends W {
+}, fe = class extends G {
 	constructor() {
 		super(...arguments), this.type = 4;
 	}
 	j(e) {
-		this.element.toggleAttribute(this.name, !!e && e !== L);
+		this.element.toggleAttribute(this.name, !!e && e !== R);
 	}
-}, me = class extends W {
+}, pe = class extends G {
 	constructor(e, t, n, r, i) {
 		super(e, t, n, r, i), this.type = 5;
 	}
 	_$AI(e, t = this) {
-		if ((e = H(this, e, t, 0) ?? L) === I) return;
-		let n = this._$AH, r = e === L && n !== L || e.capture !== n.capture || e.once !== n.once || e.passive !== n.passive, i = e !== L && (n === L || r);
+		if ((e = U(this, e, t, 0) ?? R) === L) return;
+		let n = this._$AH, r = e === R && n !== R || e.capture !== n.capture || e.once !== n.once || e.passive !== n.passive, i = e !== R && (n === R || r);
 		r && this.element.removeEventListener(this.name, this, n), i && this.element.addEventListener(this.name, this, e), this._$AH = e;
 	}
 	handleEvent(e) {
 		typeof this._$AH == "function" ? this._$AH.call(this.options?.host ?? this.element, e) : this._$AH.handleEvent(e);
 	}
-}, he = class {
+}, me = class {
 	constructor(e, t, n) {
 		this.element = e, this.type = 6, this._$AN = void 0, this._$AM = t, this.options = n;
 	}
@@ -470,18 +470,18 @@ var de = class {
 		return this._$AM._$AU;
 	}
 	_$AI(e) {
-		H(this, e);
+		U(this, e);
 	}
-}, ge = y.litHtmlPolyfillSupport;
-ge?.(V, U), (y.litHtmlVersions ??= []).push("3.3.3");
-var _e = (e, t, n) => {
+}, he = y.litHtmlPolyfillSupport;
+he?.(H, W), (y.litHtmlVersions ??= []).push("3.3.3");
+var ge = (e, t, n) => {
 	let r = n?.renderBefore ?? t, i = r._$litPart$;
 	if (i === void 0) {
 		let e = n?.renderBefore ?? null;
-		r._$litPart$ = i = new U(t.insertBefore(E(), e), e, void 0, n ?? {});
+		r._$litPart$ = i = new W(t.insertBefore(E(), e), e, void 0, n ?? {});
 	}
 	return i._$AI(e), i;
-}, G = globalThis, K = class extends v {
+}, K = globalThis, q = class extends v {
 	constructor() {
 		super(...arguments), this.renderOptions = { host: this }, this._$Do = void 0;
 	}
@@ -491,7 +491,7 @@ var _e = (e, t, n) => {
 	}
 	update(e) {
 		let t = this.render();
-		this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(e), this._$Do = _e(t, this.renderRoot, this.renderOptions);
+		this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(e), this._$Do = ge(t, this.renderRoot, this.renderOptions);
 	}
 	connectedCallback() {
 		super.connectedCallback(), this._$Do?.setConnected(!0);
@@ -500,15 +500,15 @@ var _e = (e, t, n) => {
 		super.disconnectedCallback(), this._$Do?.setConnected(!1);
 	}
 	render() {
-		return I;
+		return L;
 	}
 };
-K._$litElement$ = !0, K.finalized = !0, G.litElementHydrateSupport?.({ LitElement: K });
-var ve = G.litElementPolyfillSupport;
-ve?.({ LitElement: K }), (G.litElementVersions ??= []).push("4.2.2");
+q._$litElement$ = !0, q.finalized = !0, K.litElementHydrateSupport?.({ LitElement: q });
+var _e = K.litElementPolyfillSupport;
+_e?.({ LitElement: q }), (K.litElementVersions ??= []).push("4.2.2");
 //#endregion
 //#region src/localize/localize.ts
-var ye = {
+var ve = {
 	en: {
 		dayOne: "day",
 		dayFew: "days",
@@ -544,21 +544,21 @@ var ye = {
 		backendError: "Не удалось сохранить выполнение. Попробуйте ещё раз."
 	}
 };
-function q(e) {
+function J(e) {
 	return e?.toLowerCase().startsWith("ru") ? "ru" : "en";
 }
-function J(e, t) {
-	return ye[q(e)][t];
-}
 function Y(e, t) {
-	if (q(t) === "en") return Math.abs(e) === 1 ? "day" : "days";
+	return ve[J(e)][t];
+}
+function X(e, t) {
+	if (J(t) === "en") return Math.abs(e) === 1 ? "day" : "days";
 	let n = Math.abs(e), r = n % 10, i = n % 100;
 	return r === 1 && i !== 11 ? "день" : r >= 2 && r <= 4 && (i < 12 || i > 14) ? "дня" : "дней";
 }
-function X(e, t) {
-	return e === "overdue" ? J(t, "overdue") : e === "due" ? J(t, "due") : e === "warning" ? J(t, "warning") : J(t, "remaining");
+function Z(e, t) {
+	return e === "overdue" ? Y(t, "overdue") : e === "due" ? Y(t, "due") : e === "warning" ? Y(t, "warning") : Y(t, "remaining");
 }
-function be(e, t, n = !1) {
+function ye(e, t, n = !1) {
 	let r = /* @__PURE__ */ new Date(`${e}T12:00:00`);
 	return Number.isNaN(r.getTime()) ? e : new Intl.DateTimeFormat(t || "en", {
 		weekday: "short",
@@ -572,7 +572,7 @@ function be(e, t, n = !1) {
 }
 //#endregion
 //#region src/localize/editor.ts
-var xe = {
+var be = {
 	integrationNotLoaded: "Cyclic Maintenance Countdown is not loaded. Add it in Settings → Devices & services, then refresh this page.",
 	changesSaved: "Changes saved",
 	taskCreated: "Task created",
@@ -629,7 +629,7 @@ var xe = {
 	saving: "Saving…",
 	saveTask: "Save task",
 	createTask: "Create task"
-}, Se = {
+}, xe = {
 	integrationNotLoaded: "Интеграция Cyclic Maintenance Countdown не загружена. Добавьте её в Настройки → Устройства и службы и обновите страницу.",
 	changesSaved: "Изменения сохранены",
 	taskCreated: "Задача создана",
@@ -687,12 +687,12 @@ var xe = {
 	saveTask: "Сохранить задачу",
 	createTask: "Создать задачу"
 };
-function Ce(e) {
-	return q(e) === "ru" ? Se : xe;
+function Se(e) {
+	return J(e) === "ru" ? xe : be;
 }
 //#endregion
 //#region src/cyclic-countdown-editor.ts
-var we = {
+var Ce = {
 	type: "custom:cyclic-countdown-card",
 	style: "bar",
 	reverse_progress: !1,
@@ -701,14 +701,14 @@ var we = {
 	secondary_info: "last_completed",
 	tap_action: "complete",
 	hold_action: "more-info"
-}, Z = () => {
+}, Q = () => {
 	let e = /* @__PURE__ */ new Date();
 	return `${e.getFullYear()}-${String(e.getMonth() + 1).padStart(2, "0")}-${String(e.getDate()).padStart(2, "0")}`;
-}, Q = () => ({
+}, $ = () => ({
 	name: "",
 	icon: "mdi:wrench-clock",
 	interval_days: 14,
-	last_completed_date: Z(),
+	last_completed_date: Q(),
 	due_date: "",
 	warning_days: 1,
 	notifications_enabled: !1,
@@ -720,9 +720,9 @@ var we = {
 	remaining_days: 14,
 	elapsed_progress: 0,
 	phase: "normal"
-}), Te = class extends K {
+}), we = class extends q {
 	constructor(...e) {
-		super(...e), this._tasks = [], this._targets = [], this._draft = Q(), this._previewPhase = "normal", this._loading = !0, this._saving = !1, this._error = "", this._notice = "", this._loadFailed = !1;
+		super(...e), this._tasks = [], this._targets = [], this._draft = $(), this._previewPhase = "normal", this._loading = !0, this._saving = !1, this._error = "", this._notice = "", this._loadFailed = !1;
 	}
 	static {
 		this.properties = {
@@ -743,7 +743,7 @@ var we = {
 		return this.hass?.locale?.language || this.hass?.language || navigator.language;
 	}
 	get s() {
-		return Ce(this.locale);
+		return Se(this.locale);
 	}
 	get visibleTargets() {
 		let e = new Set(this._targets.map((e) => e.id)), t = this._draft.notification_targets.filter((t) => !e.has(t)).map((e) => ({
@@ -759,7 +759,7 @@ var we = {
 	}
 	setConfig(e) {
 		this._config = {
-			...we,
+			...Ce,
 			...e
 		};
 		let t = this._tasks.find((t) => t.task_id === e.task_id);
@@ -805,7 +805,7 @@ var we = {
 	selectTask(e) {
 		let t = e.target.value;
 		if (t === "__new") {
-			this._draft = Q(), this.emitConfig({ task_id: void 0 });
+			this._draft = $(), this.emitConfig({ task_id: void 0 });
 			return;
 		}
 		let n = this._tasks.find((e) => e.task_id === t);
@@ -883,7 +883,7 @@ var we = {
 			await this.hass.connection.sendMessagePromise({
 				type: "cyclic_countdown/tasks/delete",
 				task_id: this._draft.task_id
-			}), this._tasks = this._tasks.filter((e) => e.task_id !== this._draft.task_id), this._draft = Q(), this.emitConfig({ task_id: void 0 }), this._notice = this.s.taskDeleted;
+			}), this._tasks = this._tasks.filter((e) => e.task_id !== this._draft.task_id), this._draft = $(), this.emitConfig({ task_id: void 0 }), this._notice = this.s.taskDeleted;
 		} catch {
 			this._error = this.s.deleteFailed;
 		}
@@ -920,7 +920,7 @@ var we = {
 			...this._draft,
 			task_id: this._draft.task_id || "preview",
 			name: this._draft.name || this.s.previewTaskName,
-			due_date: this.computedDueIso() === "—" ? Z() : this.computedDueIso(),
+			due_date: this.computedDueIso() === "—" ? Q() : this.computedDueIso(),
 			remaining_days: e,
 			elapsed_progress: Math.min(1, Math.max(0, (this._draft.interval_days - e) / this._draft.interval_days)),
 			phase: this._previewPhase,
@@ -928,30 +928,30 @@ var we = {
 		};
 	}
 	renderIconPicker() {
-		return customElements.get("ha-icon-picker") ? F`<ha-icon-picker
+		return customElements.get("ha-icon-picker") ? I`<ha-icon-picker
         .hass=${this.hass}
         .value=${this._draft.icon}
         @value-changed=${(e) => this.updateDraft("icon", e.detail.value)}
-      ></ha-icon-picker>` : F`<input value=${this._draft.icon} @input=${(e) => this.input("icon", e)} placeholder="mdi:wrench-clock" />`;
+      ></ha-icon-picker>` : I`<input value=${this._draft.icon} @input=${(e) => this.input("icon", e)} placeholder="mdi:wrench-clock" />`;
 	}
 	render() {
-		return this._config ? this._loading ? F`<div class="status">${this.s.loading}</div>` : this._loadFailed ? F`<div class="integration-error">${this._error}<button @click=${this.load}>${this.s.retry}</button></div>` : F`
-      ${this._error ? F`<div class="message error" role="alert">${this._error}</div>` : L}
-      ${this._notice ? F`<div class="message notice" role="status">${this._notice}</div>` : L}
+		return this._config ? this._loading ? I`<div class="status">${this.s.loading}</div>` : this._loadFailed ? I`<div class="integration-error">${this._error}<button @click=${this.load}>${this.s.retry}</button></div>` : I`
+      ${this._error ? I`<div class="message error" role="alert">${this._error}</div>` : R}
+      ${this._notice ? I`<div class="message notice" role="status">${this._notice}</div>` : R}
 
       <section>
         <h3><ha-icon icon="mdi:calendar-sync"></ha-icon>${this.s.task}</h3>
         <label>${this.s.selectedTask}
           <select @change=${this.selectTask} .value=${this._config.task_id || "__new"}>
             <option value="__new">＋ ${this.s.createNewTask}</option>
-            ${this._tasks.map((e) => F`<option value=${e.task_id}>${e.name}</option>`)}
+            ${this._tasks.map((e) => I`<option value=${e.task_id}>${e.name}</option>`)}
           </select>
         </label>
         <div class="grid">
           <label>${this.s.name}<input required maxlength="128" .value=${this._draft.name} @input=${(e) => this.input("name", e)} placeholder=${this.s.namePlaceholder} /></label>
           <label>${this.s.icon}${this.renderIconPicker()}</label>
           <label>${this.s.intervalDays}<input type="number" min="1" max="3650" .value=${String(this._draft.interval_days)} @input=${(e) => this.numberInput("interval_days", e)} /></label>
-          <label>${this.s.lastCompleted}<span class="inline-field"><input type="date" .value=${this._draft.last_completed_date} @input=${(e) => this.input("last_completed_date", e)} /><button @click=${() => this.updateDraft("last_completed_date", Z())}>${this.s.today}</button></span></label>
+          <label>${this.s.lastCompleted}<span class="inline-field"><input type="date" .value=${this._draft.last_completed_date} @input=${(e) => this.input("last_completed_date", e)} /><button @click=${() => this.updateDraft("last_completed_date", Q())}>${this.s.today}</button></span></label>
           <label>${this.s.warningWindow}<input type="number" min="0" .max=${String(this._draft.interval_days)} .value=${String(this._draft.warning_days)} @input=${(e) => this.numberInput("warning_days", e)} /></label>
           <div class="due-preview"><span>${this.s.nextDueDate}</span><strong>${this.dueDate()}</strong></div>
         </div>
@@ -960,7 +960,7 @@ var we = {
       <section>
         <h3><ha-icon icon="mdi:palette-outline"></ha-icon>${this.s.appearance}</h3>
         <div class="style-picker" role="radiogroup" aria-label=${this.s.styleAria}>
-          ${["bar", "fill"].map((e) => F`
+          ${["bar", "fill"].map((e) => I`
             <button class="style-option ${this._config?.style === e ? "selected" : ""}" @click=${() => this.emitConfig({ style: e })}>
               <span class="mini ${e}"><i></i><b></b><em></em></span>${e === "bar" ? this.s.bar : this.s.cardFill}
             </button>`)}
@@ -989,24 +989,24 @@ var we = {
       <section>
         <h3><ha-icon icon="mdi:bell-outline"></ha-icon>${this.s.notifications}</h3>
         <label class="toggle"><input type="checkbox" .checked=${this._draft.notifications_enabled} @change=${(e) => this.boolInput("notifications_enabled", e)} /><span>${this.s.sendNotifications}</span></label>
-        ${this._draft.notifications_enabled ? F`
-          <label>${this.s.notificationTargets}<select multiple size="${Math.min(6, Math.max(3, this.visibleTargets.length))}" @change=${this.targetChanged}>${this.visibleTargets.map((e) => F`<option value=${e.id} ?selected=${this._draft.notification_targets.includes(e.id)}>${e.name}${e.available ? "" : this.s.unavailable}</option>`)}</select></label>
+        ${this._draft.notifications_enabled ? I`
+          <label>${this.s.notificationTargets}<select multiple size="${Math.min(6, Math.max(3, this.visibleTargets.length))}" @change=${this.targetChanged}>${this.visibleTargets.map((e) => I`<option value=${e.id} ?selected=${this._draft.notification_targets.includes(e.id)}>${e.name}${e.available ? "" : this.s.unavailable}</option>`)}</select></label>
           <div class="grid">
             <label>${this.s.optionalTitle}<input .value=${this._draft.notification_title} @input=${(e) => this.input("notification_title", e)} /></label>
             <label class="toggle"><input type="checkbox" .checked=${this._draft.notify_on_warning} @change=${(e) => this.boolInput("notify_on_warning", e)} /><span>${this.s.onWarning}</span></label>
             <label class="toggle"><input type="checkbox" .checked=${this._draft.notify_on_due} @change=${(e) => this.boolInput("notify_on_due", e)} /><span>${this.s.onDue}</span></label>
           </div>
           <label>${this.s.message}<textarea required .value=${this._draft.notification_message} @input=${(e) => this.input("notification_message", e)}></textarea><small>${this.s.placeholders}: {name}, {days}, {due_date}</small></label>
-          <div class="notification-preview"><span>${this._draft.notification_title || this.s.notification}</span><p>${this._draft.notification_message.replaceAll("{name}", this._draft.name || this.s.previewTaskName).replaceAll("{days}", String(this.previewTask.remaining_days)).replaceAll("{due_date}", this.computedDueIso() === "—" ? Z() : this.computedDueIso())}</p></div>
+          <div class="notification-preview"><span>${this._draft.notification_title || this.s.notification}</span><p>${this._draft.notification_message.replaceAll("{name}", this._draft.name || this.s.previewTaskName).replaceAll("{days}", String(this.previewTask.remaining_days)).replaceAll("{due_date}", this.computedDueIso() === "—" ? Q() : this.computedDueIso())}</p></div>
           <button class="ghost" @click=${this.testNotification}>${this.s.sendTest}</button>
-        ` : L}
+        ` : R}
       </section>
 
       <footer>
-        ${this._draft.task_id ? F`<button class="danger" @click=${this.deleteTask}>${this.s.deleteTask}</button>` : F`<span></span>`}
+        ${this._draft.task_id ? I`<button class="danger" @click=${this.deleteTask}>${this.s.deleteTask}</button>` : I`<span></span>`}
         <button class="save" ?disabled=${this.saveDisabled} @click=${this.saveTask}>${this._saving ? this.s.saving : this._draft.task_id ? this.s.saveTask : this.s.createTask}</button>
       </footer>
-    ` : L;
+    ` : R;
 	}
 	static {
 		this.styles = o`
@@ -1057,11 +1057,10 @@ var we = {
   `;
 	}
 };
-customElements.get("cyclic-countdown-editor") || customElements.define("cyclic-countdown-editor", Te);
+customElements.get("cyclic-countdown-editor") || customElements.define("cyclic-countdown-editor", we);
 //#endregion
 //#region src/cyclic-countdown-card.ts
-var $ = {
-	type: "custom:cyclic-countdown-card",
+var Te = {
 	style: "bar",
 	reverse_progress: !1,
 	confirm_complete: !0,
@@ -1069,9 +1068,12 @@ var $ = {
 	secondary_info: "last_completed",
 	tap_action: "complete",
 	hold_action: "more-info"
-}, Ee = class extends K {
+}, Ee = {
+	type: "custom:cyclic-countdown-card",
+	...Te
+}, De = class extends q {
 	constructor(...e) {
-		super(...e), this._config = { ...$ }, this._confirmOpen = !1, this._busy = !1, this._error = "", this._justCompleted = !1, this._held = !1;
+		super(...e), this._config = { ...Ee }, this._confirmOpen = !1, this._busy = !1, this._error = "", this._justCompleted = !1, this._held = !1;
 	}
 	static {
 		this.properties = {
@@ -1089,12 +1091,12 @@ var $ = {
 		return document.createElement("cyclic-countdown-editor");
 	}
 	static getStubConfig() {
-		return { ...$ };
+		return { ...Te };
 	}
 	setConfig(e) {
 		if (!e) throw Error("Card configuration is required");
 		this._config = {
-			...$,
+			...Ee,
 			...e,
 			type: "custom:cyclic-countdown-card"
 		};
@@ -1136,10 +1138,10 @@ var $ = {
 	}
 	secondary(e) {
 		let t = this._config.secondary_info === "due_date";
-		return `${t ? J(this.locale, "dueDate") : J(this.locale, "lastCompleted")}: ${be(t ? e.due_date : e.last_completed_date, this.locale)}`;
+		return `${t ? Y(this.locale, "dueDate") : Y(this.locale, "lastCompleted")}: ${ye(t ? e.due_date : e.last_completed_date, this.locale)}`;
 	}
 	buildAriaLabel(e) {
-		return `${e.name}, ${X(e.phase, this.locale)}, ${e.remaining_days} ${Y(e.remaining_days, this.locale)}. ${this._config.tap_action === "complete" ? J(this.locale, "complete") : ""}`;
+		return `${e.name}, ${Z(e.phase, this.locale)}, ${e.remaining_days} ${X(e.remaining_days, this.locale)}. ${this._config.tap_action === "complete" ? Y(this.locale, "complete") : ""}`;
 	}
 	pointerDown() {
 		this._held = !1, this._config.hold_action !== "none" && (this._holdTimer = window.setTimeout(() => {
@@ -1192,7 +1194,7 @@ var $ = {
 				this._justCompleted = !1, this._optimisticTask = void 0;
 			}, 1800);
 		} catch {
-			this._optimisticTask = t, this._error = J(this.locale, "backendError");
+			this._optimisticTask = t, this._error = Y(this.locale, "backendError");
 		} finally {
 			this._busy = !1;
 		}
@@ -1205,13 +1207,13 @@ var $ = {
 	}
 	render() {
 		let e = this.task;
-		if (!e) return F`<ha-card class="missing">
+		if (!e) return I`<ha-card class="missing">
         <ha-icon icon="mdi:wrench-clock"></ha-icon>
-        <div><strong>${J(this.locale, "notFound")}</strong><small>cyclic_countdown</small></div>
-        <button @click=${this.configure}>${J(this.locale, "configure")}</button>
+        <div><strong>${Y(this.locale, "notFound")}</strong><small>cyclic_countdown</small></div>
+        <button @click=${this.configure}>${Y(this.locale, "configure")}</button>
       </ha-card>`;
 		let t = `--progress:${this.progress}%;--accent:${this._config.accent_color || "var(--primary-color, #6d78e8)"}`;
-		return F`
+		return I`
       <ha-card
         class="card ${this._config.style} ${e.phase} ${this._justCompleted ? "just-completed" : ""}"
         style=${t}
@@ -1232,27 +1234,27 @@ var $ = {
           <div class="details">
             <div class="title-row">
               <div class="title">${e.name}</div>
-              <span class="phase-label">${X(e.phase, this.locale)}</span>
+              <span class="phase-label">${Z(e.phase, this.locale)}</span>
             </div>
-            ${this._config.show_secondary ? F`<div class="secondary">${this.secondary(e)}</div>` : L}
-            ${this._config.style === "bar" ? F`<div class="track"><div class="bar-progress"></div></div>` : L}
+            ${this._config.show_secondary ? I`<div class="secondary">${this.secondary(e)}</div>` : R}
+            ${this._config.style === "bar" ? I`<div class="track"><div class="bar-progress"></div></div>` : R}
           </div>
           <div class="days">
             <strong>${e.remaining_days}</strong>
-            <span>${Y(e.remaining_days, this.locale)}</span>
+            <span>${X(e.remaining_days, this.locale)}</span>
           </div>
         </div>
-        ${this._error ? F`<div class="error" role="alert">${this._error}</div>` : L}
+        ${this._error ? I`<div class="error" role="alert">${this._error}</div>` : R}
       </ha-card>
       <dialog @cancel=${this.closeConfirm} @click=${(e) => {
 			e.target === e.currentTarget && this.closeConfirm();
 		}}>
         <div class="dialog-body">
-          <h2>${J(this.locale, "confirmTitle")}</h2>
+          <h2>${Y(this.locale, "confirmTitle")}</h2>
           <p>${e.name} · ${this.secondary(e)}</p>
           <div class="dialog-actions">
-            <button class="secondary-button" @click=${this.closeConfirm}>${J(this.locale, "cancel")}</button>
-            <button class="primary-button" @click=${this.complete}>${J(this.locale, "complete")}</button>
+            <button class="secondary-button" @click=${this.closeConfirm}>${Y(this.locale, "cancel")}</button>
+            <button class="primary-button" @click=${this.complete}>${Y(this.locale, "complete")}</button>
           </div>
         </div>
       </dialog>
@@ -1338,17 +1340,14 @@ var $ = {
   `;
 	}
 };
-if (customElements.get("cyclic-countdown-card") || customElements.define("cyclic-countdown-card", Ee), window.customCards = window.customCards || [], !window.customCards.some((e) => e.type === "cyclic-countdown-card")) {
-	let e = (document.documentElement.lang || navigator.language || "en").toLowerCase().startsWith("ru");
-	window.customCards.push({
-		type: "cyclic-countdown-card",
-		name: e ? "Циклическое обслуживание" : "Cyclic Maintenance Countdown",
-		description: e ? "Адаптивный счётчик дней до циклического обслуживания" : "A theme-aware calendar-day maintenance countdown",
-		preview: !0,
-		documentationURL: "https://github.com/PnnnG/Cyclic-Maintenance-Countdown"
-	});
-}
+customElements.get("cyclic-countdown-card") || customElements.define("cyclic-countdown-card", De), window.customCards = window.customCards || [], window.customCards.some((e) => e.type === "cyclic-countdown-card") || window.customCards.push({
+	type: "cyclic-countdown-card",
+	name: "Cyclic Maintenance Countdown",
+	description: "A theme-aware calendar-day maintenance countdown",
+	preview: !1,
+	documentationURL: "https://github.com/PnnnG/Cyclic-Maintenance-Countdown"
+});
 //#endregion
-export { Ee as CyclicCountdownCard };
+export { De as CyclicCountdownCard };
 
 //# sourceMappingURL=cyclic-countdown-card.js.map
