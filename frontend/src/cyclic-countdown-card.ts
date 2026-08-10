@@ -12,7 +12,6 @@ import type {
 } from "./models/types";
 
 const DEFAULT_OPTIONS: Omit<CardConfig, "type"> = {
-  config_version: 2,
   style: "bar",
   width: "standard",
   reverse_progress: false,
@@ -63,17 +62,9 @@ export class CyclicCountdownCard extends LitElement {
 
   setConfig(config: Partial<CardConfig>): void {
     if (!config) throw new Error("Card configuration is required");
-    const migrateLegacyDefaults =
-      config.config_version === undefined &&
-      config.tap_action === "complete" &&
-      config.hold_action === "more-info";
     this._config = {
       ...DEFAULT_CONFIG,
       ...config,
-      ...(migrateLegacyDefaults
-        ? { tap_action: "more-info" as const, hold_action: "complete" as const }
-        : {}),
-      config_version: 2,
       type: "custom:cyclic-countdown-card",
     };
   }

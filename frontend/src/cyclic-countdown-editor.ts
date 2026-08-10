@@ -14,7 +14,6 @@ type Draft = Omit<CountdownTask, "task_id" | "cycle_id"> & { task_id?: string };
 
 const DEFAULT_CARD_CONFIG: CardConfig = {
   type: "custom:cyclic-countdown-card",
-  config_version: 2,
   style: "bar",
   width: "standard",
   reverse_progress: false,
@@ -113,18 +112,7 @@ export class CyclicCountdownEditor extends LitElement {
   }
 
   setConfig(config: CardConfig): void {
-    const migrateLegacyDefaults =
-      config.config_version === undefined &&
-      config.tap_action === "complete" &&
-      config.hold_action === "more-info";
-    this._config = {
-      ...DEFAULT_CARD_CONFIG,
-      ...config,
-      ...(migrateLegacyDefaults
-        ? { tap_action: "more-info" as const, hold_action: "complete" as const }
-        : {}),
-      config_version: 2,
-    };
+    this._config = { ...DEFAULT_CARD_CONFIG, ...config };
     const selected = this._tasks.find((task) => task.task_id === config.task_id);
     if (selected) this._draft = { ...selected, notification_targets: [...selected.notification_targets] };
   }

@@ -718,7 +718,6 @@ function Se(e) {
 //#region src/cyclic-countdown-editor.ts
 var Ce = {
 	type: "custom:cyclic-countdown-card",
-	config_version: 2,
 	style: "bar",
 	width: "standard",
 	reverse_progress: !1,
@@ -786,20 +785,14 @@ var Ce = {
 		return this._saving || !this._draft.name.trim() || this._draft.interval_days < 1 || this._draft.warning_days < 0 || this._draft.warning_days > this._draft.interval_days || this._draft.notifications_enabled && !this._draft.notification_message.trim();
 	}
 	setConfig(e) {
-		let t = e.config_version === void 0 && e.tap_action === "complete" && e.hold_action === "more-info";
 		this._config = {
 			...Ce,
-			...e,
-			...t ? {
-				tap_action: "more-info",
-				hold_action: "complete"
-			} : {},
-			config_version: 2
+			...e
 		};
-		let n = this._tasks.find((t) => t.task_id === e.task_id);
-		n && (this._draft = {
-			...n,
-			notification_targets: [...n.notification_targets]
+		let t = this._tasks.find((t) => t.task_id === e.task_id);
+		t && (this._draft = {
+			...t,
+			notification_targets: [...t.notification_targets]
 		});
 	}
 	updated(e) {
@@ -1120,7 +1113,6 @@ customElements.get("cyclic-countdown-editor") || customElements.define("cyclic-c
 //#endregion
 //#region src/cyclic-countdown-card.ts
 var Te = {
-	config_version: 2,
 	style: "bar",
 	width: "standard",
 	reverse_progress: !1,
@@ -1157,15 +1149,9 @@ var Te = {
 	}
 	setConfig(e) {
 		if (!e) throw Error("Card configuration is required");
-		let t = e.config_version === void 0 && e.tap_action === "complete" && e.hold_action === "more-info";
 		this._config = {
 			...Ee,
 			...e,
-			...t ? {
-				tap_action: "more-info",
-				hold_action: "complete"
-			} : {},
-			config_version: 2,
 			type: "custom:cyclic-countdown-card"
 		};
 	}

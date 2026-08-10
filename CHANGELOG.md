@@ -2,6 +2,11 @@
 
 All notable changes to Cyclic Maintenance Countdown are documented here.
 
+## 0.1.6 — 2026-08-10
+
+- Preserve the explicitly stored actions of existing cards during updates.
+- Keep the new-card defaults at tap for More info, hold for Complete, and double tap for No action.
+
 ## 0.1.5 — 2026-08-10
 
 - Migrate cards created with the original gesture defaults to tap for More info and hold for Complete.

@@ -5,7 +5,6 @@ import type { HomeAssistant } from "../src/models/types";
 
 const config = {
   type: "custom:cyclic-countdown-card" as const,
-  config_version: 2,
   style: "bar" as const,
   width: "standard" as const,
   reverse_progress: false,
