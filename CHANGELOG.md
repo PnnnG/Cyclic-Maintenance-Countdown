@@ -2,6 +2,13 @@
 
 All notable changes to Cyclic Maintenance Countdown are documented here.
 
+## 0.2.3 — 2026-08-10
+
+- Replace the ambiguous new-task label with reversible New task and Existing task modes while preserving both the unsaved draft and selected existing task.
+- Keep existing-card editing focused on the current or another saved task without exposing task creation.
+- Refresh Home Assistant's native icon picker when its asynchronous icon index becomes available, fixing incomplete search while creating the first task.
+- Shorten the secondary line to a semantic icon and date while preserving the full label for assistive technology.
+
 ## 0.2.2 — 2026-08-10
 
 - Keep task creation exclusive to new cards; existing cards now edit or switch between existing tasks without replacing their configured task with an empty draft.

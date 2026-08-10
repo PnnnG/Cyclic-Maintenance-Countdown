@@ -143,6 +143,17 @@ describe("cyclic-countdown-card", () => {
     expect(card.shadowRoot?.querySelector(".content")?.textContent).not.toContain("13%");
   });
 
+  it("uses a compact completed label without consuming the secondary line", async () => {
+    card.setConfig(config({ secondary_info: "last_completed" }));
+    await card.updateComplete;
+    const secondary = card.shadowRoot?.querySelector(".secondary");
+    expect(secondary?.getAttribute("aria-label")).toContain("Выполнено");
+    expect(secondary?.textContent).not.toContain("Выполнено");
+    expect(secondary?.textContent).not.toContain("Последнее выполнение");
+    expect(secondary?.querySelector("ha-icon")?.getAttribute("icon")).toBe("mdi:history");
+    expect(secondary?.querySelector("time")?.getAttribute("datetime")).toBe("2026-08-09");
+  });
+
   it.each(["bar", "fill"] as const)("renders %s style", async (style) => {
     card.setConfig(config({ style }));
     await card.updateComplete;

@@ -49,19 +49,37 @@ describe("cyclic-countdown-editor", () => {
     updateComplete: Promise<unknown>;
   };
 
-  beforeEach(() => {
+  const mountEditor = (initialConfig = config) => {
     if (!customElements.get("ha-icon-picker")) {
-      customElements.define("ha-icon-picker", class extends HTMLElement {});
+      customElements.define("ha-icon-picker", class extends HTMLElement {
+        items: unknown[] = [];
+
+        connectedCallback() {
+          if (this.shadowRoot) return;
+          const root = this.attachShadow({ mode: "open" });
+          const generic = document.createElement("ha-generic-picker") as HTMLElement & {
+            getItems?: () => unknown[];
+            refreshItems?: ReturnType<typeof vi.fn>;
+          };
+          generic.getItems = () => this.items;
+          generic.refreshItems = vi.fn();
+          root.append(generic);
+        }
+      });
     }
     editor = document.createElement("cyclic-countdown-editor") as typeof editor;
-    editor.setConfig(config);
+    editor.setConfig(initialConfig);
     document.body.replaceChildren(editor);
+  };
+
+  beforeEach(() => {
+    mountEditor();
   });
 
   it.each([
-    ["ru", "Внешний вид", "Создать новую задачу"],
-    ["en", "Appearance", "Create a new task"],
-    ["de", "Appearance", "Create a new task"],
+    ["ru", "Внешний вид", "Новая задача"],
+    ["en", "Appearance", "New task"],
+    ["de", "Appearance", "New task"],
   ])("localizes the visual editor in %s", async (language, heading, create) => {
     editor.hass = {
       language,
@@ -105,7 +123,7 @@ describe("cyclic-countdown-editor", () => {
     expect((changed.mock.calls[0][0] as CustomEvent).detail.config.style).toBe("fill");
   });
 
-  it("creates tasks only for a new card and switches to an existing task directly", async () => {
+  it("switches between a new draft and an existing task without trapping or losing either", async () => {
     const request = vi.fn(async (message: Record<string, unknown>) => {
       if (message.type === "cyclic_countdown/tasks/list") return [task];
       return [];
@@ -119,21 +137,47 @@ describe("cyclic-countdown-editor", () => {
     const changed = vi.fn();
     editor.addEventListener("config-changed", changed);
 
+    const draftName = editor.shadowRoot?.querySelector<HTMLInputElement>('input[required]');
+    draftName!.value = "Draft filter";
+    draftName!.dispatchEvent(new Event("input"));
+    await editor.updateComplete;
+
+    const modeButtons = editor.shadowRoot?.querySelectorAll<HTMLButtonElement>(
+      ".task-mode-picker button",
+    );
+    expect(modeButtons).toHaveLength(2);
+    modeButtons?.[1].click();
+    await editor.updateComplete;
+
     const taskSelect = editor.shadowRoot?.querySelector<HTMLSelectElement>("section select");
     expect([...taskSelect!.options].map((option) => option.value)).toEqual(["", "task-1"]);
     taskSelect!.value = "task-1";
     taskSelect!.dispatchEvent(new Event("change"));
     await editor.updateComplete;
 
-    expect((changed.mock.calls[0][0] as CustomEvent).detail.config.task_id).toBe("task-1");
-    const selectedTaskSelect = editor.shadowRoot!.querySelectorAll<HTMLSelectElement>(
-      "section select",
-    )[0];
+    expect((changed.mock.calls.at(-1)?.[0] as CustomEvent).detail.config.task_id).toBe("task-1");
+    const selectedTaskSelect = editor.shadowRoot!.querySelector<HTMLSelectElement>("section select")!;
     expect([...selectedTaskSelect.options].map((option) => option.value)).toEqual(["task-1"]);
+
+    editor.shadowRoot?.querySelectorAll<HTMLButtonElement>(".task-mode-picker button")[0].click();
+    await editor.updateComplete;
+    expect(editor.shadowRoot?.querySelector<HTMLInputElement>('input[required]')?.value).toBe(
+      "Draft filter",
+    );
+    expect((changed.mock.calls.at(-1)?.[0] as CustomEvent).detail.config).not.toHaveProperty(
+      "task_id",
+    );
+
+    editor.shadowRoot?.querySelectorAll<HTMLButtonElement>(".task-mode-picker button")[1].click();
+    await editor.updateComplete;
+    expect(editor.shadowRoot?.querySelector<HTMLInputElement>('input[required]')?.value).toBe(
+      "Bacteria",
+    );
+    expect((changed.mock.calls.at(-1)?.[0] as CustomEvent).detail.config.task_id).toBe("task-1");
   });
 
   it("does not offer task creation while editing an existing card", async () => {
-    editor.setConfig({ ...config, task_id: task.task_id });
+    mountEditor({ ...config, task_id: task.task_id });
     editor.hass = {
       language: "en",
       states: {},
@@ -145,7 +189,8 @@ describe("cyclic-countdown-editor", () => {
     await settle(editor);
     const taskSelect = editor.shadowRoot?.querySelector<HTMLSelectElement>("section select");
     expect([...taskSelect!.options].map((option) => option.value)).toEqual(["task-1"]);
-    expect(editor.shadowRoot?.textContent).not.toContain("Create a new task");
+    expect(editor.shadowRoot?.querySelector(".task-mode-picker")).toBeNull();
+    expect(editor.shadowRoot?.textContent).not.toContain("New task");
   });
 
   it("writes the selected height into Home Assistant grid options without changing columns", async () => {
@@ -250,7 +295,7 @@ describe("cyclic-countdown-editor", () => {
   });
 
   it("normalizes a typed icon name and saves an existing task", async () => {
-    editor.setConfig({ ...config, task_id: task.task_id });
+    mountEditor({ ...config, task_id: task.task_id });
     const request = vi.fn(async (message: Record<string, unknown>) => {
       if (message.type === "cyclic_countdown/tasks/list") return [task];
       if (message.type === "cyclic_countdown/notification_targets/list") return [];
@@ -292,7 +337,7 @@ describe("cyclic-countdown-editor", () => {
       notification_targets: ["notify.ipad"],
       notification_message: "Old message",
     };
-    editor.setConfig({ ...config, task_id: task.task_id });
+    mountEditor({ ...config, task_id: task.task_id });
     const request = vi.fn(async (message: Record<string, unknown>) => {
       if (message.type === "cyclic_countdown/tasks/list") return [notificationTask];
       if (message.type === "cyclic_countdown/notification_targets/list") {
@@ -354,5 +399,35 @@ describe("cyclic-countdown-editor", () => {
     await editor.updateComplete;
 
     expect(picker.value).toBe("mdi:water-pump");
+  });
+
+  it("refreshes the native icon list when its asynchronous index becomes ready", async () => {
+    editor.hass = {
+      language: "en",
+      states: {},
+      connection: {
+        sendMessagePromise: vi.fn(async () => []) as unknown as HomeAssistant["connection"]["sendMessagePromise"],
+      },
+    };
+    await settle(editor);
+    const picker = editor.shadowRoot?.querySelector("ha-icon-picker") as HTMLElement & {
+      items: unknown[];
+    };
+    const generic = picker.shadowRoot?.querySelector("ha-generic-picker") as HTMLElement & {
+      refreshItems: ReturnType<typeof vi.fn>;
+    };
+    vi.useFakeTimers();
+    try {
+      picker.dispatchEvent(new CustomEvent("picker-opened"));
+      expect(generic.refreshItems).not.toHaveBeenCalled();
+
+      picker.items = ["mdi:bacteria"];
+      await vi.advanceTimersByTimeAsync(100);
+
+      expect(generic.refreshItems).toHaveBeenCalledOnce();
+      picker.dispatchEvent(new CustomEvent("picker-closed"));
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

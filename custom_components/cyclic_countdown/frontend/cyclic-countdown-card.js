@@ -58,7 +58,7 @@ var e = globalThis, t = e.ShadowRoot && (e.ShadyCSS === void 0 || e.ShadyCSS.nat
 		}
 		return n;
 	}
-}, g = (e, t) => !l(e, t), _ = {
+}, g = (e, t) => !l(e, t), ae = {
 	attribute: !0,
 	type: String,
 	converter: h,
@@ -67,14 +67,14 @@ var e = globalThis, t = e.ShadowRoot && (e.ShadyCSS === void 0 || e.ShadyCSS.nat
 	hasChanged: g
 };
 Symbol.metadata ??= Symbol("metadata"), f.litPropertyMetadata ??= /* @__PURE__ */ new WeakMap();
-var v = class extends HTMLElement {
+var _ = class extends HTMLElement {
 	static addInitializer(e) {
 		this._$Ei(), (this.l ??= []).push(e);
 	}
 	static get observedAttributes() {
 		return this.finalize(), this._$Eh && [...this._$Eh.keys()];
 	}
-	static createProperty(e, t = _) {
+	static createProperty(e, t = ae) {
 		if (t.state && (t.attribute = !1), this._$Ei(), this.prototype.hasOwnProperty(e) && ((t = Object.create(t)).wrapped = !0), this.elementProperties.set(e, t), !t.noAccessor) {
 			let n = Symbol(), r = this.getPropertyDescriptor(e, n, t);
 			r !== void 0 && u(this.prototype, e, r);
@@ -100,7 +100,7 @@ var v = class extends HTMLElement {
 		};
 	}
 	static getPropertyOptions(e) {
-		return this.elementProperties.get(e) ?? _;
+		return this.elementProperties.get(e) ?? ae;
 	}
 	static _$Ei() {
 		if (this.hasOwnProperty(m("elementProperties"))) return;
@@ -251,87 +251,87 @@ var v = class extends HTMLElement {
 	updated(e) {}
 	firstUpdated(e) {}
 };
-v.elementStyles = [], v.shadowRootOptions = { mode: "open" }, v[m("elementProperties")] = /* @__PURE__ */ new Map(), v[m("finalized")] = /* @__PURE__ */ new Map(), ie?.({ ReactiveElement: v }), (f.reactiveElementVersions ??= []).push("2.1.2");
+_.elementStyles = [], _.shadowRootOptions = { mode: "open" }, _[m("elementProperties")] = /* @__PURE__ */ new Map(), _[m("finalized")] = /* @__PURE__ */ new Map(), ie?.({ ReactiveElement: _ }), (f.reactiveElementVersions ??= []).push("2.1.2");
 //#endregion
 //#region node_modules/.pnpm/lit-html@3.3.3/node_modules/lit-html/lit-html.js
-var y = globalThis, ae = (e) => e, b = y.trustedTypes, x = b ? b.createPolicy("lit-html", { createHTML: (e) => e }) : void 0, S = "$lit$", C = `lit$${Math.random().toFixed(9).slice(2)}$`, w = "?" + C, oe = `<${w}>`, T = document, E = () => T.createComment(""), D = (e) => e === null || typeof e != "object" && typeof e != "function", O = Array.isArray, se = (e) => O(e) || typeof e?.[Symbol.iterator] == "function", k = "[ 	\n\f\r]", A = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, j = /-->/g, ce = />/g, M = RegExp(`>|${k}(?:([^\\s"'>=/]+)(${k}*=${k}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`, "g"), le = /'/g, N = /"/g, P = /^(?:script|style|textarea|title)$/i, F = ((e) => (t, ...n) => ({
+var v = globalThis, oe = (e) => e, y = v.trustedTypes, b = y ? y.createPolicy("lit-html", { createHTML: (e) => e }) : void 0, x = "$lit$", S = `lit$${Math.random().toFixed(9).slice(2)}$`, C = "?" + S, se = `<${C}>`, w = document, T = () => w.createComment(""), E = (e) => e === null || typeof e != "object" && typeof e != "function", D = Array.isArray, ce = (e) => D(e) || typeof e?.[Symbol.iterator] == "function", O = "[ 	\n\f\r]", k = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, le = /-->/g, ue = />/g, A = RegExp(`>|${O}(?:([^\\s"'>=/]+)(${O}*=${O}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`, "g"), de = /'/g, fe = /"/g, j = /^(?:script|style|textarea|title)$/i, M = ((e) => (t, ...n) => ({
 	_$litType$: e,
 	strings: t,
 	values: n
-}))(1), I = Symbol.for("lit-noChange"), L = Symbol.for("lit-nothing"), R = /* @__PURE__ */ new WeakMap(), z = T.createTreeWalker(T, 129);
-function B(e, t) {
-	if (!O(e) || !e.hasOwnProperty("raw")) throw Error("invalid template strings array");
-	return x === void 0 ? t : x.createHTML(t);
+}))(1), N = Symbol.for("lit-noChange"), P = Symbol.for("lit-nothing"), F = /* @__PURE__ */ new WeakMap(), I = w.createTreeWalker(w, 129);
+function L(e, t) {
+	if (!D(e) || !e.hasOwnProperty("raw")) throw Error("invalid template strings array");
+	return b === void 0 ? t : b.createHTML(t);
 }
-var ue = (e, t) => {
-	let n = e.length - 1, r = [], i, a = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", o = A;
+var pe = (e, t) => {
+	let n = e.length - 1, r = [], i, a = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", o = k;
 	for (let t = 0; t < n; t++) {
 		let n = e[t], s, c, l = -1, u = 0;
-		for (; u < n.length && (o.lastIndex = u, c = o.exec(n), c !== null);) u = o.lastIndex, o === A ? c[1] === "!--" ? o = j : c[1] === void 0 ? c[2] === void 0 ? c[3] !== void 0 && (o = M) : (P.test(c[2]) && (i = RegExp("</" + c[2], "g")), o = M) : o = ce : o === M ? c[0] === ">" ? (o = i ?? A, l = -1) : c[1] === void 0 ? l = -2 : (l = o.lastIndex - c[2].length, s = c[1], o = c[3] === void 0 ? M : c[3] === "\"" ? N : le) : o === N || o === le ? o = M : o === j || o === ce ? o = A : (o = M, i = void 0);
-		let d = o === M && e[t + 1].startsWith("/>") ? " " : "";
-		a += o === A ? n + oe : l >= 0 ? (r.push(s), n.slice(0, l) + S + n.slice(l) + C + d) : n + C + (l === -2 ? t : d);
+		for (; u < n.length && (o.lastIndex = u, c = o.exec(n), c !== null);) u = o.lastIndex, o === k ? c[1] === "!--" ? o = le : c[1] === void 0 ? c[2] === void 0 ? c[3] !== void 0 && (o = A) : (j.test(c[2]) && (i = RegExp("</" + c[2], "g")), o = A) : o = ue : o === A ? c[0] === ">" ? (o = i ?? k, l = -1) : c[1] === void 0 ? l = -2 : (l = o.lastIndex - c[2].length, s = c[1], o = c[3] === void 0 ? A : c[3] === "\"" ? fe : de) : o === fe || o === de ? o = A : o === le || o === ue ? o = k : (o = A, i = void 0);
+		let d = o === A && e[t + 1].startsWith("/>") ? " " : "";
+		a += o === k ? n + se : l >= 0 ? (r.push(s), n.slice(0, l) + x + n.slice(l) + S + d) : n + S + (l === -2 ? t : d);
 	}
-	return [B(e, a + (e[n] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), r];
-}, V = class e {
+	return [L(e, a + (e[n] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), r];
+}, R = class e {
 	constructor({ strings: t, _$litType$: n }, r) {
 		let i;
 		this.parts = [];
-		let a = 0, o = 0, s = t.length - 1, c = this.parts, [l, u] = ue(t, n);
-		if (this.el = e.createElement(l, r), z.currentNode = this.el.content, n === 2 || n === 3) {
+		let a = 0, o = 0, s = t.length - 1, c = this.parts, [l, u] = pe(t, n);
+		if (this.el = e.createElement(l, r), I.currentNode = this.el.content, n === 2 || n === 3) {
 			let e = this.el.content.firstChild;
 			e.replaceWith(...e.childNodes);
 		}
-		for (; (i = z.nextNode()) !== null && c.length < s;) {
+		for (; (i = I.nextNode()) !== null && c.length < s;) {
 			if (i.nodeType === 1) {
-				if (i.hasAttributes()) for (let e of i.getAttributeNames()) if (e.endsWith(S)) {
-					let t = u[o++], n = i.getAttribute(e).split(C), r = /([.?@])?(.*)/.exec(t);
+				if (i.hasAttributes()) for (let e of i.getAttributeNames()) if (e.endsWith(x)) {
+					let t = u[o++], n = i.getAttribute(e).split(S), r = /([.?@])?(.*)/.exec(t);
 					c.push({
 						type: 1,
 						index: a,
 						name: r[2],
 						strings: n,
-						ctor: r[1] === "." ? fe : r[1] === "?" ? pe : r[1] === "@" ? me : W
+						ctor: r[1] === "." ? he : r[1] === "?" ? ge : r[1] === "@" ? _e : V
 					}), i.removeAttribute(e);
-				} else e.startsWith(C) && (c.push({
+				} else e.startsWith(S) && (c.push({
 					type: 6,
 					index: a
 				}), i.removeAttribute(e));
-				if (P.test(i.tagName)) {
-					let e = i.textContent.split(C), t = e.length - 1;
+				if (j.test(i.tagName)) {
+					let e = i.textContent.split(S), t = e.length - 1;
 					if (t > 0) {
-						i.textContent = b ? b.emptyScript : "";
-						for (let n = 0; n < t; n++) i.append(e[n], E()), z.nextNode(), c.push({
+						i.textContent = y ? y.emptyScript : "";
+						for (let n = 0; n < t; n++) i.append(e[n], T()), I.nextNode(), c.push({
 							type: 2,
 							index: ++a
 						});
-						i.append(e[t], E());
+						i.append(e[t], T());
 					}
 				}
-			} else if (i.nodeType === 8) if (i.data === w) c.push({
+			} else if (i.nodeType === 8) if (i.data === C) c.push({
 				type: 2,
 				index: a
 			});
 			else {
 				let e = -1;
-				for (; (e = i.data.indexOf(C, e + 1)) !== -1;) c.push({
+				for (; (e = i.data.indexOf(S, e + 1)) !== -1;) c.push({
 					type: 7,
 					index: a
-				}), e += C.length - 1;
+				}), e += S.length - 1;
 			}
 			a++;
 		}
 	}
 	static createElement(e, t) {
-		let n = T.createElement("template");
+		let n = w.createElement("template");
 		return n.innerHTML = e, n;
 	}
 };
-function H(e, t, n = e, r) {
-	if (t === I) return t;
-	let i = r === void 0 ? n._$Cl : n._$Co?.[r], a = D(t) ? void 0 : t._$litDirective$;
-	return i?.constructor !== a && (i?._$AO?.(!1), a === void 0 ? i = void 0 : (i = new a(e), i._$AT(e, n, r)), r === void 0 ? n._$Cl = i : (n._$Co ??= [])[r] = i), i !== void 0 && (t = H(e, i._$AS(e, t.values), i, r)), t;
+function z(e, t, n = e, r) {
+	if (t === N) return t;
+	let i = r === void 0 ? n._$Cl : n._$Co?.[r], a = E(t) ? void 0 : t._$litDirective$;
+	return i?.constructor !== a && (i?._$AO?.(!1), a === void 0 ? i = void 0 : (i = new a(e), i._$AT(e, n, r)), r === void 0 ? n._$Cl = i : (n._$Co ??= [])[r] = i), i !== void 0 && (t = z(e, i._$AS(e, t.values), i, r)), t;
 }
-var de = class {
+var me = class {
 	constructor(e, t) {
 		this._$AV = [], this._$AN = void 0, this._$AD = e, this._$AM = t;
 	}
@@ -342,28 +342,28 @@ var de = class {
 		return this._$AM._$AU;
 	}
 	u(e) {
-		let { el: { content: t }, parts: n } = this._$AD, r = (e?.creationScope ?? T).importNode(t, !0);
-		z.currentNode = r;
-		let i = z.nextNode(), a = 0, o = 0, s = n[0];
+		let { el: { content: t }, parts: n } = this._$AD, r = (e?.creationScope ?? w).importNode(t, !0);
+		I.currentNode = r;
+		let i = I.nextNode(), a = 0, o = 0, s = n[0];
 		for (; s !== void 0;) {
 			if (a === s.index) {
 				let t;
-				s.type === 2 ? t = new U(i, i.nextSibling, this, e) : s.type === 1 ? t = new s.ctor(i, s.name, s.strings, this, e) : s.type === 6 && (t = new he(i, this, e)), this._$AV.push(t), s = n[++o];
+				s.type === 2 ? t = new B(i, i.nextSibling, this, e) : s.type === 1 ? t = new s.ctor(i, s.name, s.strings, this, e) : s.type === 6 && (t = new ve(i, this, e)), this._$AV.push(t), s = n[++o];
 			}
-			a !== s?.index && (i = z.nextNode(), a++);
+			a !== s?.index && (i = I.nextNode(), a++);
 		}
-		return z.currentNode = T, r;
+		return I.currentNode = w, r;
 	}
 	p(e) {
 		let t = 0;
 		for (let n of this._$AV) n !== void 0 && (n.strings === void 0 ? n._$AI(e[t]) : (n._$AI(e, n, t), t += n.strings.length - 2)), t++;
 	}
-}, U = class e {
+}, B = class e {
 	get _$AU() {
 		return this._$AM?._$AU ?? this._$Cv;
 	}
 	constructor(e, t, n, r) {
-		this.type = 2, this._$AH = L, this._$AN = void 0, this._$AA = e, this._$AB = t, this._$AM = n, this.options = r, this._$Cv = r?.isConnected ?? !0;
+		this.type = 2, this._$AH = P, this._$AN = void 0, this._$AA = e, this._$AB = t, this._$AM = n, this.options = r, this._$Cv = r?.isConnected ?? !0;
 	}
 	get parentNode() {
 		let e = this._$AA.parentNode, t = this._$AM;
@@ -376,7 +376,7 @@ var de = class {
 		return this._$AB;
 	}
 	_$AI(e, t = this) {
-		e = H(this, e, t), D(e) ? e === L || e == null || e === "" ? (this._$AH !== L && this._$AR(), this._$AH = L) : e !== this._$AH && e !== I && this._(e) : e._$litType$ === void 0 ? e.nodeType === void 0 ? se(e) ? this.k(e) : this._(e) : this.T(e) : this.$(e);
+		e = z(this, e, t), E(e) ? e === P || e == null || e === "" ? (this._$AH !== P && this._$AR(), this._$AH = P) : e !== this._$AH && e !== N && this._(e) : e._$litType$ === void 0 ? e.nodeType === void 0 ? ce(e) ? this.k(e) : this._(e) : this.T(e) : this.$(e);
 	}
 	O(e) {
 		return this._$AA.parentNode.insertBefore(e, this._$AB);
@@ -385,36 +385,36 @@ var de = class {
 		this._$AH !== e && (this._$AR(), this._$AH = this.O(e));
 	}
 	_(e) {
-		this._$AH !== L && D(this._$AH) ? this._$AA.nextSibling.data = e : this.T(T.createTextNode(e)), this._$AH = e;
+		this._$AH !== P && E(this._$AH) ? this._$AA.nextSibling.data = e : this.T(w.createTextNode(e)), this._$AH = e;
 	}
 	$(e) {
-		let { values: t, _$litType$: n } = e, r = typeof n == "number" ? this._$AC(e) : (n.el === void 0 && (n.el = V.createElement(B(n.h, n.h[0]), this.options)), n);
+		let { values: t, _$litType$: n } = e, r = typeof n == "number" ? this._$AC(e) : (n.el === void 0 && (n.el = R.createElement(L(n.h, n.h[0]), this.options)), n);
 		if (this._$AH?._$AD === r) this._$AH.p(t);
 		else {
-			let e = new de(r, this), n = e.u(this.options);
+			let e = new me(r, this), n = e.u(this.options);
 			e.p(t), this.T(n), this._$AH = e;
 		}
 	}
 	_$AC(e) {
-		let t = R.get(e.strings);
-		return t === void 0 && R.set(e.strings, t = new V(e)), t;
+		let t = F.get(e.strings);
+		return t === void 0 && F.set(e.strings, t = new R(e)), t;
 	}
 	k(t) {
-		O(this._$AH) || (this._$AH = [], this._$AR());
+		D(this._$AH) || (this._$AH = [], this._$AR());
 		let n = this._$AH, r, i = 0;
-		for (let a of t) i === n.length ? n.push(r = new e(this.O(E()), this.O(E()), this, this.options)) : r = n[i], r._$AI(a), i++;
+		for (let a of t) i === n.length ? n.push(r = new e(this.O(T()), this.O(T()), this, this.options)) : r = n[i], r._$AI(a), i++;
 		i < n.length && (this._$AR(r && r._$AB.nextSibling, i), n.length = i);
 	}
 	_$AR(e = this._$AA.nextSibling, t) {
 		for (this._$AP?.(!1, !0, t); e !== this._$AB;) {
-			let t = ae(e).nextSibling;
-			ae(e).remove(), e = t;
+			let t = oe(e).nextSibling;
+			oe(e).remove(), e = t;
 		}
 	}
 	setConnected(e) {
 		this._$AM === void 0 && (this._$Cv = e, this._$AP?.(e));
 	}
-}, W = class {
+}, V = class {
 	get tagName() {
 		return this.element.tagName;
 	}
@@ -422,47 +422,47 @@ var de = class {
 		return this._$AM._$AU;
 	}
 	constructor(e, t, n, r, i) {
-		this.type = 1, this._$AH = L, this._$AN = void 0, this.element = e, this.name = t, this._$AM = r, this.options = i, n.length > 2 || n[0] !== "" || n[1] !== "" ? (this._$AH = Array(n.length - 1).fill(/* @__PURE__ */ new String()), this.strings = n) : this._$AH = L;
+		this.type = 1, this._$AH = P, this._$AN = void 0, this.element = e, this.name = t, this._$AM = r, this.options = i, n.length > 2 || n[0] !== "" || n[1] !== "" ? (this._$AH = Array(n.length - 1).fill(/* @__PURE__ */ new String()), this.strings = n) : this._$AH = P;
 	}
 	_$AI(e, t = this, n, r) {
 		let i = this.strings, a = !1;
-		if (i === void 0) e = H(this, e, t, 0), a = !D(e) || e !== this._$AH && e !== I, a && (this._$AH = e);
+		if (i === void 0) e = z(this, e, t, 0), a = !E(e) || e !== this._$AH && e !== N, a && (this._$AH = e);
 		else {
 			let r = e, o, s;
-			for (e = i[0], o = 0; o < i.length - 1; o++) s = H(this, r[n + o], t, o), s === I && (s = this._$AH[o]), a ||= !D(s) || s !== this._$AH[o], s === L ? e = L : e !== L && (e += (s ?? "") + i[o + 1]), this._$AH[o] = s;
+			for (e = i[0], o = 0; o < i.length - 1; o++) s = z(this, r[n + o], t, o), s === N && (s = this._$AH[o]), a ||= !E(s) || s !== this._$AH[o], s === P ? e = P : e !== P && (e += (s ?? "") + i[o + 1]), this._$AH[o] = s;
 		}
 		a && !r && this.j(e);
 	}
 	j(e) {
-		e === L ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, e ?? "");
+		e === P ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, e ?? "");
 	}
-}, fe = class extends W {
+}, he = class extends V {
 	constructor() {
 		super(...arguments), this.type = 3;
 	}
 	j(e) {
-		this.element[this.name] = e === L ? void 0 : e;
+		this.element[this.name] = e === P ? void 0 : e;
 	}
-}, pe = class extends W {
+}, ge = class extends V {
 	constructor() {
 		super(...arguments), this.type = 4;
 	}
 	j(e) {
-		this.element.toggleAttribute(this.name, !!e && e !== L);
+		this.element.toggleAttribute(this.name, !!e && e !== P);
 	}
-}, me = class extends W {
+}, _e = class extends V {
 	constructor(e, t, n, r, i) {
 		super(e, t, n, r, i), this.type = 5;
 	}
 	_$AI(e, t = this) {
-		if ((e = H(this, e, t, 0) ?? L) === I) return;
-		let n = this._$AH, r = e === L && n !== L || e.capture !== n.capture || e.once !== n.once || e.passive !== n.passive, i = e !== L && (n === L || r);
+		if ((e = z(this, e, t, 0) ?? P) === N) return;
+		let n = this._$AH, r = e === P && n !== P || e.capture !== n.capture || e.once !== n.once || e.passive !== n.passive, i = e !== P && (n === P || r);
 		r && this.element.removeEventListener(this.name, this, n), i && this.element.addEventListener(this.name, this, e), this._$AH = e;
 	}
 	handleEvent(e) {
 		typeof this._$AH == "function" ? this._$AH.call(this.options?.host ?? this.element, e) : this._$AH.handleEvent(e);
 	}
-}, he = class {
+}, ve = class {
 	constructor(e, t, n) {
 		this.element = e, this.type = 6, this._$AN = void 0, this._$AM = t, this.options = n;
 	}
@@ -470,18 +470,18 @@ var de = class {
 		return this._$AM._$AU;
 	}
 	_$AI(e) {
-		H(this, e);
+		z(this, e);
 	}
-}, ge = y.litHtmlPolyfillSupport;
-ge?.(V, U), (y.litHtmlVersions ??= []).push("3.3.3");
-var _e = (e, t, n) => {
+}, ye = v.litHtmlPolyfillSupport;
+ye?.(R, B), (v.litHtmlVersions ??= []).push("3.3.3");
+var be = (e, t, n) => {
 	let r = n?.renderBefore ?? t, i = r._$litPart$;
 	if (i === void 0) {
 		let e = n?.renderBefore ?? null;
-		r._$litPart$ = i = new U(t.insertBefore(E(), e), e, void 0, n ?? {});
+		r._$litPart$ = i = new B(t.insertBefore(T(), e), e, void 0, n ?? {});
 	}
 	return i._$AI(e), i;
-}, G = globalThis, K = class extends v {
+}, H = globalThis, U = class extends _ {
 	constructor() {
 		super(...arguments), this.renderOptions = { host: this }, this._$Do = void 0;
 	}
@@ -491,7 +491,7 @@ var _e = (e, t, n) => {
 	}
 	update(e) {
 		let t = this.render();
-		this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(e), this._$Do = _e(t, this.renderRoot, this.renderOptions);
+		this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(e), this._$Do = be(t, this.renderRoot, this.renderOptions);
 	}
 	connectedCallback() {
 		super.connectedCallback(), this._$Do?.setConnected(!0);
@@ -500,15 +500,15 @@ var _e = (e, t, n) => {
 		super.disconnectedCallback(), this._$Do?.setConnected(!1);
 	}
 	render() {
-		return I;
+		return N;
 	}
 };
-K._$litElement$ = !0, K.finalized = !0, G.litElementHydrateSupport?.({ LitElement: K });
-var ve = G.litElementPolyfillSupport;
-ve?.({ LitElement: K }), (G.litElementVersions ??= []).push("4.2.2");
+U._$litElement$ = !0, U.finalized = !0, H.litElementHydrateSupport?.({ LitElement: U });
+var xe = H.litElementPolyfillSupport;
+xe?.({ LitElement: U }), (H.litElementVersions ??= []).push("4.2.2");
 //#endregion
 //#region src/localize/localize.ts
-var ye = {
+var Se = {
 	en: {
 		dayOne: "day",
 		dayFew: "days",
@@ -518,6 +518,7 @@ var ye = {
 		due: "due today",
 		warning: "due soon",
 		lastCompleted: "Last completed",
+		completed: "Completed",
 		dueDate: "Due",
 		notFound: "Task not found",
 		configure: "Configure",
@@ -535,6 +536,7 @@ var ye = {
 		due: "сегодня",
 		warning: "скоро",
 		lastCompleted: "Последнее выполнение",
+		completed: "Выполнено",
 		dueDate: "Срок",
 		notFound: "Задача не найдена",
 		configure: "Настроить",
@@ -544,21 +546,21 @@ var ye = {
 		backendError: "Не удалось сохранить выполнение. Попробуйте ещё раз."
 	}
 };
-function q(e) {
+function W(e) {
 	return e?.toLowerCase().startsWith("ru") ? "ru" : "en";
 }
-function J(e, t) {
-	return ye[q(e)][t];
+function G(e, t) {
+	return Se[W(e)][t];
 }
-function Y(e, t) {
-	if (q(t) === "en") return Math.abs(e) === 1 ? "day" : "days";
+function K(e, t) {
+	if (W(t) === "en") return Math.abs(e) === 1 ? "day" : "days";
 	let n = Math.abs(e), r = n % 10, i = n % 100;
 	return r === 1 && i !== 11 ? "день" : r >= 2 && r <= 4 && (i < 12 || i > 14) ? "дня" : "дней";
 }
-function X(e, t) {
-	return e === "overdue" ? J(t, "overdue") : e === "due" ? J(t, "due") : e === "warning" ? J(t, "warning") : J(t, "remaining");
+function q(e, t) {
+	return e === "overdue" ? G(t, "overdue") : e === "due" ? G(t, "due") : e === "warning" ? G(t, "warning") : G(t, "remaining");
 }
-function be(e, t, n = !1) {
+function Ce(e, t, n = !1) {
 	let r = /* @__PURE__ */ new Date(`${e}T12:00:00`);
 	return Number.isNaN(r.getTime()) ? e : new Intl.DateTimeFormat(t || "en", {
 		weekday: "short",
@@ -572,7 +574,7 @@ function be(e, t, n = !1) {
 }
 //#endregion
 //#region src/localize/editor.ts
-var xe = {
+var we = {
 	integrationNotLoaded: "Cyclic Maintenance Countdown is not loaded. Add it in Settings → Devices & services, then refresh this page.",
 	changesSaved: "Task changes saved. You can close the card editor.",
 	taskCreated: "Task created",
@@ -587,10 +589,12 @@ var xe = {
 	loading: "Loading tasks…",
 	retry: "Retry",
 	task: "Task",
+	taskMode: "Task source",
 	selectedTask: "Selected task",
-	createNewTask: "Create a new task",
-	chooseExistingTask: "Or use an existing task",
+	createNewTask: "New task",
+	existingTask: "Existing task",
 	chooseTask: "Choose a task…",
+	selectTaskFirst: "Choose an existing task to continue",
 	missingTask: "The selected task no longer exists",
 	name: "Name",
 	namePlaceholder: "For example, Water filter",
@@ -648,7 +652,7 @@ var xe = {
 	saveTask: "Save task",
 	createTask: "Create task",
 	taskSaveHint: "Task data is saved separately from the card settings."
-}, Se = {
+}, Te = {
 	integrationNotLoaded: "Интеграция Cyclic Maintenance Countdown не загружена. Добавьте её в Настройки → Устройства и службы и обновите страницу.",
 	changesSaved: "Изменения задачи сохранены. Редактор карточки можно закрыть.",
 	taskCreated: "Задача создана",
@@ -663,10 +667,12 @@ var xe = {
 	loading: "Загрузка задач…",
 	retry: "Повторить",
 	task: "Задача",
+	taskMode: "Источник задачи",
 	selectedTask: "Выбранная задача",
-	createNewTask: "Создать новую задачу",
-	chooseExistingTask: "Или использовать существующую задачу",
+	createNewTask: "Новая задача",
+	existingTask: "Существующая",
 	chooseTask: "Выберите задачу…",
+	selectTaskFirst: "Выберите существующую задачу, чтобы продолжить",
 	missingTask: "Выбранная задача больше не существует",
 	name: "Название",
 	namePlaceholder: "Например, Заменить фильтр",
@@ -725,12 +731,12 @@ var xe = {
 	createTask: "Создать задачу",
 	taskSaveHint: "Данные задачи сохраняются отдельно от настроек карточки."
 };
-function Ce(e) {
-	return q(e) === "ru" ? Se : xe;
+function Ee(e) {
+	return W(e) === "ru" ? Te : we;
 }
 //#endregion
 //#region src/cyclic-countdown-editor.ts
-var we = {
+var De = {
 	type: "custom:cyclic-countdown-card",
 	style: "bar",
 	vertical_size: "standard",
@@ -741,17 +747,17 @@ var we = {
 	tap_action: "more-info",
 	hold_action: "complete",
 	double_tap_action: "none"
-}, Z = () => {
+}, J = () => {
 	let e = /* @__PURE__ */ new Date();
 	return `${e.getFullYear()}-${String(e.getMonth() + 1).padStart(2, "0")}-${String(e.getDate()).padStart(2, "0")}`;
-}, Te = /^[a-z0-9_-]+:[a-z0-9]+(?:-[a-z0-9]+)*$/, Q = (e) => {
+}, Oe = /^[a-z0-9_-]+:[a-z0-9]+(?:-[a-z0-9]+)*$/, Y = (e) => {
 	let t = e.trim().toLowerCase().replace(/\s+/g, "-");
 	return t ? t.includes(":") ? t : `mdi:${t}` : "mdi:wrench-clock";
-}, Ee = () => ({
+}, X = () => ({
 	name: "",
 	icon: "mdi:wrench-clock",
 	interval_days: 14,
-	last_completed_date: Z(),
+	last_completed_date: J(),
 	due_date: "",
 	warning_days: 1,
 	notifications_enabled: !1,
@@ -764,9 +770,12 @@ var we = {
 	remaining_days: 14,
 	elapsed_progress: 0,
 	phase: "normal"
-}), De = class extends K {
+}), Z = (e) => ({
+	...e,
+	notification_targets: [...e.notification_targets]
+}), ke = class extends U {
 	constructor(...e) {
-		super(...e), this._tasks = [], this._targets = [], this._draft = Ee(), this._previewPhase = "auto", this._loading = !0, this._saving = !1, this._testing = !1, this._iconPickerReady = !!customElements.get("ha-icon-picker"), this._error = "", this._notice = "", this._loadFailed = !1;
+		super(...e), this._tasks = [], this._targets = [], this._draft = X(), this._previewPhase = "auto", this._loading = !0, this._saving = !1, this._testing = !1, this._iconPickerReady = !!customElements.get("ha-icon-picker"), this._taskMode = "new", this._canCreateTask = !1, this._sessionInitialized = !1, this._newTaskDraft = X(), this._error = "", this._notice = "", this._loadFailed = !1;
 	}
 	static {
 		this.properties = {
@@ -780,6 +789,7 @@ var we = {
 			_saving: { state: !0 },
 			_testing: { state: !0 },
 			_iconPickerReady: { state: !0 },
+			_taskMode: { state: !0 },
 			_error: { state: !0 },
 			_notice: { state: !0 },
 			_loadFailed: { state: !0 }
@@ -789,7 +799,7 @@ var we = {
 		return this.hass?.locale?.language || this.hass?.language || navigator.language;
 	}
 	get s() {
-		return Ce(this.locale);
+		return Ee(this.locale);
 	}
 	get visibleTargets() {
 		let e = new Set(this._targets.map((e) => e.id)), t = this._draft.notification_targets.filter((t) => !e.has(t)).map((e) => ({
@@ -801,28 +811,35 @@ var we = {
 		return [...this._targets, ...t];
 	}
 	get draftInvalid() {
-		return !this._draft.name.trim() || !Te.test(this._draft.icon) || this._draft.interval_days < 1 || this._draft.warning_days < 0 || this._draft.warning_days > this._draft.interval_days || this._draft.notifications_enabled && !this._draft.notification_message.trim();
+		return !this._draft.name.trim() || !Oe.test(this._draft.icon) || this._draft.interval_days < 1 || this._draft.warning_days < 0 || this._draft.warning_days > this._draft.interval_days || this._draft.notifications_enabled && !this._draft.notification_message.trim();
 	}
 	get saveDisabled() {
 		return this._saving || this.draftInvalid;
 	}
+	get hasEditableTask() {
+		return this._taskMode === "new" || !!this._draft.task_id;
+	}
 	connectedCallback() {
-		super.connectedCallback(), this._iconPickerReady || customElements.whenDefined("ha-icon-picker").then(() => {
+		super.connectedCallback(), !this._sessionInitialized && this._config && this.initializeTaskSession(this._config), this._iconPickerReady || customElements.whenDefined("ha-icon-picker").then(() => {
 			this._iconPickerReady = !0;
 		});
 	}
+	disconnectedCallback() {
+		super.disconnectedCallback(), this._iconRefreshTimer && window.clearTimeout(this._iconRefreshTimer);
+	}
+	initializeTaskSession(e) {
+		this._sessionInitialized = !0, this._canCreateTask = !e.task_id, this._taskMode = e.task_id ? "existing" : "new", this._existingTaskId = e.task_id;
+	}
 	setConfig(e) {
+		!this._sessionInitialized && this.isConnected && this.initializeTaskSession(e);
 		let t = e.width, n = { ...e };
 		delete n.width, this._config = {
-			...we,
+			...De,
 			...n,
 			vertical_size: e.vertical_size || t || "standard"
 		};
 		let r = this._tasks.find((t) => t.task_id === e.task_id);
-		r && (this._draft = {
-			...r,
-			notification_targets: [...r.notification_targets]
-		});
+		r && this._taskMode === "existing" && (this._existingTaskId = r.task_id, this._draft = Z(r));
 	}
 	updated(e) {
 		e.has("hass") && this.hass && this._loadedConnection !== this.hass.connection && (this._loadedConnection = this.hass.connection, this.load());
@@ -834,10 +851,7 @@ var we = {
 				let [e, t] = await Promise.all([this.hass.connection.sendMessagePromise({ type: "cyclic_countdown/tasks/list" }), this.hass.connection.sendMessagePromise({ type: "cyclic_countdown/notification_targets/list" })]);
 				this._tasks = e, this._targets = t;
 				let n = e.find((e) => e.task_id === this._config?.task_id);
-				n && (this._draft = {
-					...n,
-					notification_targets: [...n.notification_targets]
-				});
+				n && this._taskMode === "existing" && (this._existingTaskId = n.task_id, this._draft = Z(n));
 			} catch {
 				this._loadFailed = !0, this._error = this.s.integrationNotLoaded;
 			} finally {
@@ -871,16 +885,23 @@ var we = {
 		let t = e.target.value;
 		if (!t) return;
 		let n = this._tasks.find((e) => e.task_id === t);
-		n && (this._draft = {
-			...n,
-			notification_targets: [...n.notification_targets]
-		}, this.emitConfig({ task_id: t }));
+		n && (this._taskMode = "existing", this._existingTaskId = t, this._draft = Z(n), this.emitConfig({ task_id: t }));
+	}
+	selectTaskMode(e) {
+		if (!this._canCreateTask || e === this._taskMode) return;
+		if (this._error = "", this._notice = "", e === "new") {
+			this._taskMode = "new", this._draft = Z(this._newTaskDraft), this.emitConfig({ task_id: void 0 });
+			return;
+		}
+		this._newTaskDraft = Z(this._draft), this._taskMode = "existing";
+		let t = this._tasks.find((e) => e.task_id === this._existingTaskId);
+		t ? (this._draft = Z(t), this.emitConfig({ task_id: t.task_id })) : (this._draft = X(), this.emitConfig({ task_id: void 0 }));
 	}
 	updateDraft(e, t) {
 		this._draft = {
 			...this._draft,
 			[e]: t
-		};
+		}, this._canCreateTask && this._taskMode === "new" && (this._newTaskDraft = Z(this._draft));
 	}
 	input(e, t) {
 		this.updateDraft(e, t.target.value);
@@ -908,7 +929,7 @@ var we = {
 		let { name: e, icon: t, interval_days: n, last_completed_date: r, warning_days: i, notifications_enabled: a, persistent_notification_enabled: o, notification_targets: s, notification_title: c, notification_message: l, notify_on_warning: u, notify_on_due: d } = this._draft;
 		return {
 			name: e,
-			icon: Q(t),
+			icon: Y(t),
 			interval_days: n,
 			last_completed_date: r,
 			warning_days: i,
@@ -930,10 +951,7 @@ var we = {
 					...e ? { task_id: e } : {},
 					...this.payload()
 				}), n = this._tasks.filter((e) => e.task_id !== t.task_id);
-				this._tasks = [...n, t].sort((e, t) => e.name.localeCompare(t.name)), this._draft = {
-					...t,
-					notification_targets: [...t.notification_targets]
-				}, this.emitConfig({ task_id: t.task_id }), this._notice = e ? this.s.changesSaved : this.s.taskCreated;
+				this._tasks = [...n, t].sort((e, t) => e.name.localeCompare(t.name)), this._draft = Z(t), this._taskMode = "existing", this._existingTaskId = t.task_id, this._canCreateTask = !1, this.emitConfig({ task_id: t.task_id }), this._notice = e ? this.s.changesSaved : this.s.taskCreated;
 			} catch (e) {
 				this._error = this.saveErrorMessage(e);
 			} finally {
@@ -950,7 +968,7 @@ var we = {
 			await this.hass.connection.sendMessagePromise({
 				type: "cyclic_countdown/tasks/delete",
 				task_id: this._draft.task_id
-			}), this._tasks = this._tasks.filter((e) => e.task_id !== this._draft.task_id), this._draft = Ee(), this.emitConfig({ task_id: void 0 }), this._notice = this.s.taskDeleted;
+			}), this._tasks = this._tasks.filter((e) => e.task_id !== this._draft.task_id), this._draft = X(), this._existingTaskId = void 0, this.emitConfig({ task_id: void 0 }), this._notice = this.s.taskDeleted;
 		} catch {
 			this._error = this.s.deleteFailed;
 		}
@@ -978,7 +996,7 @@ var we = {
 		}
 	}
 	get previewTask() {
-		let e = this.computedDueIso() === "—" ? Z() : this.computedDueIso(), t = /* @__PURE__ */ new Date(`${e}T12:00:00`), n = /* @__PURE__ */ new Date(`${Z()}T12:00:00`), r = Math.round((t.getTime() - n.getTime()) / 864e5), i = this._previewPhase === "auto" ? r : {
+		let e = this.computedDueIso() === "—" ? J() : this.computedDueIso(), t = /* @__PURE__ */ new Date(`${e}T12:00:00`), n = /* @__PURE__ */ new Date(`${J()}T12:00:00`), r = Math.round((t.getTime() - n.getTime()) / 864e5), i = this._previewPhase === "auto" ? r : {
 			normal: Math.max(this._draft.warning_days + 1, Math.ceil(this._draft.interval_days / 2)),
 			warning: Math.max(1, this._draft.warning_days || 1),
 			due: 0,
@@ -996,34 +1014,60 @@ var we = {
 		};
 	}
 	renderIconPicker() {
-		return this._iconPickerReady ? F`<ha-icon-picker
+		return this._iconPickerReady ? M`<ha-icon-picker
         .hass=${this.hass}
         .value=${this._draft.icon}
-        .invalid=${!Te.test(this._draft.icon)}
+        .invalid=${!Oe.test(this._draft.icon)}
         .errorMessage=${this.s.invalidIcon}
-        @value-changed=${(e) => this.updateDraft("icon", Q(e.detail.value))}
-      ></ha-icon-picker><small>${this.s.iconHint}</small>` : F`<input
+        @picker-opened=${this.iconPickerOpened}
+        @picker-closed=${this.iconPickerClosed}
+        @value-changed=${(e) => this.updateDraft("icon", Y(e.detail.value))}
+      ></ha-icon-picker><small>${this.s.iconHint}</small>` : M`<input
       .value=${this._draft.icon}
-      @change=${(e) => this.updateDraft("icon", Q(e.target.value))}
+      @change=${(e) => this.updateDraft("icon", Y(e.target.value))}
       placeholder="mdi:wrench-clock"
     /><small>${this.s.iconHint}</small>`;
 	}
+	iconPickerOpened(e) {
+		this.iconPickerClosed();
+		let t = e.currentTarget, n = 0, r = () => {
+			if (!t.isConnected) return;
+			let e = t.shadowRoot?.querySelector("ha-generic-picker");
+			if (e?.getItems?.()?.length) {
+				e?.refreshItems?.(), this._iconRefreshTimer = void 0;
+				return;
+			}
+			n += 1, n < 50 && (this._iconRefreshTimer = window.setTimeout(r, 100));
+		};
+		r();
+	}
+	iconPickerClosed() {
+		this._iconRefreshTimer && window.clearTimeout(this._iconRefreshTimer), this._iconRefreshTimer = void 0;
+	}
 	renderTaskSelector() {
-		let e = this._config?.task_id;
-		if (!e) return F`
-        <div class="new-task-title">＋ ${this.s.createNewTask}</div>
-        ${this._tasks.length ? F`<label>${this.s.chooseExistingTask}
-          <select @change=${this.selectTask} .value=${""}>
-            <option value="" disabled>${this.s.chooseTask}</option>
-            ${this._tasks.map((e) => F`<option value=${e.task_id}>${e.name}</option>`)}
-          </select>
-        </label>` : L}
-      `;
-		let t = this._tasks.some((t) => t.task_id === e);
-		return F`<label>${this.s.selectedTask}
-      <select @change=${this.selectTask} .value=${e}>
-        ${t ? L : F`<option value=${e} disabled>${this.s.missingTask}</option>`}
-        ${this._tasks.map((e) => F`<option value=${e.task_id}>${e.name}</option>`)}
+		let e = this._existingTaskId || this._config?.task_id, t = this._canCreateTask ? M`
+      <div class="task-mode-picker" role="tablist" aria-label=${this.s.taskMode}>
+        <button
+          role="tab"
+          class=${this._taskMode === "new" ? "selected" : ""}
+          aria-selected=${this._taskMode === "new" ? "true" : "false"}
+          @click=${() => this.selectTaskMode("new")}
+        ><ha-icon icon="mdi:plus"></ha-icon>${this.s.createNewTask}</button>
+        <button
+          role="tab"
+          class=${this._taskMode === "existing" ? "selected" : ""}
+          aria-selected=${this._taskMode === "existing" ? "true" : "false"}
+          ?disabled=${!this._tasks.length}
+          @click=${() => this.selectTaskMode("existing")}
+        ><ha-icon icon="mdi:format-list-bulleted"></ha-icon>${this.s.existingTask}</button>
+      </div>
+    ` : P;
+		if (this._taskMode === "new") return t;
+		let n = this._tasks.some((t) => t.task_id === e);
+		return M`${t}<label>${this.s.selectedTask}
+      <select @change=${this.selectTask} .value=${e || ""}>
+        ${e ? n ? P : M`<option value=${e} disabled>${this.s.missingTask}</option>` : M`<option value="" disabled>${this.s.chooseTask}</option>`}
+        ${this._tasks.map((e) => M`<option value=${e.task_id}>${e.name}</option>`)}
       </select>
     </label>`;
 	}
@@ -1031,36 +1075,33 @@ var we = {
 		return e.kind === "legacy_service" ? this.s.compatibilityTarget(e.name, e.id) : e.name;
 	}
 	renderActionSelect(e, t) {
-		return F`<label>${e}<select
+		return M`<label>${e}<select
       .value=${this._config?.[t] || "none"}
       @change=${(e) => this.emitConfig({ [t]: e.target.value })}
     ><option value="complete">${this.s.complete}</option><option value="more-info">${this.s.moreInfo}</option><option value="none">${this.s.noAction}</option></select></label>`;
 	}
 	render() {
-		return this._config ? this._loading ? F`
-      ${this._iconPickerReady ? F`<ha-icon-picker class="icon-preload" aria-hidden="true"></ha-icon-picker>` : L}
-      <div class="status">${this.s.loading}</div>
-    ` : this._loadFailed ? F`<div class="integration-error">${this._error}<button @click=${this.load}>${this.s.retry}</button></div>` : F`
-      ${this._error ? F`<div class="message error" role="alert">${this._error}</div>` : L}
-      ${this._notice ? F`<div class="message notice" role="status">${this._notice}</div>` : L}
+		return this._config ? this._loading ? M`<div class="status">${this.s.loading}</div>` : this._loadFailed ? M`<div class="integration-error">${this._error}<button @click=${this.load}>${this.s.retry}</button></div>` : M`
+      ${this._error ? M`<div class="message error" role="alert">${this._error}</div>` : P}
+      ${this._notice ? M`<div class="message notice" role="status">${this._notice}</div>` : P}
 
       <section>
         <h3><ha-icon icon="mdi:calendar-sync"></ha-icon>${this.s.task}</h3>
         ${this.renderTaskSelector()}
-        <div class="grid">
+        ${this.hasEditableTask ? M`<div class="grid">
           <label>${this.s.name}<input required maxlength="128" .value=${this._draft.name} @input=${(e) => this.input("name", e)} placeholder=${this.s.namePlaceholder} /></label>
           <label>${this.s.icon}${this.renderIconPicker()}</label>
           <label>${this.s.intervalDays}<input type="number" min="1" max="3650" .value=${String(this._draft.interval_days)} @input=${(e) => this.numberInput("interval_days", e)} /></label>
-          <label>${this.s.lastCompleted}<span class="inline-field"><input type="date" .value=${this._draft.last_completed_date} @input=${(e) => this.input("last_completed_date", e)} /><button @click=${() => this.updateDraft("last_completed_date", Z())}>${this.s.today}</button></span></label>
+          <label>${this.s.lastCompleted}<span class="inline-field"><input type="date" .value=${this._draft.last_completed_date} @input=${(e) => this.input("last_completed_date", e)} /><button @click=${() => this.updateDraft("last_completed_date", J())}>${this.s.today}</button></span></label>
           <label>${this.s.warningWindow}<input type="number" min="0" .max=${String(this._draft.interval_days)} .value=${String(this._draft.warning_days)} @input=${(e) => this.numberInput("warning_days", e)} /></label>
           <div class="due-preview"><span>${this.s.nextDueDate}</span><strong>${this.dueDate()}</strong></div>
-        </div>
+        </div>` : M`<div class="task-empty">${this.s.selectTaskFirst}</div>`}
       </section>
 
       <section>
         <h3><ha-icon icon="mdi:palette-outline"></ha-icon>${this.s.appearance}</h3>
         <div class="style-picker" role="radiogroup" aria-label=${this.s.styleAria}>
-          ${["bar", "fill"].map((e) => F`
+          ${["bar", "fill"].map((e) => M`
             <button class="style-option ${this._config?.style === e ? "selected" : ""}" @click=${() => this.emitConfig({ style: e })}>
               <span class="mini ${e}"><i></i><b></b><em></em></span>${e === "bar" ? this.s.bar : this.s.cardFill}
             </button>`)}
@@ -1071,7 +1112,7 @@ var we = {
 			"compact",
 			"standard",
 			"wide"
-		].map((e) => F`<button
+		].map((e) => M`<button
               class=${this._config?.vertical_size === e ? "selected" : ""}
               @click=${() => this.selectVerticalSize(e)}
               aria-pressed=${this._config?.vertical_size === e ? "true" : "false"}
@@ -1087,10 +1128,10 @@ var we = {
         <div class="preview-toolbar"><span>${this.s.livePreview}</span><select .value=${this._previewPhase} @change=${(e) => {
 			this._previewPhase = e.target.value;
 		}}><option value="auto">${this.s.previewAuto}</option><option value="normal">${this.s.previewNormal}</option><option value="warning">${this.s.previewWarning}</option><option value="due">${this.s.previewDue}</option><option value="overdue">${this.s.previewOverdue}</option></select></div>
-        <cyclic-countdown-card .hass=${this.hass} .previewTask=${this.previewTask} ._config=${this._config}></cyclic-countdown-card>
+        ${this.hasEditableTask ? M`<cyclic-countdown-card .hass=${this.hass} .previewTask=${this.previewTask} ._config=${this._config}></cyclic-countdown-card>` : M`<div class="task-empty">${this.s.selectTaskFirst}</div>`}
       </section>
 
-      <section>
+      ${this.hasEditableTask ? M`<section>
         <h3><ha-icon icon="mdi:gesture-tap"></ha-icon>${this.s.behavior}</h3>
         <div class="grid">
           <label class="toggle"><input type="checkbox" .checked=${this._config.confirm_complete} @change=${(e) => this.emitConfig({ confirm_complete: e.target.checked })} /><span>${this.s.confirmCompletion}</span></label>
@@ -1103,8 +1144,8 @@ var we = {
       <section>
         <h3><ha-icon icon="mdi:bell-outline"></ha-icon>${this.s.notifications}</h3>
         <label class="toggle"><input type="checkbox" .checked=${this._draft.notifications_enabled} @change=${(e) => this.boolInput("notifications_enabled", e)} /><span>${this.s.sendNotifications}</span></label>
-        ${this._draft.notifications_enabled ? F`
-          <label>${this.s.notificationTargets}<select multiple size="${Math.min(6, Math.max(3, this.visibleTargets.length))}" @change=${this.targetChanged}>${this.visibleTargets.map((e) => F`<option value=${e.id} ?selected=${this._draft.notification_targets.includes(e.id)}>${this.targetLabel(e)}${e.available ? "" : this.s.unavailable}</option>`)}</select></label>
+        ${this._draft.notifications_enabled ? M`
+          <label>${this.s.notificationTargets}<select multiple size="${Math.min(6, Math.max(3, this.visibleTargets.length))}" @change=${this.targetChanged}>${this.visibleTargets.map((e) => M`<option value=${e.id} ?selected=${this._draft.notification_targets.includes(e.id)}>${this.targetLabel(e)}${e.available ? "" : this.s.unavailable}</option>`)}</select></label>
           <div class="grid">
             <label>${this.s.optionalTitle}<input .value=${this._draft.notification_title} @input=${(e) => this.input("notification_title", e)} /></label>
             <label class="toggle"><input type="checkbox" .checked=${this._draft.persistent_notification_enabled} @change=${(e) => this.boolInput("persistent_notification_enabled", e)} /><span>${this.s.persistentNotification}</span></label>
@@ -1112,17 +1153,17 @@ var we = {
             <label class="toggle"><input type="checkbox" .checked=${this._draft.notify_on_due} @change=${(e) => this.boolInput("notify_on_due", e)} /><span>${this.s.onDue}</span></label>
           </div>
           <label>${this.s.message}<textarea required .value=${this._draft.notification_message} @input=${(e) => this.input("notification_message", e)}></textarea><small>${this.s.placeholders}: {name}, {days}, {due_date}</small></label>
-          <div class="notification-preview"><span>${this._draft.notification_title || this.s.notification}</span><p>${this._draft.notification_message.replaceAll("{name}", this._draft.name || this.s.previewTaskName).replaceAll("{days}", String(this.previewTask.remaining_days)).replaceAll("{due_date}", this.computedDueIso() === "—" ? Z() : this.computedDueIso())}</p></div>
+          <div class="notification-preview"><span>${this._draft.notification_title || this.s.notification}</span><p>${this._draft.notification_message.replaceAll("{name}", this._draft.name || this.s.previewTaskName).replaceAll("{days}", String(this.previewTask.remaining_days)).replaceAll("{due_date}", this.computedDueIso() === "—" ? J() : this.computedDueIso())}</p></div>
           <button class="ghost" ?disabled=${this._testing || this.draftInvalid} @click=${this.testNotification}>${this.s.sendTest}</button>
-        ` : L}
-      </section>
+        ` : P}
+      </section>` : P}
 
-      <footer>
-        ${this._draft.task_id ? F`<button class="danger" @click=${this.deleteTask}>${this.s.deleteTask}</button>` : F`<span></span>`}
-        ${this._config.task_id && !this._draft.task_id ? L : F`<button class="save" ?disabled=${this.saveDisabled} @click=${this.saveTask}>${this._saving ? this.s.saving : this._draft.task_id ? this.s.saveTask : this.s.createTask}</button>`}
+      ${this.hasEditableTask ? M`<footer>
+        ${this._draft.task_id ? M`<button class="danger" @click=${this.deleteTask}>${this.s.deleteTask}</button>` : M`<span></span>`}
+        ${this._config.task_id && !this._draft.task_id ? P : M`<button class="save" ?disabled=${this.saveDisabled} @click=${this.saveTask}>${this._saving ? this.s.saving : this._draft.task_id ? this.s.saveTask : this.s.createTask}</button>`}
       </footer>
-      <small class="task-save-hint">${this.s.taskSaveHint}</small>
-    ` : L;
+      <small class="task-save-hint">${this.s.taskSaveHint}</small>` : P}
+    ` : P;
 	}
 	static {
 		this.styles = o`
@@ -1130,7 +1171,11 @@ var we = {
     section { margin: 0 0 16px; padding: 16px; border: 1px solid var(--divider-color, rgba(127,127,127,.22)); border-radius: 18px; background: color-mix(in srgb, var(--secondary-background-color, transparent) 42%, transparent); }
     h3 { margin: 0 0 16px; display: flex; align-items: center; gap: 9px; font-size: 17px; }
     h3 ha-icon { color: var(--primary-color); --mdc-icon-size: 21px; }
-    .new-task-title { margin: 0 0 13px; color: var(--primary-text-color); font-size: 14px; font-weight: 700; }
+    .task-mode-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 14px; }
+    .task-mode-picker button { display: flex; align-items: center; justify-content: center; gap: 7px; border: 1px solid var(--divider-color); background: var(--card-background-color); }
+    .task-mode-picker button.selected { border-color: var(--primary-color); color: var(--primary-color); background: color-mix(in srgb, var(--primary-color) 10%, var(--card-background-color)); }
+    .task-mode-picker ha-icon { --mdc-icon-size: 18px; }
+    .task-empty { margin: 8px 0 14px; padding: 14px; border: 1px dashed var(--divider-color); border-radius: 12px; color: var(--secondary-text-color); text-align: center; font-size: 13px; }
     label { display: flex; flex-direction: column; gap: 7px; margin: 0 0 13px; color: var(--secondary-text-color); font-size: 12px; font-weight: 650; }
     input, select, textarea { box-sizing: border-box; width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--divider-color, #888); border-radius: 12px; color: var(--primary-text-color); background: var(--card-background-color, #fff); font: inherit; font-size: 14px; }
     input:focus, select:focus, textarea:focus, button:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
@@ -1178,15 +1223,14 @@ var we = {
     .message, .integration-error, .status { margin-bottom: 14px; padding: 13px 15px; border-radius: 13px; font-size: 13px; }
     .message.error, .integration-error { background: color-mix(in srgb, var(--error-color, #d85f58) 14%, transparent); }
     .message.notice { background: color-mix(in srgb, var(--success-color, #43a66d) 14%, transparent); }
-    .icon-preload { position: fixed; width: 1px; height: 1px; visibility: hidden; pointer-events: none; }
     @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } .style-picker { grid-template-columns: 1fr; } footer { flex-wrap: wrap; } footer button { flex: 1; } }
   `;
 	}
 };
-customElements.get("cyclic-countdown-editor") || customElements.define("cyclic-countdown-editor", De);
+customElements.get("cyclic-countdown-editor") || customElements.define("cyclic-countdown-editor", ke);
 //#endregion
 //#region src/cyclic-countdown-card.ts
-var Oe = {
+var Ae = {
 	style: "bar",
 	vertical_size: "standard",
 	reverse_progress: !1,
@@ -1196,12 +1240,12 @@ var Oe = {
 	tap_action: "more-info",
 	hold_action: "complete",
 	double_tap_action: "none"
-}, ke = {
+}, je = {
 	type: "custom:cyclic-countdown-card",
-	...Oe
-}, Ae = class extends K {
+	...Ae
+}, Me = class extends U {
 	constructor(...e) {
-		super(...e), this._config = { ...ke }, this._confirmOpen = !1, this._busy = !1, this._error = "", this._justCompleted = !1, this._held = !1;
+		super(...e), this._config = { ...je }, this._confirmOpen = !1, this._busy = !1, this._error = "", this._justCompleted = !1, this._held = !1;
 	}
 	static {
 		this.properties = {
@@ -1219,13 +1263,13 @@ var Oe = {
 		return document.createElement("cyclic-countdown-editor");
 	}
 	static getStubConfig() {
-		return { ...Oe };
+		return { ...Ae };
 	}
 	setConfig(e) {
 		if (!e) throw Error("Card configuration is required");
 		let t = e.width, n = { ...e };
 		delete n.width, this._config = {
-			...ke,
+			...je,
 			...n,
 			vertical_size: e.vertical_size || t || "standard",
 			type: "custom:cyclic-countdown-card"
@@ -1276,10 +1320,20 @@ var Oe = {
 	}
 	secondary(e) {
 		let t = this._config.secondary_info === "due_date";
-		return `${t ? J(this.locale, "dueDate") : J(this.locale, "lastCompleted")}: ${be(t ? e.due_date : e.last_completed_date, this.locale)}`;
+		return `${t ? G(this.locale, "dueDate") : G(this.locale, "completed")}: ${Ce(t ? e.due_date : e.last_completed_date, this.locale)}`;
+	}
+	renderSecondary(e) {
+		let t = this._config.secondary_info === "due_date", n = t ? e.due_date : e.last_completed_date, r = t ? G(this.locale, "dueDate") : G(this.locale, "completed"), i = Ce(n, this.locale);
+		return M`<div class="secondary" aria-label=${`${r}: ${i}`}>
+      <ha-icon
+        icon=${t ? "mdi:calendar-clock-outline" : "mdi:history"}
+        aria-hidden="true"
+      ></ha-icon>
+      <time datetime=${n}>${i}</time>
+    </div>`;
 	}
 	buildAriaLabel(e) {
-		return `${e.name}, ${X(e.phase, this.locale)}, ${e.remaining_days} ${Y(e.remaining_days, this.locale)}. ${this._config.tap_action === "complete" ? J(this.locale, "complete") : ""}`;
+		return `${e.name}, ${q(e.phase, this.locale)}, ${e.remaining_days} ${K(e.remaining_days, this.locale)}. ${this._config.tap_action === "complete" ? G(this.locale, "complete") : ""}`;
 	}
 	pointerDown() {
 		this._held = !1, !(this._config.hold_action === "none" || this._busy || this.previewTask) && (this._holdTimer = window.setTimeout(() => {
@@ -1347,19 +1401,19 @@ var Oe = {
 				this._justCompleted = !1, this._optimisticTask = void 0;
 			}, 1800);
 		} catch {
-			this._optimisticTask = t, this._error = J(this.locale, "backendError");
+			this._optimisticTask = t, this._error = G(this.locale, "backendError");
 		} finally {
 			this._busy = !1;
 		}
 	}
 	render() {
 		let e = this.task;
-		if (!e) return F`<ha-card class="missing">
+		if (!e) return M`<ha-card class="missing">
         <ha-icon icon="mdi:wrench-clock"></ha-icon>
-        <div><strong>${J(this.locale, "notFound")}</strong><small>cyclic_countdown</small></div>
+        <div><strong>${G(this.locale, "notFound")}</strong><small>cyclic_countdown</small></div>
       </ha-card>`;
 		let t = `--progress:${this.progress}%;--accent:${this._config.accent_color || "var(--primary-color, #6d78e8)"}`;
-		return F`
+		return M`
       <ha-card
         class="card ${this._config.style} ${this._config.vertical_size} ${e.phase} ${this._justCompleted ? "just-completed" : ""}"
         style=${t}
@@ -1380,27 +1434,27 @@ var Oe = {
           <div class="details">
             <div class="title-row">
               <div class="title">${e.name}</div>
-              <span class="phase-label">${X(e.phase, this.locale)}</span>
+              <span class="phase-label">${q(e.phase, this.locale)}</span>
             </div>
-            ${this._config.show_secondary ? F`<div class="secondary">${this.secondary(e)}</div>` : L}
-            ${this._config.style === "bar" ? F`<div class="track"><div class="bar-progress"></div></div>` : L}
+            ${this._config.show_secondary ? this.renderSecondary(e) : P}
+            ${this._config.style === "bar" ? M`<div class="track"><div class="bar-progress"></div></div>` : P}
           </div>
           <div class="days">
             <strong>${e.remaining_days}</strong>
-            <span>${Y(e.remaining_days, this.locale)}</span>
+            <span>${K(e.remaining_days, this.locale)}</span>
           </div>
         </div>
-        ${this._error ? F`<div class="error" role="alert">${this._error}</div>` : L}
+        ${this._error ? M`<div class="error" role="alert">${this._error}</div>` : P}
       </ha-card>
       <dialog @cancel=${this.closeConfirm} @click=${(e) => {
 			e.target === e.currentTarget && this.closeConfirm();
 		}}>
         <div class="dialog-body">
-          <h2>${J(this.locale, "confirmTitle")}</h2>
+          <h2>${G(this.locale, "confirmTitle")}</h2>
           <p>${e.name} · ${this.secondary(e)}</p>
           <div class="dialog-actions">
-            <button class="secondary-button" @click=${this.closeConfirm}>${J(this.locale, "cancel")}</button>
-            <button class="primary-button" @click=${this.complete}>${J(this.locale, "complete")}</button>
+            <button class="secondary-button" @click=${this.closeConfirm}>${G(this.locale, "cancel")}</button>
+            <button class="primary-button" @click=${this.complete}>${G(this.locale, "complete")}</button>
           </div>
         </div>
       </dialog>
@@ -1453,7 +1507,9 @@ var Oe = {
     .title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 21px; line-height: 1.22; font-weight: 650; letter-spacing: -.018em; }
     .phase-label { flex: none; font-size: 12px; font-weight: 550; letter-spacing: 0; color: var(--secondary-text-color); }
     .normal .phase-label { display: none; }
-    .secondary { margin-top: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--secondary-text-color); font-size: 14px; line-height: 1.3; }
+    .secondary { min-width: 0; margin-top: 5px; display: flex; align-items: center; gap: 5px; overflow: hidden; white-space: nowrap; color: var(--secondary-text-color); font-size: 14px; line-height: 1.3; }
+    .secondary ha-icon { flex: none; --mdc-icon-size: 15px; }
+    .secondary time { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
     .days { min-width: 0; text-align: center; display: flex; flex-direction: column; align-items: center; line-height: 1; }
     .days strong { font-size: clamp(40px, 8vw, 52px); font-weight: 700; letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
     .days span { max-width: 100%; margin-top: 3px; overflow: hidden; letter-spacing: .015em; font-size: 11px; font-weight: 500; color: var(--secondary-text-color); }
@@ -1501,24 +1557,24 @@ var Oe = {
   `;
 	}
 };
-customElements.get("cyclic-countdown-card") || customElements.define("cyclic-countdown-card", Ae);
-var $ = {
+customElements.get("cyclic-countdown-card") || customElements.define("cyclic-countdown-card", Me);
+var Q = {
 	type: "cyclic-countdown-card",
 	name: "Cyclic Maintenance Countdown",
 	description: "A theme-aware calendar-day maintenance countdown",
 	preview: !1,
 	documentationURL: "https://github.com/PnnnG/Cyclic-Maintenance-Countdown"
-}, je = () => {
+}, $ = () => {
 	window.customCards = window.customCards || [];
-	let e = window.customCards.find((e) => e.type === $.type);
+	let e = window.customCards.find((e) => e.type === Q.type);
 	if (e) {
-		Object.assign(e, $);
+		Object.assign(e, Q);
 		return;
 	}
-	window.customCards.push({ ...$ });
+	window.customCards.push({ ...Q });
 };
-je();
+$();
 //#endregion
-export { Ae as CyclicCountdownCard, je as registerCardPickerEntry };
+export { Me as CyclicCountdownCard, $ as registerCardPickerEntry };
 
 //# sourceMappingURL=cyclic-countdown-card.js.map

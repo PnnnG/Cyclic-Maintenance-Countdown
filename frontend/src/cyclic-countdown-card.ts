@@ -128,8 +128,22 @@ export class CyclicCountdownCard extends LitElement {
 
   private secondary(task: CountdownTask): string {
     const due = this._config.secondary_info === "due_date";
-    const label = due ? t(this.locale, "dueDate") : t(this.locale, "lastCompleted");
+    const label = due ? t(this.locale, "dueDate") : t(this.locale, "completed");
     return `${label}: ${formatDate(due ? task.due_date : task.last_completed_date, this.locale)}`;
+  }
+
+  private renderSecondary(task: CountdownTask) {
+    const due = this._config.secondary_info === "due_date";
+    const date = due ? task.due_date : task.last_completed_date;
+    const label = due ? t(this.locale, "dueDate") : t(this.locale, "completed");
+    const formattedDate = formatDate(date, this.locale);
+    return html`<div class="secondary" aria-label=${`${label}: ${formattedDate}`}>
+      <ha-icon
+        icon=${due ? "mdi:calendar-clock-outline" : "mdi:history"}
+        aria-hidden="true"
+      ></ha-icon>
+      <time datetime=${date}>${formattedDate}</time>
+    </div>`;
   }
 
   private buildAriaLabel(task: CountdownTask): string {
@@ -280,7 +294,7 @@ export class CyclicCountdownCard extends LitElement {
               <span class="phase-label">${phaseLabel(task.phase, this.locale)}</span>
             </div>
             ${this._config.show_secondary
-              ? html`<div class="secondary">${this.secondary(task)}</div>`
+              ? this.renderSecondary(task)
               : nothing}
             ${this._config.style === "bar"
               ? html`<div class="track"><div class="bar-progress"></div></div>`
@@ -354,7 +368,9 @@ export class CyclicCountdownCard extends LitElement {
     .title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 21px; line-height: 1.22; font-weight: 650; letter-spacing: -.018em; }
     .phase-label { flex: none; font-size: 12px; font-weight: 550; letter-spacing: 0; color: var(--secondary-text-color); }
     .normal .phase-label { display: none; }
-    .secondary { margin-top: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--secondary-text-color); font-size: 14px; line-height: 1.3; }
+    .secondary { min-width: 0; margin-top: 5px; display: flex; align-items: center; gap: 5px; overflow: hidden; white-space: nowrap; color: var(--secondary-text-color); font-size: 14px; line-height: 1.3; }
+    .secondary ha-icon { flex: none; --mdc-icon-size: 15px; }
+    .secondary time { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
     .days { min-width: 0; text-align: center; display: flex; flex-direction: column; align-items: center; line-height: 1; }
     .days strong { font-size: clamp(40px, 8vw, 52px); font-weight: 700; letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
     .days span { max-width: 100%; margin-top: 3px; overflow: hidden; letter-spacing: .015em; font-size: 11px; font-weight: 500; color: var(--secondary-text-color); }
