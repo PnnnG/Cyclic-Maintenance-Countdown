@@ -100,6 +100,56 @@ async def async_send_to_targets(
     return {"delivered": delivered, "failed": failed}
 
 
+async def async_send_persistent_notification(
+    hass: HomeAssistant,
+    message: str,
+    title: str = "",
+    notification_id: str | None = None,
+) -> dict[str, list[str]]:
+    """Create or update a notification in Home Assistant's notification panel."""
+    target_id = "persistent_notification"
+    data: dict[str, Any] = {"message": message}
+    if title:
+        data["title"] = title
+    if notification_id:
+        data["notification_id"] = notification_id
+    try:
+        await hass.services.async_call(
+            "persistent_notification", "create", data, blocking=True
+        )
+        return {"delivered": [target_id], "failed": []}
+    except Exception as err:
+        _LOGGER.warning("Persistent notification failed: %s", type(err).__name__)
+        return {"delivered": [], "failed": [target_id]}
+
+
+async def async_send_task_notification(
+    manager: TaskManager,
+    task: CountdownTask,
+    message: str,
+    *,
+    event: str,
+    targets: list[str] | None = None,
+) -> dict[str, list[str]]:
+    """Deliver a task event to configured mobile and persistent targets."""
+    result = await async_send_to_targets(
+        manager.hass,
+        targets if targets is not None else task.notification_targets,
+        message,
+        task.notification_title,
+    )
+    if task.persistent_notification_enabled:
+        persistent = await async_send_persistent_notification(
+            manager.hass,
+            message,
+            task.notification_title,
+            f"cyclic_countdown_{task.task_id}_{event}",
+        )
+        result["delivered"].extend(persistent["delivered"])
+        result["failed"].extend(persistent["failed"])
+    return result
+
+
 async def async_reconcile_notifications(manager: TaskManager) -> None:
     """Send each unsent warning/due event once for the current cycle.
 
@@ -108,7 +158,9 @@ async def async_reconcile_notifications(manager: TaskManager) -> None:
     """
     today = manager.today
     for task in manager.list_tasks():
-        if not task.notifications_enabled or not task.notification_targets:
+        if not task.notifications_enabled or (
+            not task.notification_targets and not task.persistent_notification_enabled
+        ):
             continue
         remaining = calculate_remaining_days(parse_date(task.due_date), today)
         events: list[str] = []
@@ -124,8 +176,8 @@ async def async_reconcile_notifications(manager: TaskManager) -> None:
 
         for event in events:
             message = render_message(task.notification_message, task, today)
-            result = await async_send_to_targets(
-                manager.hass, task.notification_targets, message, task.notification_title
+            result = await async_send_task_notification(
+                manager, task, message, event=event
             )
             if result["delivered"]:
                 await manager.async_mark_event_sent(task.task_id, event)
@@ -135,9 +187,10 @@ async def async_send_test(
     manager: TaskManager, task: CountdownTask, targets: list[str] | None = None
 ) -> dict[str, list[str]]:
     """Send a test notification using current task data."""
-    return await async_send_to_targets(
-        manager.hass,
-        targets if targets is not None else task.notification_targets,
+    return await async_send_task_notification(
+        manager,
+        task,
         render_message(task.notification_message, task, manager.today),
-        task.notification_title,
+        event="test",
+        targets=targets,
     )

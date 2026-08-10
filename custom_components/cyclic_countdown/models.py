@@ -67,6 +67,7 @@ class CountdownTask:
     due_date: str
     warning_days: int = DEFAULT_WARNING_DAYS
     notifications_enabled: bool = False
+    persistent_notification_enabled: bool = False
     notification_targets: list[str] = field(default_factory=list)
     notification_title: str = ""
     notification_message: str = DEFAULT_NOTIFICATION_MESSAGE
@@ -95,6 +96,7 @@ class CountdownTask:
         payload.setdefault("icon", DEFAULT_ICON)
         payload.setdefault("warning_days", DEFAULT_WARNING_DAYS)
         payload.setdefault("notifications_enabled", False)
+        payload.setdefault("persistent_notification_enabled", False)
         payload.setdefault("notification_targets", [])
         payload.setdefault("notification_title", "")
         payload.setdefault("notification_message", DEFAULT_NOTIFICATION_MESSAGE)
@@ -147,6 +149,7 @@ def validate_task_data(data: dict[str, Any], *, partial: bool, today: date) -> d
         "last_completed_date",
         "warning_days",
         "notifications_enabled",
+        "persistent_notification_enabled",
         "notification_targets",
         "notification_title",
         "notification_message",
@@ -197,6 +200,7 @@ def validate_task_data(data: dict[str, Any], *, partial: bool, today: date) -> d
 
     defaults = {
         "notifications_enabled": False,
+        "persistent_notification_enabled": False,
         "notification_title": "",
         "notification_message": DEFAULT_NOTIFICATION_MESSAGE,
         "notify_on_warning": True,
@@ -205,7 +209,12 @@ def validate_task_data(data: dict[str, Any], *, partial: bool, today: date) -> d
     for key, default in defaults.items():
         if not partial or key in data:
             value = data.get(key, default)
-            if key in {"notifications_enabled", "notify_on_warning", "notify_on_due"}:
+            if key in {
+                "notifications_enabled",
+                "persistent_notification_enabled",
+                "notify_on_warning",
+                "notify_on_due",
+            }:
                 value = bool(value)
             else:
                 value = str(value).strip()

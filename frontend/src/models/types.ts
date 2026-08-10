@@ -1,6 +1,8 @@
 export type CardStyle = "bar" | "fill";
+export type CardWidth = "standard" | "wide";
+export type CardAction = "complete" | "more-info" | "none";
 export type TaskPhase = "normal" | "warning" | "due" | "overdue";
-export type PreviewPhase = TaskPhase;
+export type PreviewPhase = "auto" | TaskPhase;
 
 export interface HomeAssistant {
   language?: string;
@@ -26,6 +28,7 @@ export interface CountdownTask {
   due_date: string;
   warning_days: number;
   notifications_enabled: boolean;
+  persistent_notification_enabled: boolean;
   notification_targets: string[];
   notification_title: string;
   notification_message: string;
@@ -41,12 +44,14 @@ export interface CardConfig {
   type: "custom:cyclic-countdown-card";
   task_id?: string;
   style: CardStyle;
+  width: CardWidth;
   reverse_progress: boolean;
   confirm_complete: boolean;
   show_secondary: boolean;
   secondary_info: "due_date" | "last_completed";
-  tap_action: "complete" | "more-info";
-  hold_action: "more-info" | "none";
+  tap_action: CardAction;
+  hold_action: CardAction;
+  double_tap_action: CardAction;
   accent_color?: string;
 }
 

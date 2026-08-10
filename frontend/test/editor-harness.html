@@ -47,7 +47,7 @@
         set icon(value) { this.textContent = value?.includes("bell") ? "♢" : value?.includes("palette") ? "◐" : value?.includes("calendar") ? "▦" : value?.includes("gesture") ? "⌁" : "✦"; }
       });
     </script>
-    <script type="module" src="/custom_components/cyclic_countdown/frontend/cyclic-countdown-card.js"></script>
+    <script type="module" src="/custom_components/cyclic_countdown/frontend/cyclic-countdown-card.js?v=0.1.4"></script>
   </head>
   <body>
     <header>
@@ -69,6 +69,7 @@
         due_date: "2026-08-31",
         warning_days: 3,
         notifications_enabled: true,
+        persistent_notification_enabled: false,
         notification_targets: ["notify.phone"],
         notification_title: "Maintenance",
         notification_message: "{name}: {days} days · {due_date}",
@@ -104,8 +105,10 @@
         confirm_complete: true,
         show_secondary: true,
         secondary_info: "last_completed",
-        tap_action: "complete",
-        hold_action: "more-info",
+        width: "standard",
+        tap_action: "more-info",
+        hold_action: "complete",
+        double_tap_action: "none",
       });
       editor.addEventListener("config-changed", (event) => editor.setConfig(event.detail.config));
       applyHass();

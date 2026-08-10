@@ -9,7 +9,7 @@ FRONTEND_PATH: Final = "/cyclic_countdown/cyclic-countdown-card.js"
 PLATFORMS: Final = ["sensor"]
 STORAGE_KEY: Final = f"{DOMAIN}.tasks"
 STORAGE_VERSION: Final = 2
-STORAGE_MINOR_VERSION: Final = 1
+STORAGE_MINOR_VERSION: Final = 2
 SERVICE_COMPLETE: Final = "complete"
 SIGNAL_TASKS_UPDATED: Final = f"{DOMAIN}_tasks_updated"
 

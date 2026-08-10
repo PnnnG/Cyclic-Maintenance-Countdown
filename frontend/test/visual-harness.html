@@ -23,7 +23,7 @@
         set icon(value) { this.textContent = value?.includes("bacteria") ? "⚙" : value?.includes("filter") ? "✦" : "◈"; }
       });
     </script>
-    <script type="module" src="/custom_components/cyclic_countdown/frontend/cyclic-countdown-card.js"></script>
+    <script type="module" src="/custom_components/cyclic_countdown/frontend/cyclic-countdown-card.js?v=0.1.4"></script>
   </head>
   <body>
     <main id="root"></main>
@@ -56,7 +56,7 @@
             type: "custom:cyclic-countdown-card", task_id: taskId,
             style: index % 2 ? "fill" : "bar", reverse_progress: index === 1,
             confirm_complete: true, show_secondary: true, secondary_info: index % 2 ? "due_date" : "last_completed",
-            tap_action: "complete", hold_action: "more-info",
+            width: "standard", tap_action: "more-info", hold_action: "complete", double_tap_action: "none",
           });
           card.hass = { language: "ru", locale: { language: "ru-RU" }, states: { [state.entity_id]: state }, connection: { sendMessagePromise: async () => state.attributes } };
           section.append(card);

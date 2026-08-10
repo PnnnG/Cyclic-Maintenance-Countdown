@@ -15,12 +15,14 @@ type Draft = Omit<CountdownTask, "task_id" | "cycle_id"> & { task_id?: string };
 const DEFAULT_CARD_CONFIG: CardConfig = {
   type: "custom:cyclic-countdown-card",
   style: "bar",
+  width: "standard",
   reverse_progress: false,
   confirm_complete: true,
   show_secondary: true,
   secondary_info: "last_completed",
-  tap_action: "complete",
-  hold_action: "more-info",
+  tap_action: "more-info",
+  hold_action: "complete",
+  double_tap_action: "none",
 };
 
 const todayIso = () => {
@@ -38,6 +40,7 @@ const newDraft = (): Draft => ({
   due_date: "",
   warning_days: 1,
   notifications_enabled: false,
+  persistent_notification_enabled: false,
   notification_targets: [],
   notification_title: "",
   notification_message: "{name}: {days} · {due_date}",
@@ -68,7 +71,7 @@ export class CyclicCountdownEditor extends LitElement {
   private _tasks: CountdownTask[] = [];
   private _targets: NotificationTarget[] = [];
   private _draft: Draft = newDraft();
-  private _previewPhase: PreviewPhase = "normal";
+  private _previewPhase: PreviewPhase = "auto";
   private _loading = true;
   private _saving = false;
   private _error = "";
@@ -218,6 +221,7 @@ export class CyclicCountdownEditor extends LitElement {
       last_completed_date,
       warning_days,
       notifications_enabled,
+      persistent_notification_enabled,
       notification_targets,
       notification_title,
       notification_message,
@@ -231,6 +235,7 @@ export class CyclicCountdownEditor extends LitElement {
       last_completed_date,
       warning_days,
       notifications_enabled,
+      persistent_notification_enabled,
       notification_targets,
       notification_title,
       notification_message,
@@ -304,20 +309,36 @@ export class CyclicCountdownEditor extends LitElement {
   }
 
   private get previewTask(): CountdownTask {
-    const remaining = {
-      normal: Math.max(this._draft.warning_days + 1, Math.ceil(this._draft.interval_days / 2)),
-      warning: Math.max(1, this._draft.warning_days || 1),
-      due: 0,
-      overdue: -2,
-    }[this._previewPhase];
+    const dueIso = this.computedDueIso() === "—" ? todayIso() : this.computedDueIso();
+    const due = new Date(`${dueIso}T12:00:00`);
+    const today = new Date(`${todayIso()}T12:00:00`);
+    const actualRemaining = Math.round((due.getTime() - today.getTime()) / 86_400_000);
+    const remaining = this._previewPhase === "auto"
+      ? actualRemaining
+      : {
+          normal: Math.max(this._draft.warning_days + 1, Math.ceil(this._draft.interval_days / 2)),
+          warning: Math.max(1, this._draft.warning_days || 1),
+          due: 0,
+          overdue: -2,
+        }[this._previewPhase];
+    const phase = this._previewPhase === "auto"
+      ? remaining < 0
+        ? "overdue"
+        : remaining === 0
+          ? "due"
+          : this._draft.warning_days > 0 && remaining <= this._draft.warning_days
+            ? "warning"
+            : "normal"
+      : this._previewPhase;
+    const interval = Math.max(1, this._draft.interval_days);
     return {
       ...this._draft,
       task_id: this._draft.task_id || "preview",
       name: this._draft.name || this.s.previewTaskName,
-      due_date: this.computedDueIso() === "—" ? todayIso() : this.computedDueIso(),
+      due_date: dueIso,
       remaining_days: remaining,
-      elapsed_progress: Math.min(1, Math.max(0, (this._draft.interval_days - remaining) / this._draft.interval_days)),
-      phase: this._previewPhase,
+      elapsed_progress: Math.min(1, Math.max(0, (interval - remaining) / interval)),
+      phase,
       notification_targets: [...this._draft.notification_targets],
     };
   }
@@ -331,6 +352,18 @@ export class CyclicCountdownEditor extends LitElement {
       ></ha-icon-picker>`;
     }
     return html`<input value=${this._draft.icon} @input=${(event: Event) => this.input("icon", event)} placeholder="mdi:wrench-clock" />`;
+  }
+
+  private renderActionSelect(
+    label: string,
+    key: "tap_action" | "hold_action" | "double_tap_action",
+  ) {
+    return html`<label>${label}<select
+      .value=${this._config?.[key] || "none"}
+      @change=${(event: Event) => this.emitConfig({
+        [key]: (event.target as HTMLSelectElement).value,
+      } as Partial<CardConfig>)}
+    ><option value="complete">${this.s.complete}</option><option value="more-info">${this.s.moreInfo}</option><option value="none">${this.s.noAction}</option></select></label>`;
   }
 
   render() {
@@ -367,13 +400,22 @@ export class CyclicCountdownEditor extends LitElement {
               <span class="mini ${style}"><i></i><b></b><em></em></span>${style === "bar" ? this.s.bar : this.s.cardFill}
             </button>`)}
         </div>
+        <div class="width-field"><span>${this.s.width}</span>
+          <span class="width-picker" role="radiogroup" aria-label=${this.s.widthAria}>
+            ${(["standard", "wide"] as const).map((width) => html`<button
+              class=${this._config?.width === width ? "selected" : ""}
+              @click=${() => this.emitConfig({ width })}
+              aria-pressed=${this._config?.width === width ? "true" : "false"}
+            >${width === "standard" ? this.s.standardWidth : this.s.wideWidth}</button>`)}
+          </span>
+        </div>
         <div class="grid">
           <label class="toggle"><input type="checkbox" .checked=${this._config.reverse_progress} @change=${(event: Event) => this.emitConfig({ reverse_progress: (event.target as HTMLInputElement).checked })} /><span>${this.s.reverseProgress}</span></label>
           <label>${this.s.accentColor}<span class="inline-field"><input type="color" .value=${this._config.accent_color || "#6d78e8"} @input=${(event: Event) => this.emitConfig({ accent_color: (event.target as HTMLInputElement).value })} /><button @click=${() => this.emitConfig({ accent_color: undefined })}>${this.s.themeColor}</button></span></label>
           <label class="toggle"><input type="checkbox" .checked=${this._config.show_secondary} @change=${(event: Event) => this.emitConfig({ show_secondary: (event.target as HTMLInputElement).checked })} /><span>${this.s.showSecondary}</span></label>
           <label>${this.s.secondaryLine}<select .value=${this._config.secondary_info} @change=${(event: Event) => this.emitConfig({ secondary_info: (event.target as HTMLSelectElement).value as CardConfig["secondary_info"] })}><option value="last_completed">${this.s.lastCompleted}</option><option value="due_date">${this.s.dueDate}</option></select></label>
         </div>
-        <div class="preview-toolbar"><span>Live preview</span><select .value=${this._previewPhase} @change=${(event: Event) => { this._previewPhase = (event.target as HTMLSelectElement).value as PreviewPhase; }}><option value="normal">Normal</option><option value="warning">Warning</option><option value="due">Due</option><option value="overdue">Overdue</option></select></div>
+        <div class="preview-toolbar"><span>${this.s.livePreview}</span><select .value=${this._previewPhase} @change=${(event: Event) => { this._previewPhase = (event.target as HTMLSelectElement).value as PreviewPhase; }}><option value="auto">${this.s.previewAuto}</option><option value="normal">${this.s.previewNormal}</option><option value="warning">${this.s.previewWarning}</option><option value="due">${this.s.previewDue}</option><option value="overdue">${this.s.previewOverdue}</option></select></div>
         <cyclic-countdown-card .hass=${this.hass} .previewTask=${this.previewTask} ._config=${this._config}></cyclic-countdown-card>
       </section>
 
@@ -381,8 +423,9 @@ export class CyclicCountdownEditor extends LitElement {
         <h3><ha-icon icon="mdi:gesture-tap"></ha-icon>${this.s.behavior}</h3>
         <div class="grid">
           <label class="toggle"><input type="checkbox" .checked=${this._config.confirm_complete} @change=${(event: Event) => this.emitConfig({ confirm_complete: (event.target as HTMLInputElement).checked })} /><span>${this.s.confirmCompletion}</span></label>
-          <label>${this.s.tap}<select .value=${this._config.tap_action} @change=${(event: Event) => this.emitConfig({ tap_action: (event.target as HTMLSelectElement).value as CardConfig["tap_action"] })}><option value="complete">${this.s.complete}</option><option value="more-info">${this.s.moreInfo}</option></select></label>
-          <label>${this.s.hold}<select .value=${this._config.hold_action} @change=${(event: Event) => this.emitConfig({ hold_action: (event.target as HTMLSelectElement).value as CardConfig["hold_action"] })}><option value="more-info">${this.s.moreInfo}</option><option value="none">${this.s.noAction}</option></select></label>
+          ${this.renderActionSelect(this.s.tap, "tap_action")}
+          ${this.renderActionSelect(this.s.hold, "hold_action")}
+          ${this.renderActionSelect(this.s.doubleTap, "double_tap_action")}
         </div>
       </section>
 
@@ -393,6 +436,7 @@ export class CyclicCountdownEditor extends LitElement {
           <label>${this.s.notificationTargets}<select multiple size="${Math.min(6, Math.max(3, this.visibleTargets.length))}" @change=${this.targetChanged}>${this.visibleTargets.map((target) => html`<option value=${target.id} ?selected=${this._draft.notification_targets.includes(target.id)}>${target.name}${target.available ? "" : this.s.unavailable}</option>`)}</select></label>
           <div class="grid">
             <label>${this.s.optionalTitle}<input .value=${this._draft.notification_title} @input=${(event: Event) => this.input("notification_title", event)} /></label>
+            <label class="toggle"><input type="checkbox" .checked=${this._draft.persistent_notification_enabled} @change=${(event: Event) => this.boolInput("persistent_notification_enabled", event)} /><span>${this.s.persistentNotification}</span></label>
             <label class="toggle"><input type="checkbox" .checked=${this._draft.notify_on_warning} @change=${(event: Event) => this.boolInput("notify_on_warning", event)} /><span>${this.s.onWarning}</span></label>
             <label class="toggle"><input type="checkbox" .checked=${this._draft.notify_on_due} @change=${(event: Event) => this.boolInput("notify_on_due", event)} /><span>${this.s.onDue}</span></label>
           </div>
@@ -418,7 +462,10 @@ export class CyclicCountdownEditor extends LitElement {
     input, select, textarea { box-sizing: border-box; width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--divider-color, #888); border-radius: 12px; color: var(--primary-text-color); background: var(--card-background-color, #fff); font: inherit; font-size: 14px; }
     input:focus, select:focus, textarea:focus, button:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
     input[type="color"] { padding: 5px; }
-    input[type="checkbox"] { width: 20px; min-height: 20px; accent-color: var(--primary-color); }
+    input[type="checkbox"] { appearance: none; -webkit-appearance: none; flex: 0 0 20px; width: 20px; height: 20px; min-height: 20px; padding: 0; border: 2px solid color-mix(in srgb, var(--secondary-text-color, #777) 72%, transparent); border-radius: 5px; background: transparent; display: grid; place-content: center; cursor: pointer; }
+    input[type="checkbox"]::before { content: ""; width: 10px; height: 6px; border: solid var(--text-primary-color, #fff); border-width: 0 0 2px 2px; transform: rotate(-45deg) scale(0); transform-origin: center; transition: transform 120ms ease-out; }
+    input[type="checkbox"]:checked { border-color: var(--primary-color); background: var(--primary-color); }
+    input[type="checkbox"]:checked::before { transform: rotate(-45deg) scale(1); }
     select[multiple] { min-height: 92px; }
     textarea { min-height: 88px; resize: vertical; }
     small { font-weight: 400; }
@@ -430,6 +477,10 @@ export class CyclicCountdownEditor extends LitElement {
     .due-preview span { color: var(--secondary-text-color); font-size: 11px; }
     .due-preview strong { font-size: 13px; }
     .style-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .width-field { display: flex; flex-direction: column; gap: 7px; margin: 0 0 13px; color: var(--secondary-text-color); font-size: 12px; font-weight: 650; }
+    .width-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .width-picker button { min-height: 40px; border: 1px solid var(--divider-color); font-size: 13px; }
+    .width-picker button.selected { border-color: var(--primary-color); color: var(--primary-color); background: color-mix(in srgb, var(--primary-color) 10%, var(--card-background-color)); }
     button { min-height: 44px; border: 0; border-radius: 12px; padding: 9px 14px; font: inherit; font-weight: 650; cursor: pointer; color: var(--primary-text-color); background: var(--secondary-background-color, rgba(127,127,127,.12)); }
     button:disabled { opacity: .48; cursor: default; }
     .style-option { min-height: 88px; display: flex; flex-direction: column; gap: 8px; align-items: stretch; font-size: 12px; border: 2px solid transparent; }

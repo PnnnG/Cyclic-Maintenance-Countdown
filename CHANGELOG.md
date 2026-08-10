@@ -2,6 +2,15 @@
 
 All notable changes to Cyclic Maintenance Countdown are documented here.
 
+## 0.1.4 — 2026-08-10
+
+- Recalculate the live preview immediately from the edited completion date, interval, and warning window; keep manual phase simulation as an explicit preview mode.
+- Add Standard and Wide card widths, with a fluid theme-overridable standard width.
+- Add configurable tap, hold, and double-tap actions with Complete, More info, and No action available for each gesture.
+- Use the safer defaults: tap opens More info, hold completes, and double tap does nothing.
+- Add optional persistent Home Assistant notifications, including storage migration and test delivery.
+- Replace browser-native checkboxes with a theme-aware control and improve Russian editor copy.
+
 ## 0.1.3 — 2026-08-10
 
 - Add a dark-mode brand icon so HACS can display the integration artwork in dark themes.

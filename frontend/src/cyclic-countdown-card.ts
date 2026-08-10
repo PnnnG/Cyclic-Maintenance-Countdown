@@ -4,6 +4,7 @@ import type { PropertyValues } from "lit";
 import "./cyclic-countdown-editor";
 import { dayUnit, formatDate, phaseLabel, t } from "./localize/localize";
 import type {
+  CardAction,
   CardConfig,
   CountdownTask,
   HassEntity,
@@ -12,12 +13,14 @@ import type {
 
 const DEFAULT_OPTIONS: Omit<CardConfig, "type"> = {
   style: "bar",
+  width: "standard",
   reverse_progress: false,
   confirm_complete: true,
   show_secondary: true,
   secondary_info: "last_completed",
-  tap_action: "complete",
-  hold_action: "more-info",
+  tap_action: "more-info",
+  hold_action: "complete",
+  double_tap_action: "none",
 };
 
 const DEFAULT_CONFIG: CardConfig = {
@@ -46,6 +49,7 @@ export class CyclicCountdownCard extends LitElement {
   private _error = "";
   private _justCompleted = false;
   private _holdTimer?: number;
+  private _tapTimer?: number;
   private _held = false;
 
   static getConfigElement(): HTMLElement {
@@ -70,7 +74,9 @@ export class CyclicCountdownCard extends LitElement {
   }
 
   getGridOptions(): Record<string, number> {
-    return { rows: 2, columns: 6, min_rows: 2, min_columns: 3 };
+    return this._config.width === "wide"
+      ? { rows: 2, columns: 6, min_rows: 2, min_columns: 4 }
+      : { rows: 2, columns: 4, min_rows: 2, min_columns: 3 };
   }
 
   protected updated(changed: PropertyValues): void {
@@ -125,15 +131,19 @@ export class CyclicCountdownCard extends LitElement {
 
   private pointerDown(): void {
     this._held = false;
-    if (this._config.hold_action === "none") return;
+    if (this._config.hold_action === "none" || this._busy || this.previewTask) return;
     this._holdTimer = window.setTimeout(() => {
       this._held = true;
-      this.moreInfo();
+      this._holdTimer = undefined;
+      if (this._tapTimer) window.clearTimeout(this._tapTimer);
+      this._tapTimer = undefined;
+      this.performAction(this._config.hold_action);
     }, 550);
   }
 
   private pointerUp(): void {
     if (this._holdTimer) window.clearTimeout(this._holdTimer);
+    this._holdTimer = undefined;
   }
 
   private activate(): void {
@@ -141,15 +151,32 @@ export class CyclicCountdownCard extends LitElement {
       this._held = false;
       return;
     }
-    if (this._config.tap_action === "more-info") this.moreInfo();
-    else if (this._config.confirm_complete) this._confirmOpen = true;
+    if (this._tapTimer) {
+      window.clearTimeout(this._tapTimer);
+      this._tapTimer = undefined;
+      this.performAction(this._config.double_tap_action);
+      return;
+    }
+    this._tapTimer = window.setTimeout(() => {
+      this._tapTimer = undefined;
+      this.performAction(this._config.tap_action);
+    }, 250);
+  }
+
+  private performAction(action: CardAction): void {
+    if (action === "none" || this._busy || this.previewTask) return;
+    if (action === "more-info") {
+      this.moreInfo();
+      return;
+    }
+    if (this._config.confirm_complete) this._confirmOpen = true;
     else void this.complete();
   }
 
   private keyActivate(event: KeyboardEvent): void {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
-      this.activate();
+      this.performAction(this._config.tap_action);
     }
   }
 
@@ -227,7 +254,7 @@ export class CyclicCountdownCard extends LitElement {
     const style = `--progress:${this.progress}%;--accent:${this._config.accent_color || "var(--primary-color, #6d78e8)"}`;
     return html`
       <ha-card
-        class="card ${this._config.style} ${task.phase} ${this._justCompleted ? "just-completed" : ""}"
+        class="card ${this._config.style} ${this._config.width} ${task.phase} ${this._justCompleted ? "just-completed" : ""}"
         style=${style}
         role="button"
         tabindex="0"
@@ -296,6 +323,8 @@ export class CyclicCountdownCard extends LitElement {
       backdrop-filter: var(--cyclic-countdown-backdrop-filter, var(--ha-card-backdrop-filter, none));
       transition: transform 180ms ease, box-shadow 180ms ease;
     }
+    .card.standard { width: min(100%, var(--cyclic-countdown-standard-width, 36rem)); margin-inline: auto; }
+    .card.wide { width: 100%; }
     .card:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 70%, white); outline-offset: 3px; }
     .card:active { transform: scale(.995); }
     .bar { --cyclic-countdown-radius: max(var(--ha-card-border-radius, 30px), 30px); }

@@ -44,6 +44,9 @@ class CountdownStore(storage.Store[dict[str, Any]]):
                 task.setdefault("notify_on_warning", True)
                 task.setdefault("notify_on_due", True)
                 task.setdefault("sent_events", [])
+        if old_major_version < 2 or old_minor_version < 2:
+            for task in tasks:
+                task.setdefault("persistent_notification_enabled", False)
         data["tasks"] = tasks
         return data
 

@@ -8,12 +8,14 @@ const config = (overrides: Partial<CardConfig> = {}): CardConfig => ({
   type: "custom:cyclic-countdown-card",
   task_id: "task-1",
   style: "bar",
+  width: "standard",
   reverse_progress: false,
   confirm_complete: true,
   show_secondary: true,
   secondary_info: "due_date",
   tap_action: "complete",
   hold_action: "more-info",
+  double_tap_action: "none",
   ...overrides,
 });
 
@@ -36,6 +38,7 @@ const hass: HomeAssistant = {
         elapsed_progress: 1 / 14,
         phase: "normal",
         notifications_enabled: false,
+        persistent_notification_enabled: false,
         notification_targets: [],
         notification_title: "",
         notification_message: "",
@@ -72,6 +75,12 @@ describe("cyclic-countdown-card", () => {
       | undefined;
     expect(cardClass).toBeDefined();
     expect(cardClass?.getStubConfig()).not.toHaveProperty("type");
+    expect(cardClass?.getStubConfig()).toEqual(expect.objectContaining({
+      width: "standard",
+      tap_action: "more-info",
+      hold_action: "complete",
+      double_tap_action: "none",
+    }));
   });
 
   it("renders a large day count instead of percent", async () => {
@@ -84,6 +93,12 @@ describe("cyclic-countdown-card", () => {
     card.setConfig(config({ style }));
     await card.updateComplete;
     expect(card.shadowRoot?.querySelector("ha-card")?.classList.contains(style)).toBe(true);
+  });
+
+  it.each(["standard", "wide"] as const)("renders %s width", async (width) => {
+    card.setConfig(config({ width }));
+    await card.updateComplete;
+    expect(card.shadowRoot?.querySelector("ha-card")?.classList.contains(width)).toBe(true);
   });
 
   it("reverses only visual progress", async () => {
@@ -125,13 +140,13 @@ describe("cyclic-countdown-card", () => {
     expect(card.shadowRoot?.querySelector(".days strong")?.textContent).toBe(String(remaining));
   });
 
-  it("blocks double completion while the backend request is pending", async () => {
+  it("sends only one completion for a configured double tap", async () => {
     let resolveRequest: ((value: unknown) => void) | undefined;
     const request = vi.fn(
       () => new Promise((resolve) => { resolveRequest = resolve; }),
     ) as unknown as HomeAssistant["connection"]["sendMessagePromise"];
     card.hass = { ...hass, connection: { sendMessagePromise: request } };
-    card.setConfig(config({ confirm_complete: false }));
+    card.setConfig(config({ confirm_complete: false, double_tap_action: "complete" }));
     await card.updateComplete;
     const surface = card.shadowRoot?.querySelector<HTMLElement>(".card");
     surface?.click();

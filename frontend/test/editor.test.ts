@@ -6,12 +6,14 @@ import type { HomeAssistant } from "../src/models/types";
 const config = {
   type: "custom:cyclic-countdown-card" as const,
   style: "bar" as const,
+  width: "standard" as const,
   reverse_progress: false,
   confirm_complete: true,
   show_secondary: true,
   secondary_info: "last_completed" as const,
-  tap_action: "complete" as const,
-  hold_action: "more-info" as const,
+  tap_action: "more-info" as const,
+  hold_action: "complete" as const,
+  double_tap_action: "none" as const,
 };
 
 async function settle(element: HTMLElement & { updateComplete: Promise<unknown> }) {
@@ -78,5 +80,51 @@ describe("cyclic-countdown-editor", () => {
     styleButtons?.[1].click();
     expect(changed).toHaveBeenCalledOnce();
     expect((changed.mock.calls[0][0] as CustomEvent).detail.config.style).toBe("fill");
+  });
+
+  it("offers the same three actions for tap, hold, and double tap", async () => {
+    editor.hass = {
+      language: "en",
+      states: {},
+      connection: {
+        sendMessagePromise: vi.fn(async () => []) as unknown as HomeAssistant["connection"]["sendMessagePromise"],
+      },
+    };
+    await settle(editor);
+    const behavior = [...(editor.shadowRoot?.querySelectorAll("section") || [])][2];
+    const selects = behavior.querySelectorAll("select");
+    expect(selects).toHaveLength(3);
+    for (const select of selects) {
+      expect([...select.options].map((option) => option.value)).toEqual([
+        "complete",
+        "more-info",
+        "none",
+      ]);
+    }
+  });
+
+  it("recalculates the live preview immediately from edited dates", async () => {
+    editor.hass = {
+      language: "en",
+      states: {},
+      connection: {
+        sendMessagePromise: vi.fn(async () => []) as unknown as HomeAssistant["connection"]["sendMessagePromise"],
+      },
+    };
+    await settle(editor);
+    const today = new Date();
+    const iso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+    const dateInput = editor.shadowRoot?.querySelector<HTMLInputElement>('input[type="date"]');
+    const intervalInput = editor.shadowRoot?.querySelector<HTMLInputElement>('input[type="number"]');
+    dateInput!.value = iso;
+    dateInput!.dispatchEvent(new Event("input"));
+    intervalInput!.value = "3";
+    intervalInput!.dispatchEvent(new Event("input"));
+    await editor.updateComplete;
+    const preview = editor.shadowRoot?.querySelector("cyclic-countdown-card") as unknown as {
+      previewTask: { remaining_days: number; phase: string };
+    };
+    expect(preview.previewTask.remaining_days).toBe(3);
+    expect(preview.previewTask.phase).toBe("normal");
   });
 });

@@ -598,6 +598,10 @@ var be = {
 	nextDueDate: "Next due date",
 	appearance: "Appearance",
 	styleAria: "Card style",
+	width: "Card width",
+	widthAria: "Card width",
+	standardWidth: "Standard",
+	wideWidth: "Wide",
 	bar: "Bar",
 	cardFill: "Card fill",
 	reverseProgress: "Reverse progress direction",
@@ -612,9 +616,11 @@ var be = {
 	complete: "Complete",
 	moreInfo: "More info",
 	hold: "Hold",
+	doubleTap: "Double tap",
 	noAction: "No action",
 	notifications: "Notifications",
 	sendNotifications: "Send notifications",
+	persistentNotification: "Create a persistent Home Assistant notification",
 	notificationTargets: "Notification targets",
 	unavailable: " — unavailable",
 	optionalTitle: "Optional title",
@@ -623,6 +629,12 @@ var be = {
 	message: "Message",
 	placeholders: "Placeholders",
 	notification: "Notification",
+	livePreview: "Live preview",
+	previewAuto: "Actual dates",
+	previewNormal: "Normal",
+	previewWarning: "Warning",
+	previewDue: "Due",
+	previewOverdue: "Overdue",
 	previewTaskName: "Water filter",
 	sendTest: "Send test",
 	deleteTask: "Delete task",
@@ -646,7 +658,7 @@ var be = {
 	selectedTask: "Выбранная задача",
 	createNewTask: "Создать новую задачу",
 	name: "Название",
-	namePlaceholder: "Например, Бактерии",
+	namePlaceholder: "Например, Заменить фильтр",
 	icon: "Иконка",
 	intervalDays: "Период, дней",
 	lastCompleted: "Последнее выполнение",
@@ -655,6 +667,10 @@ var be = {
 	nextDueDate: "Следующий срок",
 	appearance: "Внешний вид",
 	styleAria: "Стиль карточки",
+	width: "Ширина карточки",
+	widthAria: "Ширина карточки",
+	standardWidth: "Стандартная",
+	wideWidth: "Широкая",
 	bar: "Полоса",
 	cardFill: "Заливка карточки",
 	reverseProgress: "Обратное направление прогресса",
@@ -669,18 +685,26 @@ var be = {
 	complete: "Выполнить",
 	moreInfo: "Подробнее",
 	hold: "Удержание",
+	doubleTap: "Двойное нажатие",
 	noAction: "Нет действия",
 	notifications: "Уведомления",
 	sendNotifications: "Отправлять уведомления",
+	persistentNotification: "Создавать постоянное уведомление Home Assistant",
 	notificationTargets: "Цели уведомлений",
 	unavailable: " — недоступна",
 	optionalTitle: "Заголовок, необязательно",
 	onWarning: "При входе в warning",
-	onDue: "В день срока",
+	onDue: "В день истечения срока",
 	message: "Текст сообщения",
 	placeholders: "Подстановки",
 	notification: "Уведомление",
-	previewTaskName: "Бактерии",
+	previewTaskName: "Заменить фильтр",
+	livePreview: "Живое превью",
+	previewAuto: "По датам задачи",
+	previewNormal: "Обычное",
+	previewWarning: "Предупреждение",
+	previewDue: "Срок сегодня",
+	previewOverdue: "Просрочено",
 	sendTest: "Отправить тест",
 	deleteTask: "Удалить задачу",
 	saving: "Сохранение…",
@@ -695,12 +719,14 @@ function Se(e) {
 var Ce = {
 	type: "custom:cyclic-countdown-card",
 	style: "bar",
+	width: "standard",
 	reverse_progress: !1,
 	confirm_complete: !0,
 	show_secondary: !0,
 	secondary_info: "last_completed",
-	tap_action: "complete",
-	hold_action: "more-info"
+	tap_action: "more-info",
+	hold_action: "complete",
+	double_tap_action: "none"
 }, Q = () => {
 	let e = /* @__PURE__ */ new Date();
 	return `${e.getFullYear()}-${String(e.getMonth() + 1).padStart(2, "0")}-${String(e.getDate()).padStart(2, "0")}`;
@@ -712,6 +738,7 @@ var Ce = {
 	due_date: "",
 	warning_days: 1,
 	notifications_enabled: !1,
+	persistent_notification_enabled: !1,
 	notification_targets: [],
 	notification_title: "",
 	notification_message: "{name}: {days} · {due_date}",
@@ -722,7 +749,7 @@ var Ce = {
 	phase: "normal"
 }), we = class extends q {
 	constructor(...e) {
-		super(...e), this._tasks = [], this._targets = [], this._draft = $(), this._previewPhase = "normal", this._loading = !0, this._saving = !1, this._error = "", this._notice = "", this._loadFailed = !1;
+		super(...e), this._tasks = [], this._targets = [], this._draft = $(), this._previewPhase = "auto", this._loading = !0, this._saving = !1, this._error = "", this._notice = "", this._loadFailed = !1;
 	}
 	static {
 		this.properties = {
@@ -843,7 +870,7 @@ var Ce = {
 		return Number.isNaN(e.getTime()) || this._draft.interval_days < 1 ? "—" : (e.setDate(e.getDate() + this._draft.interval_days), `${e.getFullYear()}-${String(e.getMonth() + 1).padStart(2, "0")}-${String(e.getDate()).padStart(2, "0")}`);
 	}
 	payload() {
-		let { name: e, icon: t, interval_days: n, last_completed_date: r, warning_days: i, notifications_enabled: a, notification_targets: o, notification_title: s, notification_message: c, notify_on_warning: l, notify_on_due: u } = this._draft;
+		let { name: e, icon: t, interval_days: n, last_completed_date: r, warning_days: i, notifications_enabled: a, persistent_notification_enabled: o, notification_targets: s, notification_title: c, notification_message: l, notify_on_warning: u, notify_on_due: d } = this._draft;
 		return {
 			name: e,
 			icon: t,
@@ -851,11 +878,12 @@ var Ce = {
 			last_completed_date: r,
 			warning_days: i,
 			notifications_enabled: a,
-			notification_targets: o,
-			notification_title: s,
-			notification_message: c,
-			notify_on_warning: l,
-			notify_on_due: u
+			persistent_notification_enabled: o,
+			notification_targets: s,
+			notification_title: c,
+			notification_message: l,
+			notify_on_warning: u,
+			notify_on_due: d
 		};
 	}
 	async saveTask() {
@@ -910,20 +938,20 @@ var Ce = {
 		}
 	}
 	get previewTask() {
-		let e = {
+		let e = this.computedDueIso() === "—" ? Q() : this.computedDueIso(), t = /* @__PURE__ */ new Date(`${e}T12:00:00`), n = /* @__PURE__ */ new Date(`${Q()}T12:00:00`), r = Math.round((t.getTime() - n.getTime()) / 864e5), i = this._previewPhase === "auto" ? r : {
 			normal: Math.max(this._draft.warning_days + 1, Math.ceil(this._draft.interval_days / 2)),
 			warning: Math.max(1, this._draft.warning_days || 1),
 			due: 0,
 			overdue: -2
-		}[this._previewPhase];
+		}[this._previewPhase], a = this._previewPhase === "auto" ? i < 0 ? "overdue" : i === 0 ? "due" : this._draft.warning_days > 0 && i <= this._draft.warning_days ? "warning" : "normal" : this._previewPhase, o = Math.max(1, this._draft.interval_days);
 		return {
 			...this._draft,
 			task_id: this._draft.task_id || "preview",
 			name: this._draft.name || this.s.previewTaskName,
-			due_date: this.computedDueIso() === "—" ? Q() : this.computedDueIso(),
-			remaining_days: e,
-			elapsed_progress: Math.min(1, Math.max(0, (this._draft.interval_days - e) / this._draft.interval_days)),
-			phase: this._previewPhase,
+			due_date: e,
+			remaining_days: i,
+			elapsed_progress: Math.min(1, Math.max(0, (o - i) / o)),
+			phase: a,
 			notification_targets: [...this._draft.notification_targets]
 		};
 	}
@@ -933,6 +961,12 @@ var Ce = {
         .value=${this._draft.icon}
         @value-changed=${(e) => this.updateDraft("icon", e.detail.value)}
       ></ha-icon-picker>` : I`<input value=${this._draft.icon} @input=${(e) => this.input("icon", e)} placeholder="mdi:wrench-clock" />`;
+	}
+	renderActionSelect(e, t) {
+		return I`<label>${e}<select
+      .value=${this._config?.[t] || "none"}
+      @change=${(e) => this.emitConfig({ [t]: e.target.value })}
+    ><option value="complete">${this.s.complete}</option><option value="more-info">${this.s.moreInfo}</option><option value="none">${this.s.noAction}</option></select></label>`;
 	}
 	render() {
 		return this._config ? this._loading ? I`<div class="status">${this.s.loading}</div>` : this._loadFailed ? I`<div class="integration-error">${this._error}<button @click=${this.load}>${this.s.retry}</button></div>` : I`
@@ -965,15 +999,24 @@ var Ce = {
               <span class="mini ${e}"><i></i><b></b><em></em></span>${e === "bar" ? this.s.bar : this.s.cardFill}
             </button>`)}
         </div>
+        <div class="width-field"><span>${this.s.width}</span>
+          <span class="width-picker" role="radiogroup" aria-label=${this.s.widthAria}>
+            ${["standard", "wide"].map((e) => I`<button
+              class=${this._config?.width === e ? "selected" : ""}
+              @click=${() => this.emitConfig({ width: e })}
+              aria-pressed=${this._config?.width === e ? "true" : "false"}
+            >${e === "standard" ? this.s.standardWidth : this.s.wideWidth}</button>`)}
+          </span>
+        </div>
         <div class="grid">
           <label class="toggle"><input type="checkbox" .checked=${this._config.reverse_progress} @change=${(e) => this.emitConfig({ reverse_progress: e.target.checked })} /><span>${this.s.reverseProgress}</span></label>
           <label>${this.s.accentColor}<span class="inline-field"><input type="color" .value=${this._config.accent_color || "#6d78e8"} @input=${(e) => this.emitConfig({ accent_color: e.target.value })} /><button @click=${() => this.emitConfig({ accent_color: void 0 })}>${this.s.themeColor}</button></span></label>
           <label class="toggle"><input type="checkbox" .checked=${this._config.show_secondary} @change=${(e) => this.emitConfig({ show_secondary: e.target.checked })} /><span>${this.s.showSecondary}</span></label>
           <label>${this.s.secondaryLine}<select .value=${this._config.secondary_info} @change=${(e) => this.emitConfig({ secondary_info: e.target.value })}><option value="last_completed">${this.s.lastCompleted}</option><option value="due_date">${this.s.dueDate}</option></select></label>
         </div>
-        <div class="preview-toolbar"><span>Live preview</span><select .value=${this._previewPhase} @change=${(e) => {
+        <div class="preview-toolbar"><span>${this.s.livePreview}</span><select .value=${this._previewPhase} @change=${(e) => {
 			this._previewPhase = e.target.value;
-		}}><option value="normal">Normal</option><option value="warning">Warning</option><option value="due">Due</option><option value="overdue">Overdue</option></select></div>
+		}}><option value="auto">${this.s.previewAuto}</option><option value="normal">${this.s.previewNormal}</option><option value="warning">${this.s.previewWarning}</option><option value="due">${this.s.previewDue}</option><option value="overdue">${this.s.previewOverdue}</option></select></div>
         <cyclic-countdown-card .hass=${this.hass} .previewTask=${this.previewTask} ._config=${this._config}></cyclic-countdown-card>
       </section>
 
@@ -981,8 +1024,9 @@ var Ce = {
         <h3><ha-icon icon="mdi:gesture-tap"></ha-icon>${this.s.behavior}</h3>
         <div class="grid">
           <label class="toggle"><input type="checkbox" .checked=${this._config.confirm_complete} @change=${(e) => this.emitConfig({ confirm_complete: e.target.checked })} /><span>${this.s.confirmCompletion}</span></label>
-          <label>${this.s.tap}<select .value=${this._config.tap_action} @change=${(e) => this.emitConfig({ tap_action: e.target.value })}><option value="complete">${this.s.complete}</option><option value="more-info">${this.s.moreInfo}</option></select></label>
-          <label>${this.s.hold}<select .value=${this._config.hold_action} @change=${(e) => this.emitConfig({ hold_action: e.target.value })}><option value="more-info">${this.s.moreInfo}</option><option value="none">${this.s.noAction}</option></select></label>
+          ${this.renderActionSelect(this.s.tap, "tap_action")}
+          ${this.renderActionSelect(this.s.hold, "hold_action")}
+          ${this.renderActionSelect(this.s.doubleTap, "double_tap_action")}
         </div>
       </section>
 
@@ -993,6 +1037,7 @@ var Ce = {
           <label>${this.s.notificationTargets}<select multiple size="${Math.min(6, Math.max(3, this.visibleTargets.length))}" @change=${this.targetChanged}>${this.visibleTargets.map((e) => I`<option value=${e.id} ?selected=${this._draft.notification_targets.includes(e.id)}>${e.name}${e.available ? "" : this.s.unavailable}</option>`)}</select></label>
           <div class="grid">
             <label>${this.s.optionalTitle}<input .value=${this._draft.notification_title} @input=${(e) => this.input("notification_title", e)} /></label>
+            <label class="toggle"><input type="checkbox" .checked=${this._draft.persistent_notification_enabled} @change=${(e) => this.boolInput("persistent_notification_enabled", e)} /><span>${this.s.persistentNotification}</span></label>
             <label class="toggle"><input type="checkbox" .checked=${this._draft.notify_on_warning} @change=${(e) => this.boolInput("notify_on_warning", e)} /><span>${this.s.onWarning}</span></label>
             <label class="toggle"><input type="checkbox" .checked=${this._draft.notify_on_due} @change=${(e) => this.boolInput("notify_on_due", e)} /><span>${this.s.onDue}</span></label>
           </div>
@@ -1018,7 +1063,10 @@ var Ce = {
     input, select, textarea { box-sizing: border-box; width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--divider-color, #888); border-radius: 12px; color: var(--primary-text-color); background: var(--card-background-color, #fff); font: inherit; font-size: 14px; }
     input:focus, select:focus, textarea:focus, button:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
     input[type="color"] { padding: 5px; }
-    input[type="checkbox"] { width: 20px; min-height: 20px; accent-color: var(--primary-color); }
+    input[type="checkbox"] { appearance: none; -webkit-appearance: none; flex: 0 0 20px; width: 20px; height: 20px; min-height: 20px; padding: 0; border: 2px solid color-mix(in srgb, var(--secondary-text-color, #777) 72%, transparent); border-radius: 5px; background: transparent; display: grid; place-content: center; cursor: pointer; }
+    input[type="checkbox"]::before { content: ""; width: 10px; height: 6px; border: solid var(--text-primary-color, #fff); border-width: 0 0 2px 2px; transform: rotate(-45deg) scale(0); transform-origin: center; transition: transform 120ms ease-out; }
+    input[type="checkbox"]:checked { border-color: var(--primary-color); background: var(--primary-color); }
+    input[type="checkbox"]:checked::before { transform: rotate(-45deg) scale(1); }
     select[multiple] { min-height: 92px; }
     textarea { min-height: 88px; resize: vertical; }
     small { font-weight: 400; }
@@ -1030,6 +1078,10 @@ var Ce = {
     .due-preview span { color: var(--secondary-text-color); font-size: 11px; }
     .due-preview strong { font-size: 13px; }
     .style-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .width-field { display: flex; flex-direction: column; gap: 7px; margin: 0 0 13px; color: var(--secondary-text-color); font-size: 12px; font-weight: 650; }
+    .width-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .width-picker button { min-height: 40px; border: 1px solid var(--divider-color); font-size: 13px; }
+    .width-picker button.selected { border-color: var(--primary-color); color: var(--primary-color); background: color-mix(in srgb, var(--primary-color) 10%, var(--card-background-color)); }
     button { min-height: 44px; border: 0; border-radius: 12px; padding: 9px 14px; font: inherit; font-weight: 650; cursor: pointer; color: var(--primary-text-color); background: var(--secondary-background-color, rgba(127,127,127,.12)); }
     button:disabled { opacity: .48; cursor: default; }
     .style-option { min-height: 88px; display: flex; flex-direction: column; gap: 8px; align-items: stretch; font-size: 12px; border: 2px solid transparent; }
@@ -1062,12 +1114,14 @@ customElements.get("cyclic-countdown-editor") || customElements.define("cyclic-c
 //#region src/cyclic-countdown-card.ts
 var Te = {
 	style: "bar",
+	width: "standard",
 	reverse_progress: !1,
 	confirm_complete: !0,
 	show_secondary: !0,
 	secondary_info: "last_completed",
-	tap_action: "complete",
-	hold_action: "more-info"
+	tap_action: "more-info",
+	hold_action: "complete",
+	double_tap_action: "none"
 }, Ee = {
 	type: "custom:cyclic-countdown-card",
 	...Te
@@ -1105,9 +1159,14 @@ var Te = {
 		return 2;
 	}
 	getGridOptions() {
-		return {
+		return this._config.width === "wide" ? {
 			rows: 2,
 			columns: 6,
+			min_rows: 2,
+			min_columns: 4
+		} : {
+			rows: 2,
+			columns: 4,
 			min_rows: 2,
 			min_columns: 3
 		};
@@ -1144,22 +1203,37 @@ var Te = {
 		return `${e.name}, ${Z(e.phase, this.locale)}, ${e.remaining_days} ${X(e.remaining_days, this.locale)}. ${this._config.tap_action === "complete" ? Y(this.locale, "complete") : ""}`;
 	}
 	pointerDown() {
-		this._held = !1, this._config.hold_action !== "none" && (this._holdTimer = window.setTimeout(() => {
-			this._held = !0, this.moreInfo();
+		this._held = !1, !(this._config.hold_action === "none" || this._busy || this.previewTask) && (this._holdTimer = window.setTimeout(() => {
+			this._held = !0, this._holdTimer = void 0, this._tapTimer && window.clearTimeout(this._tapTimer), this._tapTimer = void 0, this.performAction(this._config.hold_action);
 		}, 550));
 	}
 	pointerUp() {
-		this._holdTimer && window.clearTimeout(this._holdTimer);
+		this._holdTimer && window.clearTimeout(this._holdTimer), this._holdTimer = void 0;
 	}
 	activate() {
 		if (this._held || this._busy || this.previewTask) {
 			this._held = !1;
 			return;
 		}
-		this._config.tap_action === "more-info" ? this.moreInfo() : this._config.confirm_complete ? this._confirmOpen = !0 : this.complete();
+		if (this._tapTimer) {
+			window.clearTimeout(this._tapTimer), this._tapTimer = void 0, this.performAction(this._config.double_tap_action);
+			return;
+		}
+		this._tapTimer = window.setTimeout(() => {
+			this._tapTimer = void 0, this.performAction(this._config.tap_action);
+		}, 250);
+	}
+	performAction(e) {
+		if (!(e === "none" || this._busy || this.previewTask)) {
+			if (e === "more-info") {
+				this.moreInfo();
+				return;
+			}
+			this._config.confirm_complete ? this._confirmOpen = !0 : this.complete();
+		}
 	}
 	keyActivate(e) {
-		(e.key === "Enter" || e.key === " ") && (e.preventDefault(), this.activate());
+		(e.key === "Enter" || e.key === " ") && (e.preventDefault(), this.performAction(this._config.tap_action));
 	}
 	moreInfo() {
 		let e = this.entity?.entity_id;
@@ -1215,7 +1289,7 @@ var Te = {
 		let t = `--progress:${this.progress}%;--accent:${this._config.accent_color || "var(--primary-color, #6d78e8)"}`;
 		return I`
       <ha-card
-        class="card ${this._config.style} ${e.phase} ${this._justCompleted ? "just-completed" : ""}"
+        class="card ${this._config.style} ${this._config.width} ${e.phase} ${this._justCompleted ? "just-completed" : ""}"
         style=${t}
         role="button"
         tabindex="0"
@@ -1280,6 +1354,8 @@ var Te = {
       backdrop-filter: var(--cyclic-countdown-backdrop-filter, var(--ha-card-backdrop-filter, none));
       transition: transform 180ms ease, box-shadow 180ms ease;
     }
+    .card.standard { width: min(100%, var(--cyclic-countdown-standard-width, 36rem)); margin-inline: auto; }
+    .card.wide { width: 100%; }
     .card:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 70%, white); outline-offset: 3px; }
     .card:active { transform: scale(.995); }
     .bar { --cyclic-countdown-radius: max(var(--ha-card-border-radius, 30px), 30px); }
