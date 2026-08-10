@@ -5,6 +5,7 @@ from homeassistant.components.frontend import DATA_EXTRA_MODULE_URL
 from homeassistant.config_entries import SOURCE_USER
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
+from homeassistant.loader import async_get_integration
 from pytest_homeassistant_custom_component.common import mock_component
 
 from custom_components.cyclic_countdown.const import DOMAIN, FRONTEND_PATH
@@ -44,7 +45,10 @@ async def test_user_flow_creates_loaded_integration(hass: HomeAssistant) -> None
     await hass.async_block_till_done()
     assert len(hass.config_entries.async_entries(DOMAIN)) == 1
     assert DOMAIN in hass.data
-    assert f"{FRONTEND_PATH}?v=0.2.1" in hass.data[DATA_EXTRA_MODULE_URL].urls
+    integration = await async_get_integration(hass, DOMAIN)
+    assert f"{FRONTEND_PATH}?v={integration.version}" in hass.data[
+        DATA_EXTRA_MODULE_URL
+    ].urls
 
 
 @pytest.mark.usefixtures("enable_custom_integrations")
