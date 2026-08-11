@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import "../src/cyclic-countdown-card";
 import type { CardConfig, HomeAssistant } from "../src/models/types";
+import { addCalendarDays, todayIsoInTimeZone } from "../src/utils/calendar";
 
 const config: CardConfig = {
   type: "custom:cyclic-countdown-card" as const,
@@ -53,22 +54,20 @@ describe("cyclic-countdown-editor", () => {
     if (!customElements.get("ha-icon-picker")) {
       customElements.define("ha-icon-picker", class extends HTMLElement {
         items: unknown[] = [];
+        disabled = false;
 
         attachComboBox() {
           const generic = this.shadowRoot?.querySelector("ha-generic-picker");
           if (!generic?.shadowRoot) return undefined;
-          const comboBox = document.createElement("ha-picker-combo-box") as HTMLElement & {
-            items?: string[];
-            refreshItems?: ReturnType<typeof vi.fn>;
-            search?: (value: string) => string[];
-          };
-          comboBox.items = [];
-          comboBox.refreshItems = vi.fn(() => {
-            comboBox.items = [...this.items] as string[];
-          });
-          comboBox.search = (value: string) =>
-            comboBox.items!.filter((item) => item.includes(value));
+          const comboBox = document.createElement("ha-picker-combo-box");
           generic.shadowRoot.append(comboBox);
+          return comboBox;
+        }
+
+        open() {
+          if (this.disabled) return undefined;
+          const comboBox = this.attachComboBox();
+          this.dispatchEvent(new CustomEvent("picker-opened"));
           return comboBox;
         }
 
@@ -77,16 +76,9 @@ describe("cyclic-countdown-editor", () => {
           const root = this.attachShadow({ mode: "open" });
           const generic = document.createElement("ha-generic-picker") as HTMLElement & {
             getItems?: () => unknown[];
-            refreshItems?: ReturnType<typeof vi.fn>;
           };
-          const genericRoot = generic.attachShadow({ mode: "open" });
+          generic.attachShadow({ mode: "open" });
           generic.getItems = () => this.items;
-          generic.refreshItems = vi.fn(() => {
-            const comboBox = genericRoot.querySelector("ha-picker-combo-box") as
-              | (HTMLElement & { refreshItems?: () => void })
-              | null;
-            comboBox?.refreshItems?.();
-          });
           root.append(generic);
         }
       });
@@ -233,6 +225,159 @@ describe("cyclic-countdown-editor", () => {
     expect((changed.mock.calls.at(-1)?.[0] as CustomEvent).detail.config.task_id).toBe("task-1");
   });
 
+  it("preserves an unsaved existing-task draft when HA echoes presentation config", async () => {
+    mountEditor({ ...config, task_id: task.task_id });
+    editor.hass = {
+      language: "en",
+      states: {},
+      connection: {
+        sendMessagePromise: vi.fn(async (message: Record<string, unknown>) =>
+          message.type === "cyclic_countdown/tasks/list" ? [task] : []) as unknown as HomeAssistant["connection"]["sendMessagePromise"],
+      },
+    };
+    await settle(editor);
+    editor.addEventListener("config-changed", (event) => {
+      editor.setConfig((event as CustomEvent<{ config: CardConfig }>).detail.config);
+    });
+
+    const name = editor.shadowRoot?.querySelector<HTMLInputElement>('input[required]');
+    name!.value = "Unsaved filter name";
+    name!.dispatchEvent(new Event("input"));
+    await editor.updateComplete;
+
+    editor.shadowRoot?.querySelectorAll<HTMLButtonElement>(".style-option")[1].click();
+    await editor.updateComplete;
+
+    expect(editor.shadowRoot?.querySelector<HTMLInputElement>('input[required]')?.value).toBe(
+      "Unsaved filter name",
+    );
+  });
+
+  it("preserves a dirty existing draft across connection reload and task-mode round trip", async () => {
+    mountEditor({ ...config, task_id: task.task_id });
+    const connection = (serverTask: typeof task): HomeAssistant["connection"] => ({
+      sendMessagePromise: vi.fn(async (message: Record<string, unknown>) =>
+        message.type === "cyclic_countdown/tasks/list" ? [serverTask] : []) as unknown as HomeAssistant["connection"]["sendMessagePromise"],
+    });
+    editor.hass = {
+      language: "en",
+      states: {},
+      connection: connection(task),
+    };
+    await settle(editor);
+
+    const name = editor.shadowRoot?.querySelector<HTMLInputElement>('input[required]');
+    name!.value = "Local unsaved name";
+    name!.dispatchEvent(new Event("input"));
+    await editor.updateComplete;
+
+    editor.hass = {
+      language: "en",
+      states: {},
+      connection: connection({ ...task, name: "New server name" }),
+    };
+    await settle(editor);
+    expect(editor.shadowRoot?.querySelector<HTMLInputElement>('input[required]')?.value).toBe(
+      "Local unsaved name",
+    );
+
+    editor.shadowRoot?.querySelectorAll<HTMLButtonElement>(".task-mode-picker button")[0].click();
+    await editor.updateComplete;
+    editor.shadowRoot?.querySelectorAll<HTMLButtonElement>(".task-mode-picker button")[1].click();
+    await editor.updateComplete;
+    expect(editor.shadowRoot?.querySelector<HTMLInputElement>('input[required]')?.value).toBe(
+      "Local unsaved name",
+    );
+  });
+
+  it("ignores a genuinely overlapping load from a replaced connection", async () => {
+    mountEditor({ ...config, task_id: task.task_id });
+    let resolveOldTasks: ((tasks: typeof task[]) => void) | undefined;
+    const oldTasks = new Promise<typeof task[]>((resolve) => { resolveOldTasks = resolve; });
+    const oldConnection: HomeAssistant["connection"] = {
+      sendMessagePromise: vi.fn((message: Record<string, unknown>) =>
+        message.type === "cyclic_countdown/tasks/list"
+          ? oldTasks
+          : Promise.resolve([])) as unknown as HomeAssistant["connection"]["sendMessagePromise"],
+    };
+    const freshTask = { ...task, name: "Fresh connection task" };
+    const newConnection: HomeAssistant["connection"] = {
+      sendMessagePromise: vi.fn(async (message: Record<string, unknown>) =>
+        message.type === "cyclic_countdown/tasks/list" ? [freshTask] : []) as unknown as HomeAssistant["connection"]["sendMessagePromise"],
+    };
+
+    editor.hass = { language: "en", states: {}, connection: oldConnection };
+    await editor.updateComplete;
+    await Promise.resolve();
+    editor.hass = { language: "en", states: {}, connection: newConnection };
+    await settle(editor);
+    expect(editor.shadowRoot?.querySelector<HTMLInputElement>('input[required]')?.value).toBe(
+      "Fresh connection task",
+    );
+
+    resolveOldTasks?.([{ ...task, name: "Stale connection task" }]);
+    await settle(editor);
+    expect(editor.shadowRoot?.querySelector<HTMLInputElement>('input[required]')?.value).toBe(
+      "Fresh connection task",
+    );
+  });
+
+  it("keeps task editing available when notification targets fail to load", async () => {
+    const taskWithSavedTarget = {
+      ...task,
+      notifications_enabled: true,
+      notification_targets: ["notify.saved_phone"],
+    };
+    let updatePayload: Record<string, unknown> | undefined;
+    mountEditor({ ...config, task_id: task.task_id });
+    editor.hass = {
+      language: "en",
+      states: {},
+      connection: {
+        sendMessagePromise: vi.fn(async (message: Record<string, unknown>) => {
+          if (message.type === "cyclic_countdown/tasks/list") return [taskWithSavedTarget];
+          if (message.type === "cyclic_countdown/notification_targets/list") {
+            throw new Error("targets unavailable");
+          }
+          if (message.type === "cyclic_countdown/tasks/update") {
+            updatePayload = message;
+            return {
+              ...taskWithSavedTarget,
+              warning_days: Number(message.warning_days),
+            };
+          }
+          return [];
+        }) as unknown as HomeAssistant["connection"]["sendMessagePromise"],
+      },
+    };
+    await settle(editor);
+
+    expect(editor.shadowRoot?.textContent).toContain("Appearance");
+    expect(editor.shadowRoot?.textContent).toContain("Notification targets could not be loaded");
+    expect(editor.shadowRoot?.querySelector(".integration-error")).toBeNull();
+    const warning = editor.shadowRoot?.querySelector(".section-message");
+    expect(warning?.closest("section")?.textContent).toContain("Notifications");
+    const savedTarget = editor.shadowRoot?.querySelector<HTMLOptionElement>(
+      'option[value="notify.saved_phone"]',
+    );
+    expect(savedTarget?.selected).toBe(true);
+    expect(savedTarget?.textContent).toContain("unavailable");
+
+    const numberInputs = editor.shadowRoot?.querySelectorAll<HTMLInputElement>(
+      'input[type="number"]',
+    );
+    numberInputs![1].value = "2";
+    numberInputs![1].dispatchEvent(new Event("input"));
+    await editor.updateComplete;
+    editor.shadowRoot?.querySelector<HTMLButtonElement>("button.save")?.click();
+    await settle(editor);
+
+    expect(updatePayload).toEqual(expect.objectContaining({
+      warning_days: 2,
+      notification_targets: ["notify.saved_phone"],
+    }));
+  });
+
   it("writes the selected height into Home Assistant grid options without changing columns", async () => {
     editor.setConfig({
       ...config,
@@ -334,6 +479,40 @@ describe("cyclic-countdown-editor", () => {
     expect(preview.previewTask.phase).toBe("normal");
   });
 
+  it("initializes new tasks and Today from the Home Assistant timezone", async () => {
+    const browserDate = todayIsoInTimeZone();
+    const timeZone = ["Pacific/Kiritimati", "Pacific/Honolulu"].find(
+      (candidate) => todayIsoInTimeZone(candidate) !== browserDate,
+    )!;
+    const expectedToday = todayIsoInTimeZone(timeZone);
+    mountEditor();
+    editor.hass = {
+      language: "en",
+      config: { time_zone: timeZone },
+      states: {},
+      connection: {
+        sendMessagePromise: vi.fn(async () => []) as unknown as HomeAssistant["connection"]["sendMessagePromise"],
+      },
+    };
+    await settle(editor);
+
+    const dateInput = editor.shadowRoot?.querySelector<HTMLInputElement>('input[type="date"]');
+    expect(dateInput?.value).toBe(expectedToday);
+    const preview = editor.shadowRoot?.querySelector("cyclic-countdown-card") as unknown as {
+      previewTask: { due_date: string };
+    };
+    expect(preview.previewTask.due_date).toBe(addCalendarDays(expectedToday, 14));
+
+    dateInput!.value = "2020-01-01";
+    dateInput!.dispatchEvent(new Event("input"));
+    await editor.updateComplete;
+    const todayButton = [...(editor.shadowRoot?.querySelectorAll<HTMLButtonElement>("button") || [])]
+      .find((button) => button.textContent === "Today");
+    todayButton?.click();
+    await editor.updateComplete;
+    expect(dateInput?.value).toBe(expectedToday);
+  });
+
   it("normalizes a typed icon name and saves an existing task", async () => {
     mountEditor({ ...config, task_id: task.task_id });
     const request = vi.fn(async (message: Record<string, unknown>) => {
@@ -368,6 +547,228 @@ describe("cyclic-countdown-editor", () => {
       .find((message) => message.type === "cyclic_countdown/tasks/update");
     expect(update?.icon).toBe("mdi:bacteria");
     expect(editor.shadowRoot?.textContent).toContain("Редактор карточки можно закрыть");
+  });
+
+  it("does not hydrate or rebind the card from a late save response", async () => {
+    mountEditor({ ...config, task_id: task.task_id });
+    let resolveSave: ((value: typeof task) => void) | undefined;
+    const saveResponse = new Promise<typeof task>((resolve) => { resolveSave = resolve; });
+    const request = vi.fn((message: Record<string, unknown>) => {
+      if (message.type === "cyclic_countdown/tasks/list") return Promise.resolve([task]);
+      if (message.type === "cyclic_countdown/notification_targets/list") return Promise.resolve([]);
+      if (message.type === "cyclic_countdown/tasks/update") return saveResponse;
+      return Promise.resolve([]);
+    }) as unknown as HomeAssistant["connection"]["sendMessagePromise"];
+    editor.hass = { language: "en", states: {}, connection: { sendMessagePromise: request } };
+    await settle(editor);
+    const changed = vi.fn();
+    editor.addEventListener("config-changed", changed);
+
+    editor.shadowRoot?.querySelector<HTMLButtonElement>("button.save")?.click();
+    await Promise.resolve();
+    editor.shadowRoot?.querySelectorAll<HTMLButtonElement>(".task-mode-picker button")[0].click();
+    await editor.updateComplete;
+    const changesAfterModeSwitch = changed.mock.calls.length;
+
+    resolveSave?.({ ...task, name: "Late saved task" });
+    await settle(editor);
+
+    expect(changed).toHaveBeenCalledTimes(changesAfterModeSwitch);
+    expect(editor.shadowRoot?.querySelector<HTMLInputElement>('input[required]')?.value).toBe("");
+    expect(editor.shadowRoot?.textContent).not.toContain("Task changes saved");
+  });
+
+  it("does not apply a late save response to a different selected task", async () => {
+    const secondTask = { ...task, task_id: "task-2", name: "Second task" };
+    mountEditor({ ...config, task_id: task.task_id });
+    let resolveSave: ((value: typeof task) => void) | undefined;
+    const saveResponse = new Promise<typeof task>((resolve) => { resolveSave = resolve; });
+    const request = vi.fn((message: Record<string, unknown>) => {
+      if (message.type === "cyclic_countdown/tasks/list") {
+        return Promise.resolve([task, secondTask]);
+      }
+      if (message.type === "cyclic_countdown/notification_targets/list") return Promise.resolve([]);
+      if (message.type === "cyclic_countdown/tasks/update") return saveResponse;
+      return Promise.resolve([]);
+    }) as unknown as HomeAssistant["connection"]["sendMessagePromise"];
+    editor.hass = { language: "en", states: {}, connection: { sendMessagePromise: request } };
+    await settle(editor);
+    const changed = vi.fn();
+    editor.addEventListener("config-changed", changed);
+
+    editor.shadowRoot?.querySelector<HTMLButtonElement>("button.save")?.click();
+    await Promise.resolve();
+    const taskSelect = editor.shadowRoot?.querySelector<HTMLSelectElement>("section select");
+    taskSelect!.value = secondTask.task_id;
+    taskSelect!.dispatchEvent(new Event("change"));
+    await editor.updateComplete;
+    const changesAfterTaskSwitch = changed.mock.calls.length;
+
+    resolveSave?.({ ...task, name: "Late saved task" });
+    await settle(editor);
+
+    expect(changed).toHaveBeenCalledTimes(changesAfterTaskSwitch);
+    expect(editor.shadowRoot?.querySelector<HTMLInputElement>('input[required]')?.value).toBe(
+      "Second task",
+    );
+    expect(editor.shadowRoot?.textContent).not.toContain("Task changes saved");
+  });
+
+  it("does not hydrate from a save response owned by a replaced connection", async () => {
+    mountEditor({ ...config, task_id: task.task_id });
+    let resolveSave: ((value: typeof task) => void) | undefined;
+    const saveResponse = new Promise<typeof task>((resolve) => { resolveSave = resolve; });
+    const oldRequest = vi.fn((message: Record<string, unknown>) => {
+      if (message.type === "cyclic_countdown/tasks/list") return Promise.resolve([task]);
+      if (message.type === "cyclic_countdown/notification_targets/list") return Promise.resolve([]);
+      if (message.type === "cyclic_countdown/tasks/update") return saveResponse;
+      return Promise.resolve([]);
+    }) as unknown as HomeAssistant["connection"]["sendMessagePromise"];
+    editor.hass = { language: "en", states: {}, connection: { sendMessagePromise: oldRequest } };
+    await settle(editor);
+    const changed = vi.fn();
+    editor.addEventListener("config-changed", changed);
+
+    editor.shadowRoot?.querySelector<HTMLButtonElement>("button.save")?.click();
+    await Promise.resolve();
+    const freshTask = { ...task, name: "Fresh connection task" };
+    const newRequest = vi.fn(async (message: Record<string, unknown>) =>
+      message.type === "cyclic_countdown/tasks/list" ? [freshTask] : []) as unknown as HomeAssistant["connection"]["sendMessagePromise"];
+    editor.hass = { language: "en", states: {}, connection: { sendMessagePromise: newRequest } };
+    await settle(editor);
+    const changesAfterReplacement = changed.mock.calls.length;
+    expect(editor.shadowRoot?.querySelector<HTMLButtonElement>("button.save")?.disabled).toBe(false);
+
+    resolveSave?.({ ...task, name: "Late saved task" });
+    await settle(editor);
+
+    expect(changed).toHaveBeenCalledTimes(changesAfterReplacement);
+    expect(editor.shadowRoot?.querySelector<HTMLInputElement>('input[required]')?.value).toBe(
+      "Fresh connection task",
+    );
+    expect(editor.shadowRoot?.textContent).not.toContain("Task changes saved");
+  });
+
+  it("resets a disconnected save without letting its late finally clear a new save", async () => {
+    mountEditor({ ...config, task_id: task.task_id });
+    const saveResolvers: ((value: typeof task) => void)[] = [];
+    const request = vi.fn((message: Record<string, unknown>) => {
+      if (message.type === "cyclic_countdown/tasks/list") return Promise.resolve([task]);
+      if (message.type === "cyclic_countdown/notification_targets/list") return Promise.resolve([]);
+      if (message.type === "cyclic_countdown/tasks/update") {
+        return new Promise<typeof task>((resolve) => { saveResolvers.push(resolve); });
+      }
+      return Promise.resolve([]);
+    }) as unknown as HomeAssistant["connection"]["sendMessagePromise"];
+    editor.hass = { language: "en", states: {}, connection: { sendMessagePromise: request } };
+    await settle(editor);
+
+    editor.shadowRoot?.querySelector<HTMLButtonElement>("button.save")?.click();
+    await editor.updateComplete;
+    expect(saveResolvers).toHaveLength(1);
+    expect(editor.shadowRoot?.querySelector<HTMLButtonElement>("button.save")?.disabled).toBe(true);
+
+    editor.remove();
+    document.body.append(editor);
+    await settle(editor);
+    expect(editor.shadowRoot?.querySelector<HTMLButtonElement>("button.save")?.disabled).toBe(false);
+
+    editor.shadowRoot?.querySelector<HTMLButtonElement>("button.save")?.click();
+    await editor.updateComplete;
+    expect(saveResolvers).toHaveLength(2);
+    saveResolvers[0]({ ...task, name: "Stale disconnected save" });
+    await settle(editor);
+    expect(editor.shadowRoot?.querySelector<HTMLButtonElement>("button.save")?.disabled).toBe(true);
+
+    saveResolvers[1]({ ...task, name: "Current save" });
+    await settle(editor);
+    expect(editor.shadowRoot?.querySelector<HTMLButtonElement>("button.save")?.disabled).toBe(false);
+    expect(editor.shadowRoot?.querySelector<HTMLInputElement>('input[required]')?.value).toBe(
+      "Current save",
+    );
+  });
+
+  it("does not redirect the editor from a late delete response", async () => {
+    mountEditor({ ...config, task_id: task.task_id });
+    let resolveDelete: (() => void) | undefined;
+    const deleteResponse = new Promise<void>((resolve) => { resolveDelete = resolve; });
+    const request = vi.fn((message: Record<string, unknown>) => {
+      if (message.type === "cyclic_countdown/tasks/list") return Promise.resolve([task]);
+      if (message.type === "cyclic_countdown/notification_targets/list") return Promise.resolve([]);
+      if (message.type === "cyclic_countdown/tasks/delete") return deleteResponse;
+      return Promise.resolve([]);
+    }) as unknown as HomeAssistant["connection"]["sendMessagePromise"];
+    editor.hass = { language: "en", states: {}, connection: { sendMessagePromise: request } };
+    await settle(editor);
+    const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
+    const changed = vi.fn();
+    editor.addEventListener("config-changed", changed);
+    try {
+      editor.shadowRoot?.querySelector<HTMLButtonElement>("button.danger")?.click();
+      await Promise.resolve();
+      editor.shadowRoot?.querySelectorAll<HTMLButtonElement>(".task-mode-picker button")[0].click();
+      await editor.updateComplete;
+      const changesAfterModeSwitch = changed.mock.calls.length;
+
+      resolveDelete?.();
+      await settle(editor);
+
+      expect(changed).toHaveBeenCalledTimes(changesAfterModeSwitch);
+      expect(editor.shadowRoot?.querySelector<HTMLInputElement>('input[required]')?.value).toBe("");
+      expect(editor.shadowRoot?.textContent).not.toContain("Task deleted");
+    } finally {
+      confirm.mockRestore();
+    }
+  });
+
+  it("reconciles only the deleted identity after navigating away and back", async () => {
+    const secondTask = { ...task, task_id: "task-2", name: "Second task" };
+    mountEditor({ ...config, task_id: task.task_id });
+    let resolveDelete: (() => void) | undefined;
+    const deleteResponse = new Promise<void>((resolve) => { resolveDelete = resolve; });
+    const request = vi.fn((message: Record<string, unknown>) => {
+      if (message.type === "cyclic_countdown/tasks/list") {
+        return Promise.resolve([task, secondTask]);
+      }
+      if (message.type === "cyclic_countdown/notification_targets/list") return Promise.resolve([]);
+      if (message.type === "cyclic_countdown/tasks/delete") return deleteResponse;
+      return Promise.resolve([]);
+    }) as unknown as HomeAssistant["connection"]["sendMessagePromise"];
+    editor.hass = { language: "en", states: {}, connection: { sendMessagePromise: request } };
+    await settle(editor);
+    const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
+    const changed = vi.fn();
+    editor.addEventListener("config-changed", changed);
+    try {
+      editor.shadowRoot?.querySelector<HTMLButtonElement>("button.danger")?.click();
+      await Promise.resolve();
+      const modeButtons = editor.shadowRoot?.querySelectorAll<HTMLButtonElement>(
+        ".task-mode-picker button",
+      );
+      modeButtons?.[0].click();
+      await editor.updateComplete;
+      editor.shadowRoot?.querySelectorAll<HTMLButtonElement>(".task-mode-picker button")[1].click();
+      await editor.updateComplete;
+      expect(editor.shadowRoot?.querySelector<HTMLInputElement>('input[required]')?.value).toBe(
+        "Bacteria",
+      );
+
+      resolveDelete?.();
+      await settle(editor);
+
+      expect(editor.shadowRoot?.querySelector<HTMLInputElement>('input[required]')?.value).toBe(
+        "Second task",
+      );
+      expect(editor.shadowRoot?.querySelector<HTMLSelectElement>("section select")?.value).toBe(
+        secondTask.task_id,
+      );
+      expect(editor.shadowRoot?.textContent).not.toContain("Task not found");
+      expect((changed.mock.calls.at(-1)?.[0] as CustomEvent).detail.config.task_id).toBe(
+        secondTask.task_id,
+      );
+    } finally {
+      confirm.mockRestore();
+    }
   });
 
   it("uses the current unsaved draft when sending a test notification", async () => {
@@ -420,6 +821,64 @@ describe("cyclic-countdown-editor", () => {
     expect(editor.shadowRoot?.textContent).toContain("Test sent: 1; failed: 0");
   });
 
+  it("ignores a stale notification test without clearing the new task test", async () => {
+    const firstTask = {
+      ...task,
+      notifications_enabled: true,
+      notification_targets: ["notify.ipad"],
+    };
+    const secondTask = { ...firstTask, task_id: "task-2", name: "Second task" };
+    const testResolvers: ((
+      value: { delivered: string[]; failed: string[] },
+    ) => void)[] = [];
+    mountEditor({ ...config, task_id: firstTask.task_id });
+    const request = vi.fn((message: Record<string, unknown>) => {
+      if (message.type === "cyclic_countdown/tasks/list") {
+        return Promise.resolve([firstTask, secondTask]);
+      }
+      if (message.type === "cyclic_countdown/notification_targets/list") {
+        return Promise.resolve([{
+          id: "notify.ipad",
+          name: "iPad",
+          available: true,
+          kind: "entity",
+        }]);
+      }
+      if (message.type === "cyclic_countdown/notifications/test") {
+        return new Promise<{ delivered: string[]; failed: string[] }>((resolve) => {
+          testResolvers.push(resolve);
+        });
+      }
+      return Promise.resolve([]);
+    }) as unknown as HomeAssistant["connection"]["sendMessagePromise"];
+    editor.hass = { language: "en", states: {}, connection: { sendMessagePromise: request } };
+    await settle(editor);
+
+    editor.shadowRoot?.querySelector<HTMLButtonElement>("button.ghost")?.click();
+    await editor.updateComplete;
+    expect(testResolvers).toHaveLength(1);
+
+    const taskSelect = editor.shadowRoot?.querySelector<HTMLSelectElement>("section select");
+    taskSelect!.value = secondTask.task_id;
+    taskSelect!.dispatchEvent(new Event("change"));
+    await editor.updateComplete;
+    const currentTestButton = editor.shadowRoot?.querySelector<HTMLButtonElement>("button.ghost");
+    expect(currentTestButton?.disabled).toBe(false);
+    currentTestButton?.click();
+    await editor.updateComplete;
+    expect(testResolvers).toHaveLength(2);
+
+    testResolvers[0]({ delivered: ["notify.ipad"], failed: [] });
+    await settle(editor);
+    expect(editor.shadowRoot?.textContent).not.toContain("Test sent: 1; failed: 0");
+    expect(editor.shadowRoot?.querySelector<HTMLButtonElement>("button.ghost")?.disabled).toBe(true);
+
+    testResolvers[1]({ delivered: ["notify.ipad"], failed: [] });
+    await settle(editor);
+    expect(editor.shadowRoot?.textContent).toContain("Test sent: 1; failed: 0");
+    expect(editor.shadowRoot?.querySelector<HTMLButtonElement>("button.ghost")?.disabled).toBe(false);
+  });
+
   it("updates the icon picker for a new task", async () => {
     editor.hass = {
       language: "en",
@@ -441,7 +900,7 @@ describe("cyclic-countdown-editor", () => {
     expect(picker.value).toBe("mdi:water-pump");
   });
 
-  it("refreshes the native icon list when its asynchronous index becomes ready", async () => {
+  it("keeps the icon picker closed until its readiness gate reports items", async () => {
     editor.hass = {
       language: "en",
       states: {},
@@ -452,33 +911,76 @@ describe("cyclic-countdown-editor", () => {
     await settle(editor);
     const picker = editor.shadowRoot?.querySelector("ha-icon-picker") as HTMLElement & {
       items: unknown[];
-      attachComboBox: () => HTMLElement & {
-        refreshItems: ReturnType<typeof vi.fn>;
-        search: (value: string) => string[];
-      };
+      disabled: boolean;
+      open: () => HTMLElement | undefined;
     };
-    const generic = picker.shadowRoot?.querySelector("ha-generic-picker") as HTMLElement & {
-      refreshItems: ReturnType<typeof vi.fn>;
+
+    expect(picker.disabled).toBe(true);
+    expect(picker.open()).toBeUndefined();
+
+    picker.items = [
+      "mdi:baby-face-outline",
+      "mdi:backspace",
+      "mdi:bacteria",
+      "mdi:water-pump",
+    ];
+    await vi.waitFor(async () => {
+      await editor.updateComplete;
+      expect(picker.disabled).toBe(false);
+    });
+
+    expect(picker.open()).toBeDefined();
+  });
+
+  it("restarts icon-index readiness after the editor is reattached", async () => {
+    editor.hass = {
+      language: "en",
+      states: {},
+      connection: {
+        sendMessagePromise: vi.fn(async () => []) as unknown as HomeAssistant["connection"]["sendMessagePromise"],
+      },
     };
-    vi.useFakeTimers();
+    await settle(editor);
+    const picker = editor.shadowRoot?.querySelector("ha-icon-picker") as HTMLElement & {
+      items: unknown[];
+      disabled: boolean;
+    };
+    expect(picker.disabled).toBe(true);
+
+    editor.remove();
+    picker.items = ["mdi:bacteria"];
+    document.body.append(editor);
+
+    await vi.waitFor(async () => {
+      await editor.updateComplete;
+      expect(picker.disabled).toBe(false);
+    });
+  });
+
+  it("falls back to a typed icon field if the native index never loads", async () => {
+    editor.hass = {
+      language: "en",
+      states: {},
+      connection: {
+        sendMessagePromise: vi.fn(async () => []) as unknown as HomeAssistant["connection"]["sendMessagePromise"],
+      },
+    };
+    await settle(editor);
+    const picker = editor.shadowRoot?.querySelector("ha-icon-picker") as HTMLElement & {
+      disabled: boolean;
+    };
+    expect(picker.disabled).toBe(true);
+
+    const now = vi.spyOn(performance, "now").mockReturnValue(Number.MAX_SAFE_INTEGER);
     try {
-      picker.dispatchEvent(new CustomEvent("picker-opened"));
-      expect(generic.refreshItems).not.toHaveBeenCalled();
-
-      picker.items = ["mdi:bacteria"];
-      await vi.advanceTimersByTimeAsync(100);
-      expect(generic.refreshItems).not.toHaveBeenCalled();
-
-      const comboBox = picker.attachComboBox();
-      await vi.advanceTimersByTimeAsync(100);
-
-      expect(generic.refreshItems).toHaveBeenCalledOnce();
-      expect(comboBox.refreshItems).toHaveBeenCalledOnce();
-      expect(comboBox.search("bac")).toEqual(["mdi:bacteria"]);
-      expect(comboBox.search("bacter")).toEqual(["mdi:bacteria"]);
-      picker.dispatchEvent(new CustomEvent("picker-closed"));
+      await vi.waitFor(async () => {
+        await editor.updateComplete;
+        expect(editor.shadowRoot?.querySelector("ha-icon-picker")).toBeNull();
+      });
+      expect(editor.shadowRoot?.querySelector<HTMLInputElement>('input[placeholder="mdi:wrench-clock"]'))
+        .not.toBeNull();
     } finally {
-      vi.useRealTimers();
+      now.mockRestore();
     }
   });
 });

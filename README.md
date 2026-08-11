@@ -1,6 +1,6 @@
 # Cyclic Maintenance Countdown
 
-A polished, UI-first Home Assistant integration and Lovelace card for recurring household maintenance: replacing filters, adding septic bacteria, refilling salt, cleaning containers, and similar tasks.
+A UI-first Home Assistant integration and Lovelace card for recurring household maintenance: replacing filters, adding septic bacteria, refilling salt, cleaning containers, and similar tasks. The project is currently in pre-release stabilization.
 
 Each card displays one maintenance task. The backend is the single source of truth for dates, survives restarts, exposes a sensor for every task, and sends notifications even when no dashboard is open.
 
@@ -9,7 +9,7 @@ Each card displays one maintenance task. The backend is the single source of tru
 - Calendar-day countdown in the Home Assistant local timezone: `13`, `0`, `-1`, and so on without automatically rolling overdue tasks forward.
 - A new cycle always starts from the actual completion date.
 - Two responsive presentation styles: `bar` and `fill`.
-- Standard compact and wide vertical card layouts.
+- Compact, Standard, and Wide vertical card layouts.
 - Normal and reversed visual progress direction.
 - Explicit `normal`, `warning`, `due`, `overdue`, and short `just_completed` states.
 - Soft theme-aware gradients and breathing effects with a static reduced-motion fallback.
@@ -46,9 +46,9 @@ Until the repository is included in the default HACS catalog, add it as a custom
 2. Add this repository URL with the **Integration** category.
 3. Install **Cyclic Maintenance Countdown** and restart Home Assistant.
 4. Open **Settings → Devices & services → Add integration**, find `Cyclic Maintenance Countdown`, and confirm installation.
-5. Reload the Home Assistant frontend once after adding the integration so the newly registered card module is available to every open client.
+5. Reload the Home Assistant frontend once after the first installation so the newly registered card module is available to already open clients.
 
-The integration registers its card module through Home Assistant's supported frontend API. No manual Lovelace resource is required.
+In the normal storage mode, the integration automatically creates and updates one persistent Lovelace module resource. YAML resource mode uses Home Assistant's extra-module API as a fallback. No manual Lovelace resource is required.
 
 ### Manual installation
 
@@ -73,7 +73,7 @@ The graphical editor includes:
 - task name, MDI icon, interval, last completion date, and warning window;
 - calculated due-date preview before saving;
 - `bar` and `fill` style thumbnails;
-- standard/wide vertical size, reverse progress, optional accent color, secondary-line controls, and live phase preview;
+- Compact, Standard, and Wide vertical size, reverse progress, optional accent color, secondary-line controls, and live phase preview;
 - completion confirmation plus independent tap, hold, and double-tap actions;
 - notification enablement, multiple targets, persistent Home Assistant notifications, title, message, event selection, preview, and test delivery;
 - clear missing-integration, missing-task, unavailable-target, and backend-error states.
@@ -95,13 +95,15 @@ data:
 The editor lists currently available notify entities and compatible legacy notify actions. A removed target remains visible as unavailable, and one failed target does not stop delivery to the others.
 
 - A warning notification is sent once per cycle when the task enters its warning window.
-- A due notification is sent once per cycle.
+- Due delivery is attempted when the task expires and is caught up after downtime if the due day was missed. After at least one destination accepts it, the cycle marker suppresses routine repeats; if every destination fails, a later reconciliation may retry.
 - A persistent notification can be created in Home Assistant's notification panel independently of mobile notification targets.
 - Startup reconciliation catches up an event missed while Home Assistant was offline.
 - Overdue tasks do not generate daily repeats.
 - Completing a task creates a new `cycle_id` and a fresh set of idempotency markers.
 
-The **Send test** button is available after the task has been saved once.
+**Send test** uses the current editor values, including unsaved changes. Configure at least one notification target or enable a persistent Home Assistant notification to receive it.
+
+Delivery is best-effort once per event. Targets are attempted independently; as soon as at least one configured destination accepts the event, the cycle is marked as delivered and failed destinations are not retried automatically during that cycle.
 
 ## YAML card configuration
 
@@ -158,9 +160,9 @@ These variables can be provided by a theme or card-mod. card-mod is not a requir
 ## Accessibility
 
 - Minimum interactive target size of 44×44 px.
-- Keyboard activation and visible focus ring.
+- Keyboard activation and visible focus ring. `Enter`, `Shift+Enter`, and `Alt+Enter` run the configured tap, hold, and double-tap actions.
 - Localized ARIA descriptions.
-- Text labels in addition to color for warning, due, and overdue phases.
+- Full layouts use localized status text; Compact and narrow mobile layouts use a distinct status icon. Every layout exposes the localized state through ARIA, so color is never the only signal.
 - Motion uses opacity and transform only.
 - `prefers-reduced-motion` disables repeating animation while preserving a static status tint.
 
@@ -169,7 +171,7 @@ These variables can be provided by a theme or card-mod. card-mod is not a requir
 - Back up Home Assistant before updating, then install the new release through HACS.
 - Persistent data uses a versioned schema and is migrated during integration startup.
 - Tasks are deleted only after confirmation. Existing cards remain and display **Task not found**.
-- For complete removal, delete the cards and tasks, then remove the integration and component directory.
+- For complete removal, delete the cards and tasks, remove the integration first so it can clean up its Lovelace resource, and only then uninstall it from HACS or remove the component directory.
 
 ## Development
 
@@ -179,6 +181,7 @@ Frontend:
 cd frontend
 pnpm install
 pnpm run typecheck
+pnpm run lint
 pnpm test
 pnpm run build
 ```
@@ -186,6 +189,8 @@ pnpm run build
 The production bundle is generated at `custom_components/cyclic_countdown/frontend/cyclic-countdown-card.js` and is installed with the backend through HACS.
 
 Backend tests target `pytest-homeassistant-custom-component`. CI runs Python tests and linting, frontend typecheck/tests/build, hassfest, and HACS validation.
+
+Every tagged build must also pass the real Home Assistant and Companion checks in [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md). In particular, native icon search and repeated card loading are not considered verified by the local component stubs alone.
 
 Useful local visual harnesses:
 
@@ -195,6 +200,7 @@ Useful local visual harnesses:
 ## Architecture
 
 - `TaskManager` owns versioned storage and is the single source of truth.
+- The bundled card uses one versioned persistent Lovelace resource in storage mode; registration is idempotent and preserves unrelated resources.
 - Sensor entities receive push updates; there is no per-second polling.
 - Local midnight and core timezone changes refresh derived states and notification reconciliation.
 - WebSocket create/update/delete and notification management require admin permission.

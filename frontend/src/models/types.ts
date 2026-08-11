@@ -7,6 +7,7 @@ export type PreviewPhase = "auto" | TaskPhase;
 export interface HomeAssistant {
   language?: string;
   locale?: { language?: string };
+  config?: { time_zone?: string };
   states: Record<string, HassEntity>;
   connection: {
     sendMessagePromise<T>(message: Record<string, unknown>): Promise<T>;
@@ -72,6 +73,6 @@ export interface NotificationTarget {
 
 declare global {
   interface Window {
-    customCards?: Array<Record<string, unknown>>;
+    customCards?: Record<string, unknown>[];
   }
 }

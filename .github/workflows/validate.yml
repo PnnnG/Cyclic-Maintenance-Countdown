@@ -4,17 +4,36 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   backend:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - homeassistant: "2026.7.0"
+            pytest_homeassistant: "0.13.344"
+          - homeassistant: "2026.8.1"
+            pytest_homeassistant: "0.13.355"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
-      - run: pip install "homeassistant==2026.7.0" pytest pytest-asyncio pytest-homeassistant-custom-component ruff
+      - run: >-
+          pip install
+          "homeassistant==${{ matrix.homeassistant }}"
+          "pytest-homeassistant-custom-component==${{ matrix.pytest_homeassistant }}"
+          pytest pytest-asyncio pytest-cov ruff
       - run: ruff check custom_components tests
-      - run: pytest
+      - run: ruff format --check custom_components tests
+      - run: >-
+          pytest
+          --cov=custom_components/cyclic_countdown
+          --cov-report=term-missing
+          --cov-fail-under=80
 
   frontend:
     runs-on: ubuntu-latest
@@ -32,10 +51,17 @@ jobs:
         working-directory: frontend
       - run: pnpm run typecheck
         working-directory: frontend
+      - run: pnpm run lint
+        working-directory: frontend
       - run: pnpm test
         working-directory: frontend
       - run: pnpm run build
         working-directory: frontend
+      - name: Verify the committed frontend bundle is current
+        run: >-
+          git diff --exit-code --
+          custom_components/cyclic_countdown/frontend/cyclic-countdown-card.js
+          custom_components/cyclic_countdown/frontend/cyclic-countdown-card.js.map
 
   home-assistant:
     runs-on: ubuntu-latest

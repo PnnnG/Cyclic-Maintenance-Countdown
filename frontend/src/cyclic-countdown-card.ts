@@ -10,6 +10,7 @@ import type {
   HassEntity,
   HomeAssistant,
 } from "./models/types";
+import { addCalendarDays, todayIsoInTimeZone } from "./utils/calendar";
 
 const DEFAULT_OPTIONS: Omit<CardConfig, "type"> = {
   style: "bar",
@@ -50,7 +51,12 @@ export class CyclicCountdownCard extends LitElement {
   private _justCompleted = false;
   private _holdTimer?: number;
   private _tapTimer?: number;
+  private _completionResetTimer?: number;
+  private _tapPending = false;
   private _held = false;
+  private _cachedTaskId?: string;
+  private _cachedEntityId?: string;
+  private _operationEpoch = 0;
 
   static getConfigElement(): HTMLElement {
     return document.createElement("cyclic-countdown-editor");
@@ -62,6 +68,7 @@ export class CyclicCountdownCard extends LitElement {
 
   setConfig(config: Partial<CardConfig>): void {
     if (!config) throw new Error("Card configuration is required");
+    const previousTaskId = this._config.task_id;
     const legacyWidth = (config as Partial<CardConfig> & { width?: "standard" | "wide" }).width;
     const cleanConfig = { ...config } as Partial<CardConfig> & {
       width?: "standard" | "wide";
@@ -73,6 +80,34 @@ export class CyclicCountdownCard extends LitElement {
       vertical_size: config.vertical_size || legacyWidth || "standard",
       type: "custom:cyclic-countdown-card",
     };
+    if (previousTaskId !== this._config.task_id) {
+      this._operationEpoch += 1;
+      this._cachedTaskId = undefined;
+      this._cachedEntityId = undefined;
+      this._optimisticTask = undefined;
+      this._busy = false;
+      this._error = "";
+      this.closeConfirm();
+      this._justCompleted = false;
+      this.clearHoldTimer();
+      this.clearTapTimer();
+      this._tapPending = false;
+      this.clearCompletionResetTimer();
+    }
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this._operationEpoch += 1;
+    this.clearHoldTimer();
+    this.clearTapTimer();
+    this.clearCompletionResetTimer();
+    this._tapPending = false;
+    this._held = false;
+    this._busy = false;
+    this._optimisticTask = undefined;
+    this.closeConfirm();
+    this._justCompleted = false;
   }
 
   getCardSize(): number {
@@ -89,6 +124,24 @@ export class CyclicCountdownCard extends LitElement {
     return { columns: 6, min_columns: 3 };
   }
 
+  protected willUpdate(changed: PropertyValues): void {
+    if (!changed.has("hass")) return;
+    const previous = changed.get("hass") as HomeAssistant | undefined;
+    if (!previous?.connection || previous.connection === this.hass?.connection) return;
+    this._operationEpoch += 1;
+    this._cachedTaskId = undefined;
+    this._cachedEntityId = undefined;
+    this._optimisticTask = undefined;
+    this._busy = false;
+    this._error = "";
+    this._justCompleted = false;
+    this.closeConfirm();
+    this.clearHoldTimer();
+    this.clearTapTimer();
+    this.clearCompletionResetTimer();
+    this._tapPending = false;
+  }
+
   protected updated(changed: PropertyValues): void {
     if (changed.has("_confirmOpen") && this._confirmOpen) {
       const dialog = this.renderRoot.querySelector<HTMLDialogElement>("dialog");
@@ -102,11 +155,23 @@ export class CyclicCountdownCard extends LitElement {
 
   private get entity(): HassEntity | undefined {
     if (!this.hass || !this._config.task_id) return undefined;
-    return Object.values(this.hass.states).find(
-      (state) =>
-        state.entity_id.startsWith("sensor.") &&
-        state.attributes.task_id === this._config.task_id,
-    );
+    const taskId = this._config.task_id;
+    if (this._cachedTaskId !== taskId) {
+      this._cachedTaskId = taskId;
+      this._cachedEntityId = undefined;
+    }
+    if (this._cachedEntityId) {
+      const cached = this.hass.states[this._cachedEntityId];
+      if (cached?.attributes.task_id === taskId) return cached;
+      this._cachedEntityId = undefined;
+    }
+    for (const [entityId, state] of Object.entries(this.hass.states)) {
+      if (entityId.startsWith("sensor.") && state.attributes.task_id === taskId) {
+        this._cachedEntityId = entityId;
+        return state;
+      }
+    }
+    return undefined;
   }
 
   private get task(): CountdownTask | undefined {
@@ -146,6 +211,16 @@ export class CyclicCountdownCard extends LitElement {
     </div>`;
   }
 
+  private renderPhaseIndicator(task: CountdownTask) {
+    if (task.phase === "normal") return nothing;
+    const icon = task.phase === "warning"
+      ? "mdi:alert-circle-outline"
+      : task.phase === "due"
+        ? "mdi:calendar-alert"
+        : "mdi:alert-octagon-outline";
+    return html`<span class="phase-indicator" aria-hidden="true"><ha-icon .icon=${icon}></ha-icon></span>`;
+  }
+
   private buildAriaLabel(task: CountdownTask): string {
     return `${task.name}, ${phaseLabel(task.phase, this.locale)}, ${task.remaining_days} ${dayUnit(
       task.remaining_days,
@@ -153,21 +228,57 @@ export class CyclicCountdownCard extends LitElement {
     )}. ${this._config.tap_action === "complete" ? t(this.locale, "complete") : ""}`;
   }
 
-  private pointerDown(): void {
+  private clearHoldTimer(): void {
+    if (this._holdTimer !== undefined) window.clearTimeout(this._holdTimer);
+    this._holdTimer = undefined;
+  }
+
+  private clearTapTimer(): void {
+    if (this._tapTimer !== undefined) window.clearTimeout(this._tapTimer);
+    this._tapTimer = undefined;
+  }
+
+  private clearCompletionResetTimer(): void {
+    if (this._completionResetTimer !== undefined) {
+      window.clearTimeout(this._completionResetTimer);
+    }
+    this._completionResetTimer = undefined;
+  }
+
+  private pointerDown(event: PointerEvent): void {
+    if (event.isPrimary === false || event.button !== 0) return;
     this._held = false;
+    this.clearHoldTimer();
+    // Pause a pending single tap while the second pointer gesture is in
+    // progress. A quick release becomes a double tap; a hold cancels it.
+    if (this._tapPending) this.clearTapTimer();
     if (this._config.hold_action === "none" || this._busy || this.previewTask) return;
+    const surface = event.currentTarget as HTMLElement;
+    if (typeof surface.setPointerCapture === "function") {
+      try {
+        surface.setPointerCapture(event.pointerId);
+      } catch {
+        // Pointer capture is an enhancement; gesture cancellation still works.
+      }
+    }
     this._holdTimer = window.setTimeout(() => {
       this._held = true;
       this._holdTimer = undefined;
-      if (this._tapTimer) window.clearTimeout(this._tapTimer);
-      this._tapTimer = undefined;
+      this.clearTapTimer();
+      this._tapPending = false;
       this.performAction(this._config.hold_action);
     }, 550);
   }
 
   private pointerUp(): void {
-    if (this._holdTimer) window.clearTimeout(this._holdTimer);
-    this._holdTimer = undefined;
+    this.clearHoldTimer();
+  }
+
+  private pointerCancel(): void {
+    this.clearHoldTimer();
+    this.clearTapTimer();
+    this._tapPending = false;
+    this._held = false;
   }
 
   private activate(): void {
@@ -175,14 +286,16 @@ export class CyclicCountdownCard extends LitElement {
       this._held = false;
       return;
     }
-    if (this._tapTimer) {
-      window.clearTimeout(this._tapTimer);
-      this._tapTimer = undefined;
+    if (this._tapPending) {
+      this.clearTapTimer();
+      this._tapPending = false;
       this.performAction(this._config.double_tap_action);
       return;
     }
+    this._tapPending = true;
     this._tapTimer = window.setTimeout(() => {
       this._tapTimer = undefined;
+      this._tapPending = false;
       this.performAction(this._config.tap_action);
     }, 250);
   }
@@ -198,10 +311,18 @@ export class CyclicCountdownCard extends LitElement {
   }
 
   private keyActivate(event: KeyboardEvent): void {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      this.performAction(this._config.tap_action);
-    }
+    if (event.key !== "Enter" && event.key !== " ") return;
+    if (event.ctrlKey || event.metaKey || (event.altKey && event.shiftKey)) return;
+    event.preventDefault();
+    if (event.repeat) return;
+    this.clearTapTimer();
+    this._tapPending = false;
+    const action = event.altKey
+      ? this._config.double_tap_action
+      : event.shiftKey
+        ? this._config.hold_action
+        : this._config.tap_action;
+    this.performAction(action);
   }
 
   private moreInfo(): void {
@@ -217,7 +338,7 @@ export class CyclicCountdownCard extends LitElement {
   }
 
   private closeConfirm(): void {
-    const dialog = this.renderRoot.querySelector<HTMLDialogElement>("dialog");
+    const dialog = this.shadowRoot?.querySelector<HTMLDialogElement>("dialog");
     if (dialog?.open && typeof dialog.close === "function") dialog.close();
     this._confirmOpen = false;
   }
@@ -225,39 +346,65 @@ export class CyclicCountdownCard extends LitElement {
   private async complete(): Promise<void> {
     const task = this.task;
     if (!task || !this.hass || !this._config.task_id || this._busy) return;
+    const taskId = this._config.task_id;
+    const operationEpoch = this._operationEpoch;
+    const connection = this.hass.connection;
     this.closeConfirm();
     this._busy = true;
     this._error = "";
     const previous = this._optimisticTask;
-    const today = new Date();
-    const due = new Date(today.getFullYear(), today.getMonth(), today.getDate() + task.interval_days);
-    const iso = (value: Date) =>
-      `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, "0")}-${String(
-        value.getDate(),
-      ).padStart(2, "0")}`;
+    const today = todayIsoInTimeZone(this.hass.config?.time_zone);
+    const due = addCalendarDays(today, task.interval_days) || task.due_date;
     this._optimisticTask = {
       ...task,
-      last_completed_date: iso(today),
-      due_date: iso(due),
+      last_completed_date: today,
+      due_date: due,
       remaining_days: task.interval_days,
       elapsed_progress: 0,
       phase: "normal",
     };
     try {
-      this._optimisticTask = await this.hass.connection.sendMessagePromise<CountdownTask>({
+      const completedTask = await connection.sendMessagePromise<CountdownTask>({
         type: "cyclic_countdown/tasks/complete",
-        task_id: this._config.task_id,
+        task_id: taskId,
       });
+      if (
+        !this.isConnected
+        || operationEpoch !== this._operationEpoch
+        || taskId !== this._config.task_id
+        || connection !== this.hass?.connection
+      ) {
+        this._optimisticTask = undefined;
+        return;
+      }
+      this._optimisticTask = completedTask;
       this._justCompleted = true;
-      window.setTimeout(() => {
+      this.clearCompletionResetTimer();
+      this._completionResetTimer = window.setTimeout(() => {
+        this._completionResetTimer = undefined;
         this._justCompleted = false;
         this._optimisticTask = undefined;
       }, 1800);
     } catch {
-      this._optimisticTask = previous;
-      this._error = t(this.locale, "backendError");
+      if (
+        this.isConnected
+        && operationEpoch === this._operationEpoch
+        && taskId === this._config.task_id
+        && connection === this.hass?.connection
+      ) {
+        this._optimisticTask = previous;
+        this._error = t(this.locale, "backendError");
+      } else {
+        this._optimisticTask = undefined;
+      }
     } finally {
-      this._busy = false;
+      if (
+        operationEpoch === this._operationEpoch
+        && taskId === this._config.task_id
+        && connection === this.hass?.connection
+      ) {
+        this._busy = false;
+      }
     }
   }
 
@@ -277,13 +424,16 @@ export class CyclicCountdownCard extends LitElement {
         role="button"
         tabindex="0"
         aria-label=${this.buildAriaLabel(task)}
+        aria-describedby="keyboard-help"
+        aria-keyshortcuts="Enter Shift+Enter Alt+Enter"
         aria-busy=${this._busy ? "true" : "false"}
         @pointerdown=${this.pointerDown}
         @pointerup=${this.pointerUp}
-        @pointercancel=${this.pointerUp}
+        @pointercancel=${this.pointerCancel}
         @click=${this.activate}
         @keydown=${this.keyActivate}
       >
+        <span id="keyboard-help" class="sr-only">${t(this.locale, "keyboardHelp")}</span>
         <div class="fill-layer" aria-hidden="true"></div>
         <div class="state-layer" aria-hidden="true"></div>
         <div class="content">
@@ -291,6 +441,7 @@ export class CyclicCountdownCard extends LitElement {
           <div class="details">
             <div class="title-row">
               <div class="title">${task.name}</div>
+              ${this.renderPhaseIndicator(task)}
               <span class="phase-label">${phaseLabel(task.phase, this.locale)}</span>
             </div>
             ${this._config.show_secondary
@@ -331,6 +482,7 @@ export class CyclicCountdownCard extends LitElement {
       --warn: var(--cyclic-countdown-warning-color, var(--warning-color, #e5a83b));
     }
     ha-card { box-sizing: border-box; color: var(--primary-text-color); }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
     .card {
       display: block; width: 100%; position: relative; min-height: 112px; overflow: hidden; cursor: pointer; isolation: isolate; touch-action: manipulation;
       border-radius: var(--cyclic-countdown-radius, var(--ha-card-border-radius, var(--ha-border-radius-lg, 12px)));
@@ -367,6 +519,11 @@ export class CyclicCountdownCard extends LitElement {
     .title-row { display: flex; align-items: baseline; gap: 9px; min-width: 0; }
     .title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 21px; line-height: 1.22; font-weight: 650; letter-spacing: -.018em; }
     .phase-label { flex: none; font-size: 12px; font-weight: 550; letter-spacing: 0; color: var(--secondary-text-color); }
+    .phase-indicator { display: none; flex: none; place-items: center; }
+    .phase-indicator ha-icon { --mdc-icon-size: 15px; }
+    .warning .phase-indicator { color: var(--warn); }
+    .due .phase-indicator, .overdue .phase-indicator { color: var(--danger); }
+    .compact.warning .phase-indicator, .compact.due .phase-indicator, .compact.overdue .phase-indicator { display: grid; }
     .normal .phase-label { display: none; }
     .secondary { min-width: 0; margin-top: 5px; display: flex; align-items: center; gap: 5px; overflow: hidden; white-space: nowrap; color: var(--secondary-text-color); font-size: 14px; line-height: 1.3; }
     .secondary ha-icon { flex: none; --mdc-icon-size: 15px; }
@@ -408,6 +565,7 @@ export class CyclicCountdownCard extends LitElement {
       .title { font-size: 18px; }
       .secondary { font-size: 12px; }
       .phase-label { display: none; }
+      .warning .phase-indicator, .due .phase-indicator, .overdue .phase-indicator { display: grid; }
       .days strong { font-size: 38px; }
     }
     @media (prefers-reduced-motion: reduce) {

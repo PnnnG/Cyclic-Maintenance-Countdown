@@ -243,4 +243,219 @@ describe("cyclic-countdown-card", () => {
     expect(request).toHaveBeenCalledOnce();
     resolveRequest?.(hass.states["sensor.filter_countdown"].attributes);
   });
+
+  it("uses the Home Assistant timezone for optimistic completion dates", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-08-11T01:30:00Z"));
+    try {
+      let resolveRequest: ((value: unknown) => void) | undefined;
+      const request = vi.fn(
+        () => new Promise((resolve) => { resolveRequest = resolve; }),
+      ) as unknown as HomeAssistant["connection"]["sendMessagePromise"];
+      card.hass = {
+        ...hass,
+        config: { time_zone: "Pacific/Honolulu" },
+        connection: { sendMessagePromise: request },
+      };
+      card.setConfig(config({ confirm_complete: false, tap_action: "complete" }));
+      await card.updateComplete;
+
+      card.shadowRoot?.querySelector<HTMLElement>(".card")?.click();
+      await vi.advanceTimersByTimeAsync(250);
+      const optimistic = card as unknown as {
+        _optimisticTask?: { last_completed_date: string; due_date: string };
+      };
+      expect(optimistic._optimisticTask?.last_completed_date).toBe("2026-08-10");
+      expect(optimistic._optimisticTask?.due_date).toBe("2026-08-24");
+
+      resolveRequest?.({
+        ...hass.states["sensor.filter_countdown"].attributes,
+        last_completed_date: "2026-08-10",
+        due_date: "2026-08-24",
+      });
+      await Promise.resolve();
+    } finally {
+      vi.runOnlyPendingTimers();
+      vi.useRealTimers();
+    }
+  });
+
+  it("ignores a completion response from a replaced Home Assistant connection", async () => {
+    vi.useFakeTimers();
+    try {
+      let resolveOld: ((value: unknown) => void) | undefined;
+      const oldRequest = vi.fn(
+        () => new Promise((resolve) => { resolveOld = resolve; }),
+      ) as unknown as HomeAssistant["connection"]["sendMessagePromise"];
+      const newRequest = vi.fn(async () => hass.states["sensor.filter_countdown"].attributes) as unknown as HomeAssistant["connection"]["sendMessagePromise"];
+      card.hass = { ...hass, connection: { sendMessagePromise: oldRequest } };
+      card.setConfig(config({ confirm_complete: false, tap_action: "complete" }));
+      await card.updateComplete;
+      card.shadowRoot?.querySelector<HTMLElement>(".card")?.click();
+      await vi.advanceTimersByTimeAsync(250);
+      expect(oldRequest).toHaveBeenCalledOnce();
+
+      card.hass = { ...hass, connection: { sendMessagePromise: newRequest } };
+      await card.updateComplete;
+      resolveOld?.({
+        ...hass.states["sensor.filter_countdown"].attributes,
+        remaining_days: 99,
+      });
+      await Promise.resolve();
+      await card.updateComplete;
+
+      const internal = card as unknown as { _optimisticTask?: unknown; _busy: boolean };
+      expect(internal._optimisticTask).toBeUndefined();
+      expect(internal._busy).toBe(false);
+      expect(card.shadowRoot?.querySelector(".days strong")?.textContent).toBe("13");
+      expect(newRequest).not.toHaveBeenCalled();
+    } finally {
+      vi.runOnlyPendingTimers();
+      vi.useRealTimers();
+    }
+  });
+
+  it("cancels pending hold actions when the card disconnects", async () => {
+    vi.useFakeTimers();
+    try {
+      const request = vi.fn(async () => hass.states["sensor.filter_countdown"].attributes) as unknown as HomeAssistant["connection"]["sendMessagePromise"];
+      card.hass = { ...hass, connection: { sendMessagePromise: request } };
+      card.setConfig(config({ confirm_complete: false, hold_action: "complete" }));
+      await card.updateComplete;
+      const pointerDown = new Event("pointerdown", { bubbles: true });
+      Object.defineProperties(pointerDown, {
+        button: { value: 0 },
+        isPrimary: { value: true },
+        pointerId: { value: 1 },
+      });
+
+      card.shadowRoot?.querySelector<HTMLElement>(".card")?.dispatchEvent(pointerDown);
+      card.remove();
+      await vi.advanceTimersByTimeAsync(600);
+
+      expect(request).not.toHaveBeenCalled();
+    } finally {
+      vi.runOnlyPendingTimers();
+      vi.useRealTimers();
+    }
+  });
+
+  it("does not fire a pending single tap before a second gesture becomes a hold", async () => {
+    vi.useFakeTimers();
+    try {
+      const request = vi.fn(async () => hass.states["sensor.filter_countdown"].attributes) as unknown as HomeAssistant["connection"]["sendMessagePromise"];
+      card.hass = { ...hass, connection: { sendMessagePromise: request } };
+      card.setConfig(config({
+        confirm_complete: false,
+        tap_action: "more-info",
+        hold_action: "complete",
+      }));
+      const moreInfo = vi.fn();
+      card.addEventListener("hass-more-info", moreInfo);
+      await card.updateComplete;
+      const surface = card.shadowRoot?.querySelector<HTMLElement>(".card");
+      surface?.click();
+      const pointerDown = new Event("pointerdown", { bubbles: true });
+      Object.defineProperties(pointerDown, {
+        button: { value: 0 },
+        isPrimary: { value: true },
+        pointerId: { value: 2 },
+      });
+      surface?.dispatchEvent(pointerDown);
+
+      await vi.advanceTimersByTimeAsync(600);
+
+      expect(request).toHaveBeenCalledOnce();
+      expect(moreInfo).not.toHaveBeenCalled();
+    } finally {
+      vi.runOnlyPendingTimers();
+      vi.useRealTimers();
+    }
+  });
+
+  it("exposes tap, hold, and double-tap actions through documented keyboard routes", async () => {
+    const request = vi.fn(async () => hass.states["sensor.filter_countdown"].attributes) as unknown as HomeAssistant["connection"]["sendMessagePromise"];
+    card.hass = { ...hass, connection: { sendMessagePromise: request } };
+    card.setConfig(config({
+      confirm_complete: false,
+      tap_action: "none",
+      hold_action: "complete",
+      double_tap_action: "more-info",
+    }));
+    const moreInfo = vi.fn();
+    card.addEventListener("hass-more-info", moreInfo);
+    await card.updateComplete;
+    const surface = card.shadowRoot?.querySelector<HTMLElement>(".card");
+
+    surface?.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+    expect(request).not.toHaveBeenCalled();
+    surface?.dispatchEvent(new KeyboardEvent("keydown", {
+      key: "Enter",
+      shiftKey: true,
+      bubbles: true,
+    }));
+    await Promise.resolve();
+    expect(request).toHaveBeenCalledOnce();
+    surface?.dispatchEvent(new KeyboardEvent("keydown", {
+      key: "Enter",
+      altKey: true,
+      bubbles: true,
+    }));
+    expect(moreInfo).toHaveBeenCalledOnce();
+    expect(surface?.getAttribute("aria-keyshortcuts")).toBe("Enter Shift+Enter Alt+Enter");
+    expect(card.shadowRoot?.querySelector("#keyboard-help")?.textContent).toContain(
+      "Shift+Enter",
+    );
+  });
+
+  it.each([
+    ["warning", "mdi:alert-circle-outline"],
+    ["due", "mdi:calendar-alert"],
+    ["overdue", "mdi:alert-octagon-outline"],
+  ] as const)("renders a compact non-color %s status indicator", async (phase, icon) => {
+    card.setConfig(config({ vertical_size: "compact" }));
+    card.hass = {
+      ...hass,
+      states: {
+        "sensor.filter_countdown": {
+          ...hass.states["sensor.filter_countdown"],
+          attributes: {
+            ...hass.states["sensor.filter_countdown"].attributes,
+            phase,
+          },
+        },
+      },
+    };
+    await card.updateComplete;
+
+    const indicator = card.shadowRoot?.querySelector(".phase-indicator");
+    expect(indicator).not.toBeNull();
+    expect((indicator?.querySelector("ha-icon") as HTMLElement & { icon?: string }).icon).toBe(icon);
+    expect(indicator?.getAttribute("aria-hidden")).toBe("true");
+  });
+
+  it("reuses the resolved entity id on unrelated Home Assistant updates", async () => {
+    const cacheState = {
+      ...hass.states["sensor.filter_countdown"],
+      entity_id: "sensor.cache_countdown",
+      attributes: {
+        ...hass.states["sensor.filter_countdown"].attributes,
+        task_id: "task-cache",
+      },
+    };
+    const stateSource = { "sensor.cache_countdown": cacheState };
+    const ownKeys = vi.fn(() => Reflect.ownKeys(stateSource));
+    const states = new Proxy(stateSource, { ownKeys });
+    card.setConfig(config({ task_id: "task-cache" }));
+    card.hass = { ...hass, states };
+    await card.updateComplete;
+    const scansAfterFirstRender = ownKeys.mock.calls.length;
+    expect(scansAfterFirstRender).toBeGreaterThan(0);
+
+    card.hass = { ...hass, states };
+    await card.updateComplete;
+
+    expect(ownKeys).toHaveBeenCalledTimes(scansAfterFirstRender);
+    expect(card.shadowRoot?.querySelector(".days strong")?.textContent).toBe("13");
+  });
 });

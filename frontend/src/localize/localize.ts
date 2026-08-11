@@ -1,4 +1,5 @@
 import type { TaskPhase } from "../models/types";
+import { dateOnlyValue } from "../utils/calendar";
 
 const translations = {
   en: {
@@ -18,6 +19,7 @@ const translations = {
     cancel: "Cancel",
     confirmTitle: "Complete now?",
     backendError: "Could not save completion. Please try again.",
+    keyboardHelp: "Keyboard shortcuts: Enter for tap, Shift+Enter for hold, Alt+Enter for double tap.",
   },
   ru: {
     dayOne: "день",
@@ -36,6 +38,7 @@ const translations = {
     cancel: "Отмена",
     confirmTitle: "Выполнено сейчас?",
     backendError: "Не удалось сохранить выполнение. Попробуйте ещё раз.",
+    keyboardHelp: "Клавиатура: Enter — нажатие, Shift+Enter — удержание, Alt+Enter — двойное нажатие.",
   },
 } as const;
 
@@ -65,9 +68,10 @@ export function phaseLabel(phase: TaskPhase, locale?: string): string {
 }
 
 export function formatDate(value: string, locale?: string, withTime = false): string {
-  const date = new Date(`${value}T12:00:00`);
-  if (Number.isNaN(date.getTime())) return value;
+  const date = dateOnlyValue(value);
+  if (!date) return value;
   return new Intl.DateTimeFormat(locale || "en", {
+    timeZone: "UTC",
     weekday: "short",
     day: "numeric",
     month: "short",

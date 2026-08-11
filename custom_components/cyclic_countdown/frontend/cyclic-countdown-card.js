@@ -29,11 +29,11 @@ var e = globalThis, t = e.ShadowRoot && (e.ShadyCSS === void 0 || e.ShadyCSS.nat
 	let t = "";
 	for (let n of e.cssRules) t += n.cssText;
 	return a(t);
-})(e) : e, { is: l, defineProperty: u, getOwnPropertyDescriptor: d, getOwnPropertyNames: ee, getOwnPropertySymbols: te, getPrototypeOf: ne } = Object, f = globalThis, p = f.trustedTypes, re = p ? p.emptyScript : "", ie = f.reactiveElementPolyfillSupport, m = (e, t) => e, h = {
+})(e) : e, { is: l, defineProperty: u, getOwnPropertyDescriptor: d, getOwnPropertyNames: ee, getOwnPropertySymbols: te, getPrototypeOf: ne } = Object, f = globalThis, re = f.trustedTypes, ie = re ? re.emptyScript : "", ae = f.reactiveElementPolyfillSupport, p = (e, t) => e, m = {
 	toAttribute(e, t) {
 		switch (t) {
 			case Boolean:
-				e = e ? re : null;
+				e = e ? ie : null;
 				break;
 			case Object:
 			case Array: e = e == null ? e : JSON.stringify(e);
@@ -58,13 +58,13 @@ var e = globalThis, t = e.ShadowRoot && (e.ShadyCSS === void 0 || e.ShadyCSS.nat
 		}
 		return n;
 	}
-}, g = (e, t) => !l(e, t), ae = {
+}, h = (e, t) => !l(e, t), g = {
 	attribute: !0,
 	type: String,
-	converter: h,
+	converter: m,
 	reflect: !1,
 	useDefault: !1,
-	hasChanged: g
+	hasChanged: h
 };
 Symbol.metadata ??= Symbol("metadata"), f.litPropertyMetadata ??= /* @__PURE__ */ new WeakMap();
 var _ = class extends HTMLElement {
@@ -74,7 +74,7 @@ var _ = class extends HTMLElement {
 	static get observedAttributes() {
 		return this.finalize(), this._$Eh && [...this._$Eh.keys()];
 	}
-	static createProperty(e, t = ae) {
+	static createProperty(e, t = g) {
 		if (t.state && (t.attribute = !1), this._$Ei(), this.prototype.hasOwnProperty(e) && ((t = Object.create(t)).wrapped = !0), this.elementProperties.set(e, t), !t.noAccessor) {
 			let n = Symbol(), r = this.getPropertyDescriptor(e, n, t);
 			r !== void 0 && u(this.prototype, e, r);
@@ -100,16 +100,16 @@ var _ = class extends HTMLElement {
 		};
 	}
 	static getPropertyOptions(e) {
-		return this.elementProperties.get(e) ?? ae;
+		return this.elementProperties.get(e) ?? g;
 	}
 	static _$Ei() {
-		if (this.hasOwnProperty(m("elementProperties"))) return;
+		if (this.hasOwnProperty(p("elementProperties"))) return;
 		let e = ne(this);
 		e.finalize(), e.l !== void 0 && (this.l = [...e.l]), this.elementProperties = new Map(e.elementProperties);
 	}
 	static finalize() {
-		if (this.hasOwnProperty(m("finalized"))) return;
-		if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(m("properties"))) {
+		if (this.hasOwnProperty(p("finalized"))) return;
+		if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(p("properties"))) {
 			let e = this.properties, t = [...ee(e), ...te(e)];
 			for (let n of t) this.createProperty(n, e[n]);
 		}
@@ -171,14 +171,14 @@ var _ = class extends HTMLElement {
 	_$ET(e, t) {
 		let n = this.constructor.elementProperties.get(e), r = this.constructor._$Eu(e, n);
 		if (r !== void 0 && !0 === n.reflect) {
-			let i = (n.converter?.toAttribute === void 0 ? h : n.converter).toAttribute(t, n.type);
+			let i = (n.converter?.toAttribute === void 0 ? m : n.converter).toAttribute(t, n.type);
 			this._$Em = e, i == null ? this.removeAttribute(r) : this.setAttribute(r, i), this._$Em = null;
 		}
 	}
 	_$AK(e, t) {
 		let n = this.constructor, r = n._$Eh.get(e);
 		if (r !== void 0 && this._$Em !== r) {
-			let e = n.getPropertyOptions(r), i = typeof e.converter == "function" ? { fromAttribute: e.converter } : e.converter?.fromAttribute === void 0 ? h : e.converter;
+			let e = n.getPropertyOptions(r), i = typeof e.converter == "function" ? { fromAttribute: e.converter } : e.converter?.fromAttribute === void 0 ? m : e.converter;
 			this._$Em = r;
 			let a = i.fromAttribute(t, e.type);
 			this[r] = a ?? this._$Ej?.get(r) ?? a, this._$Em = null;
@@ -187,7 +187,7 @@ var _ = class extends HTMLElement {
 	requestUpdate(e, t, n, r = !1, i) {
 		if (e !== void 0) {
 			let a = this.constructor;
-			if (!1 === r && (i = this[e]), n ??= a.getPropertyOptions(e), !((n.hasChanged ?? g)(i, t) || n.useDefault && n.reflect && i === this._$Ej?.get(e) && !this.hasAttribute(a._$Eu(e, n)))) return;
+			if (!1 === r && (i = this[e]), n ??= a.getPropertyOptions(e), !((n.hasChanged ?? h)(i, t) || n.useDefault && n.reflect && i === this._$Ej?.get(e) && !this.hasAttribute(a._$Eu(e, n)))) return;
 			this.C(e, t, n);
 		}
 		!1 === this.isUpdatePending && (this._$ES = this._$EP());
@@ -251,7 +251,7 @@ var _ = class extends HTMLElement {
 	updated(e) {}
 	firstUpdated(e) {}
 };
-_.elementStyles = [], _.shadowRootOptions = { mode: "open" }, _[m("elementProperties")] = /* @__PURE__ */ new Map(), _[m("finalized")] = /* @__PURE__ */ new Map(), ie?.({ ReactiveElement: _ }), (f.reactiveElementVersions ??= []).push("2.1.2");
+_.elementStyles = [], _.shadowRootOptions = { mode: "open" }, _[p("elementProperties")] = /* @__PURE__ */ new Map(), _[p("finalized")] = /* @__PURE__ */ new Map(), ae?.({ ReactiveElement: _ }), (f.reactiveElementVersions ??= []).push("2.1.2");
 //#endregion
 //#region node_modules/.pnpm/lit-html@3.3.3/node_modules/lit-html/lit-html.js
 var v = globalThis, oe = (e) => e, y = v.trustedTypes, b = y ? y.createPolicy("lit-html", { createHTML: (e) => e }) : void 0, x = "$lit$", S = `lit$${Math.random().toFixed(9).slice(2)}$`, C = "?" + S, se = `<${C}>`, w = document, T = () => w.createComment(""), E = (e) => e === null || typeof e != "object" && typeof e != "function", D = Array.isArray, ce = (e) => D(e) || typeof e?.[Symbol.iterator] == "function", O = "[ 	\n\f\r]", k = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, le = /-->/g, ue = />/g, A = RegExp(`>|${O}(?:([^\\s"'>=/]+)(${O}*=${O}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`, "g"), de = /'/g, fe = /"/g, j = /^(?:script|style|textarea|title)$/i, M = ((e) => (t, ...n) => ({
@@ -507,8 +507,38 @@ U._$litElement$ = !0, U.finalized = !0, H.litElementHydrateSupport?.({ LitElemen
 var xe = H.litElementPolyfillSupport;
 xe?.({ LitElement: U }), (H.litElementVersions ??= []).push("4.2.2");
 //#endregion
-//#region src/localize/localize.ts
-var Se = {
+//#region src/utils/calendar.ts
+var Se = /^(\d{4})-(\d{2})-(\d{2})$/, W = (e) => {
+	let t = Se.exec(e);
+	if (!t) return;
+	let n = Number(t[1]), r = Number(t[2]), i = Number(t[3]), a = new Date(Date.UTC(n, r - 1, i));
+	if (!(a.getUTCFullYear() !== n || a.getUTCMonth() !== r - 1 || a.getUTCDate() !== i)) return [
+		n,
+		r,
+		i
+	];
+}, G = (e, t, n) => `${String(e).padStart(4, "0")}-${String(t).padStart(2, "0")}-${String(n).padStart(2, "0")}`, K = (e, t = /* @__PURE__ */ new Date()) => {
+	let n = new Intl.DateTimeFormat("en-US", {
+		timeZone: e,
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit"
+	}).formatToParts(t), r = Object.fromEntries(n.map((e) => [e.type, e.value]));
+	return G(Number(r.year), Number(r.month), Number(r.day));
+}, q = (e, t) => {
+	let n = W(e);
+	if (!n || !Number.isInteger(t)) return;
+	let r = new Date(Date.UTC(n[0], n[1] - 1, n[2] + t));
+	return G(r.getUTCFullYear(), r.getUTCMonth() + 1, r.getUTCDate());
+}, Ce = (e, t) => {
+	let n = W(e), r = W(t);
+	if (!n || !r) return;
+	let i = Date.UTC(n[0], n[1] - 1, n[2]), a = Date.UTC(r[0], r[1] - 1, r[2]);
+	return Math.round((i - a) / 864e5);
+}, we = (e) => {
+	let t = W(e);
+	if (t) return new Date(Date.UTC(t[0], t[1] - 1, t[2], 12));
+}, Te = {
 	en: {
 		dayOne: "day",
 		dayFew: "days",
@@ -525,7 +555,8 @@ var Se = {
 		complete: "Complete",
 		cancel: "Cancel",
 		confirmTitle: "Complete now?",
-		backendError: "Could not save completion. Please try again."
+		backendError: "Could not save completion. Please try again.",
+		keyboardHelp: "Keyboard shortcuts: Enter for tap, Shift+Enter for hold, Alt+Enter for double tap."
 	},
 	ru: {
 		dayOne: "день",
@@ -543,26 +574,28 @@ var Se = {
 		complete: "Выполнено",
 		cancel: "Отмена",
 		confirmTitle: "Выполнено сейчас?",
-		backendError: "Не удалось сохранить выполнение. Попробуйте ещё раз."
+		backendError: "Не удалось сохранить выполнение. Попробуйте ещё раз.",
+		keyboardHelp: "Клавиатура: Enter — нажатие, Shift+Enter — удержание, Alt+Enter — двойное нажатие."
 	}
 };
-function W(e) {
+function J(e) {
 	return e?.toLowerCase().startsWith("ru") ? "ru" : "en";
 }
-function G(e, t) {
-	return Se[W(e)][t];
+function Y(e, t) {
+	return Te[J(e)][t];
 }
-function K(e, t) {
-	if (W(t) === "en") return Math.abs(e) === 1 ? "day" : "days";
+function Ee(e, t) {
+	if (J(t) === "en") return Math.abs(e) === 1 ? "day" : "days";
 	let n = Math.abs(e), r = n % 10, i = n % 100;
 	return r === 1 && i !== 11 ? "день" : r >= 2 && r <= 4 && (i < 12 || i > 14) ? "дня" : "дней";
 }
-function q(e, t) {
-	return e === "overdue" ? G(t, "overdue") : e === "due" ? G(t, "due") : e === "warning" ? G(t, "warning") : G(t, "remaining");
+function De(e, t) {
+	return e === "overdue" ? Y(t, "overdue") : e === "due" ? Y(t, "due") : e === "warning" ? Y(t, "warning") : Y(t, "remaining");
 }
-function Ce(e, t, n = !1) {
-	let r = /* @__PURE__ */ new Date(`${e}T12:00:00`);
-	return Number.isNaN(r.getTime()) ? e : new Intl.DateTimeFormat(t || "en", {
+function Oe(e, t, n = !1) {
+	let r = we(e);
+	return r ? new Intl.DateTimeFormat(t || "en", {
+		timeZone: "UTC",
 		weekday: "short",
 		day: "numeric",
 		month: "short",
@@ -570,17 +603,18 @@ function Ce(e, t, n = !1) {
 			hour: "2-digit",
 			minute: "2-digit"
 		} : {}
-	}).format(r);
+	}).format(r) : e;
 }
 //#endregion
 //#region src/localize/editor.ts
-var we = {
+var ke = {
 	integrationNotLoaded: "Cyclic Maintenance Countdown is not loaded. Add it in Settings → Devices & services, then refresh this page.",
 	changesSaved: "Task changes saved. You can close the card editor.",
 	taskCreated: "Task created",
 	saveFailed: "Could not save task",
 	invalidIcon: "Enter an icon name such as bacteria or mdi:bacteria",
 	iconHint: "You can also type a name such as bacteria",
+	loadingIcons: "Loading the Home Assistant icon list…",
 	deleteConfirm: (e) => `Delete “${e}”? Existing cards will remain and show that the task is missing.`,
 	taskDeleted: "Task deleted",
 	deleteFailed: "Could not delete task",
@@ -631,6 +665,7 @@ var we = {
 	sendNotifications: "Send notifications",
 	persistentNotification: "Create a persistent Home Assistant notification",
 	notificationTargets: "Notification targets",
+	notificationTargetsUnavailable: "Notification targets could not be loaded. Saved targets are preserved; reopen the editor to retry.",
 	compatibilityTarget: (e, t) => `${e} — compatible action (${t})`,
 	unavailable: " — unavailable",
 	optionalTitle: "Optional title",
@@ -652,13 +687,14 @@ var we = {
 	saveTask: "Save task",
 	createTask: "Create task",
 	taskSaveHint: "Task data is saved separately from the card settings."
-}, Te = {
+}, Ae = {
 	integrationNotLoaded: "Интеграция Cyclic Maintenance Countdown не загружена. Добавьте её в Настройки → Устройства и службы и обновите страницу.",
 	changesSaved: "Изменения задачи сохранены. Редактор карточки можно закрыть.",
 	taskCreated: "Задача создана",
 	saveFailed: "Не удалось сохранить задачу",
 	invalidIcon: "Введите имя иконки, например bacteria или mdi:bacteria",
 	iconHint: "Можно также ввести имя, например bacteria",
+	loadingIcons: "Загрузка списка иконок Home Assistant…",
 	deleteConfirm: (e) => `Удалить задачу «${e}»? Карточки сохранятся и покажут, что задача не найдена.`,
 	taskDeleted: "Задача удалена",
 	deleteFailed: "Не удалось удалить задачу",
@@ -709,6 +745,7 @@ var we = {
 	sendNotifications: "Отправлять уведомления",
 	persistentNotification: "Создавать постоянное уведомление Home Assistant",
 	notificationTargets: "Цели уведомлений",
+	notificationTargetsUnavailable: "Не удалось загрузить цели уведомлений. Сохранённые цели не изменены; откройте редактор заново, чтобы повторить.",
 	compatibilityTarget: (e, t) => `${e} — совместимое действие (${t})`,
 	unavailable: " — недоступна",
 	optionalTitle: "Заголовок, необязательно",
@@ -731,12 +768,12 @@ var we = {
 	createTask: "Создать задачу",
 	taskSaveHint: "Данные задачи сохраняются отдельно от настроек карточки."
 };
-function Ee(e) {
-	return W(e) === "ru" ? Te : we;
+function je(e) {
+	return J(e) === "ru" ? Ae : ke;
 }
 //#endregion
 //#region src/cyclic-countdown-editor.ts
-var De = {
+var Me = {
 	type: "custom:cyclic-countdown-card",
 	style: "bar",
 	vertical_size: "standard",
@@ -747,17 +784,14 @@ var De = {
 	tap_action: "more-info",
 	hold_action: "complete",
 	double_tap_action: "none"
-}, J = () => {
-	let e = /* @__PURE__ */ new Date();
-	return `${e.getFullYear()}-${String(e.getMonth() + 1).padStart(2, "0")}-${String(e.getDate()).padStart(2, "0")}`;
-}, Oe = /^[a-z0-9_-]+:[a-z0-9]+(?:-[a-z0-9]+)*$/, Y = (e) => {
+}, Ne = /^[a-z0-9_-]+:[a-z0-9]+(?:-[a-z0-9]+)*$/, Pe = 100, Fe = 1e4, X = (e) => {
 	let t = e.trim().toLowerCase().replace(/\s+/g, "-");
 	return t ? t.includes(":") ? t : `mdi:${t}` : "mdi:wrench-clock";
-}, X = () => ({
+}, Z = (e = K()) => ({
 	name: "",
 	icon: "mdi:wrench-clock",
 	interval_days: 14,
-	last_completed_date: J(),
+	last_completed_date: e,
 	due_date: "",
 	warning_days: 1,
 	notifications_enabled: !1,
@@ -770,12 +804,12 @@ var De = {
 	remaining_days: 14,
 	elapsed_progress: 0,
 	phase: "normal"
-}), Z = (e) => ({
+}), Q = (e) => ({
 	...e,
 	notification_targets: [...e.notification_targets]
-}), ke = class extends U {
+}), Ie = class extends U {
 	constructor(...e) {
-		super(...e), this._tasks = [], this._targets = [], this._draft = X(), this._previewPhase = "auto", this._loading = !0, this._saving = !1, this._testing = !1, this._iconPickerReady = !!customElements.get("ha-icon-picker"), this._taskMode = "new", this._sessionInitialized = !1, this._newTaskDraft = X(), this._error = "", this._notice = "", this._loadFailed = !1;
+		super(...e), this._tasks = [], this._targets = [], this._draft = Z(), this._previewPhase = "auto", this._loading = !0, this._saving = !1, this._deleting = !1, this._testing = !1, this._iconPickerDefined = !!customElements.get("ha-icon-picker"), this._iconIndexReady = !1, this._iconIndexUnavailable = !1, this._taskMode = "new", this._sessionInitialized = !1, this._newTaskDraft = Z(), this._newTaskDraftDirty = !1, this._existingTaskDraftDirty = !1, this._existingDrafts = /* @__PURE__ */ new Map(), this._error = "", this._notice = "", this._loadFailed = !1, this._targetsLoadFailed = !1, this._loadEpoch = 0, this._mutationEpoch = 0, this._taskServerMutationEpochs = /* @__PURE__ */ new Map(), this._operationSerial = 0;
 	}
 	static {
 		this.properties = {
@@ -787,19 +821,26 @@ var De = {
 			_previewPhase: { state: !0 },
 			_loading: { state: !0 },
 			_saving: { state: !0 },
+			_deleting: { state: !0 },
 			_testing: { state: !0 },
-			_iconPickerReady: { state: !0 },
+			_iconPickerDefined: { state: !0 },
+			_iconIndexReady: { state: !0 },
+			_iconIndexUnavailable: { state: !0 },
 			_taskMode: { state: !0 },
 			_error: { state: !0 },
 			_notice: { state: !0 },
-			_loadFailed: { state: !0 }
+			_loadFailed: { state: !0 },
+			_targetsLoadFailed: { state: !0 }
 		};
 	}
 	get locale() {
 		return this.hass?.locale?.language || this.hass?.language || navigator.language;
 	}
+	get currentDateIso() {
+		return K(this.hass?.config?.time_zone);
+	}
 	get s() {
-		return Ee(this.locale);
+		return je(this.locale);
 	}
 	get visibleTargets() {
 		let e = new Set(this._targets.map((e) => e.id)), t = this._draft.notification_targets.filter((t) => !e.has(t)).map((e) => ({
@@ -811,52 +852,91 @@ var De = {
 		return [...this._targets, ...t];
 	}
 	get draftInvalid() {
-		return !this._draft.name.trim() || !Oe.test(this._draft.icon) || this._draft.interval_days < 1 || this._draft.warning_days < 0 || this._draft.warning_days > this._draft.interval_days || this._draft.notifications_enabled && !this._draft.notification_message.trim();
+		return !this._draft.name.trim() || !Ne.test(this._draft.icon) || this._draft.interval_days < 1 || this._draft.warning_days < 0 || this._draft.warning_days > this._draft.interval_days || this._draft.notifications_enabled && !this._draft.notification_message.trim();
 	}
 	get saveDisabled() {
-		return this._saving || this.draftInvalid;
+		return this._saving || this._deleting || this._testing || this.draftInvalid;
 	}
 	get hasEditableTask() {
 		return this._taskMode === "new" || !!this._draft.task_id;
 	}
 	connectedCallback() {
-		super.connectedCallback(), !this._sessionInitialized && this._config && this.initializeTaskSession(this._config), this._iconPickerReady || customElements.whenDefined("ha-icon-picker").then(() => {
-			this._iconPickerReady = !0;
+		super.connectedCallback(), !this._sessionInitialized && this._config && this.initializeTaskSession(this._config), this._iconPickerDefined || customElements.whenDefined("ha-icon-picker").then(() => {
+			this._iconPickerDefined = !0;
+		}), this.updateComplete.then(() => {
+			this.isConnected && this.ensureIconIndexReady();
 		});
 	}
 	disconnectedCallback() {
-		super.disconnectedCallback(), this.iconPickerClosed();
+		super.disconnectedCallback(), this._mutationEpoch += 1, this.invalidatePendingOperations(), this.stopIconIndexProbe();
 	}
 	initializeTaskSession(e) {
 		this._sessionInitialized = !0, this._taskMode = e.task_id ? "existing" : "new", this._existingTaskId = e.task_id;
 	}
+	activateExistingTask(e) {
+		this.rememberExistingDraft();
+		let t = this._existingDrafts.get(e.task_id), n = t?.dirty === !0, r = Q(n ? t.draft : e);
+		this._existingDrafts.set(e.task_id, {
+			draft: Q(r),
+			dirty: n
+		}), this._taskMode = "existing", this._existingTaskId = e.task_id, this._existingTaskDraftDirty = n, this._draft = r;
+	}
+	rememberExistingDraft() {
+		this._taskMode !== "existing" || !this._draft.task_id || this._existingDrafts.set(this._draft.task_id, {
+			draft: Q(this._draft),
+			dirty: this._existingTaskDraftDirty
+		});
+	}
+	mutationIsCurrent(e, t, n, r) {
+		return this.isConnected && this._mutationEpoch === e && this.hass?.connection === t && this._taskMode === n && this._draft.task_id === r;
+	}
+	invalidateTestOperation() {
+		this._testOperation = void 0, this._testing = !1;
+	}
+	invalidatePendingOperations() {
+		this._saveOperation = void 0, this._deleteOperation = void 0, this._testOperation = void 0, this._saving = !1, this._deleting = !1, this._testing = !1;
+	}
 	setConfig(e) {
-		!this._sessionInitialized && this.isConnected && this.initializeTaskSession(e);
-		let t = e.width, n = { ...e };
-		delete n.width, this._config = {
-			...De,
-			...n,
-			vertical_size: e.vertical_size || t || "standard"
+		let t = this._config?.task_id, n = e.width, r = { ...e };
+		delete r.width;
+		let i = {
+			...Me,
+			...r,
+			vertical_size: e.vertical_size || n || "standard"
 		};
-		let r = this._tasks.find((t) => t.task_id === e.task_id);
-		r && this._taskMode === "existing" && (this._existingTaskId = r.task_id, this._draft = Z(r));
+		if (this._config = i, !this._sessionInitialized) {
+			this.isConnected && this.initializeTaskSession(i);
+			return;
+		}
+		if (t === i.task_id) return;
+		if (this._mutationEpoch += 1, this.invalidateTestOperation(), !i.task_id) {
+			this.rememberExistingDraft(), this._taskMode = "new", this._existingTaskId = void 0, this._existingTaskDraftDirty = !1, this._draft = this._newTaskDraftDirty ? Q(this._newTaskDraft) : Z(this.currentDateIso);
+			return;
+		}
+		this._taskMode = "existing", this._existingTaskId = i.task_id;
+		let a = this._tasks.find((e) => e.task_id === i.task_id);
+		a ? this.activateExistingTask(a) : (this._existingTaskDraftDirty = !1, this._draft = Z(this.currentDateIso));
 	}
 	updated(e) {
-		e.has("hass") && this.hass && this._loadedConnection !== this.hass.connection && (this._loadedConnection = this.hass.connection, this.load());
+		e.has("hass") && this.hass && this._loadedConnection !== this.hass.connection && (this._loadedConnection && (this._mutationEpoch += 1, this.invalidatePendingOperations()), this._loadedConnection = this.hass.connection, this.load()), this.ensureIconIndexReady();
 	}
 	async load() {
-		if (this.hass) {
-			this._loading = !0, this._loadFailed = !1, this._error = "";
-			try {
-				let [e, t] = await Promise.all([this.hass.connection.sendMessagePromise({ type: "cyclic_countdown/tasks/list" }), this.hass.connection.sendMessagePromise({ type: "cyclic_countdown/notification_targets/list" })]);
-				this._tasks = e, this._targets = t;
-				let n = e.find((e) => e.task_id === (this._existingTaskId || this._config?.task_id));
-				n && this._taskMode === "existing" && (this._existingTaskId = n.task_id, this._draft = Z(n));
-			} catch {
-				this._loadFailed = !0, this._error = this.s.integrationNotLoaded;
-			} finally {
-				this._loading = !1;
-			}
+		if (!this.hass) return;
+		let e = ++this._loadEpoch;
+		this._loading = !0, this._loadFailed = !1, this._targetsLoadFailed = !1, this._error = "";
+		try {
+			let [t, n] = await Promise.allSettled([this.hass.connection.sendMessagePromise({ type: "cyclic_countdown/tasks/list" }), this.hass.connection.sendMessagePromise({ type: "cyclic_countdown/notification_targets/list" })]);
+			if (e !== this._loadEpoch) return;
+			if (t.status === "rejected") throw t.reason;
+			let r = t.value;
+			this._tasks = r, n.status === "fulfilled" ? this._targets = n.value : (this._targets = [], this._targetsLoadFailed = !0), this._newTaskDraftDirty || (this._newTaskDraft = Z(this.currentDateIso), this._taskMode === "new" && (this._draft = Q(this._newTaskDraft)));
+			let i = r.find((e) => e.task_id === (this._existingTaskId || this._config?.task_id));
+			i && this._taskMode === "existing" ? this.activateExistingTask(i) : this._taskMode === "existing" && (this._existingTaskDraftDirty = !1, this._draft = Z(this.currentDateIso));
+		} catch {
+			if (e !== this._loadEpoch) return;
+			this._loadFailed = !0, this._error = this.s.integrationNotLoaded;
+		} finally {
+			e === this._loadEpoch && (this._loading = !1);
 		}
 	}
 	emitConfig(e) {
@@ -885,23 +965,26 @@ var De = {
 		let t = e.target.value;
 		if (!t) return;
 		let n = this._tasks.find((e) => e.task_id === t);
-		n && (this._taskMode = "existing", this._existingTaskId = t, this._draft = Z(n), this.emitConfig({ task_id: t }));
+		n && (this._mutationEpoch += 1, this.invalidateTestOperation(), this.activateExistingTask(n), this.emitConfig({ task_id: t }));
 	}
 	selectTaskMode(e) {
 		if (e === this._taskMode) return;
-		if (this._error = "", this._notice = "", e === "new") {
-			this._taskMode = "new", this._draft = Z(this._newTaskDraft), this.emitConfig({ task_id: void 0 });
+		if (this._mutationEpoch += 1, this.invalidateTestOperation(), this._error = "", this._notice = "", e === "new") {
+			this.rememberExistingDraft(), this._taskMode = "new", this._existingTaskDraftDirty = !1, this._newTaskDraftDirty || (this._newTaskDraft = Z(this.currentDateIso)), this._draft = Q(this._newTaskDraft), this.emitConfig({ task_id: void 0 });
 			return;
 		}
-		this._newTaskDraft = Z(this._draft), this._taskMode = "existing";
+		this._newTaskDraft = Q(this._draft), this._taskMode = "existing";
 		let t = this._tasks.find((e) => e.task_id === this._existingTaskId) || this._tasks[0];
-		t ? (this._existingTaskId = t.task_id, this._draft = Z(t), this.emitConfig({ task_id: t.task_id })) : (this._draft = X(), this.emitConfig({ task_id: void 0 }));
+		t ? (this.activateExistingTask(t), this.emitConfig({ task_id: t.task_id })) : (this._taskMode = "new", this._existingTaskId = void 0, this._existingTaskDraftDirty = !1, this._newTaskDraftDirty || (this._newTaskDraft = Z(this.currentDateIso)), this._draft = Q(this._newTaskDraft), this.emitConfig({ task_id: void 0 }));
 	}
 	updateDraft(e, t) {
-		this._draft = {
+		this._mutationEpoch += 1, this.invalidateTestOperation(), this._draft = {
 			...this._draft,
 			[e]: t
-		}, this._taskMode === "new" && (this._newTaskDraft = Z(this._draft));
+		}, this._taskMode === "new" ? (this._newTaskDraft = Q(this._draft), this._newTaskDraftDirty = !0) : this._draft.task_id && (this._existingTaskDraftDirty = !0, this._existingDrafts.set(this._draft.task_id, {
+			draft: Q(this._draft),
+			dirty: !0
+		}));
 	}
 	input(e, t) {
 		this.updateDraft(e, t.target.value);
@@ -913,23 +996,23 @@ var De = {
 		this.updateDraft(e, t.target.checked);
 	}
 	dueDate() {
-		let e = /* @__PURE__ */ new Date(`${this.computedDueIso()}T12:00:00`);
-		return Number.isNaN(e.getTime()) ? "—" : new Intl.DateTimeFormat(this.hass?.language || "ru", {
+		let e = we(this.computedDueIso());
+		return e ? new Intl.DateTimeFormat(this.locale, {
 			weekday: "short",
 			day: "numeric",
 			month: "long",
-			year: "numeric"
-		}).format(e);
+			year: "numeric",
+			timeZone: "UTC"
+		}).format(e) : "—";
 	}
 	computedDueIso() {
-		let e = /* @__PURE__ */ new Date(`${this._draft.last_completed_date}T12:00:00`);
-		return Number.isNaN(e.getTime()) || this._draft.interval_days < 1 ? "—" : (e.setDate(e.getDate() + this._draft.interval_days), `${e.getFullYear()}-${String(e.getMonth() + 1).padStart(2, "0")}-${String(e.getDate()).padStart(2, "0")}`);
+		return this._draft.interval_days < 1 ? "—" : q(this._draft.last_completed_date, this._draft.interval_days) || "—";
 	}
 	payload() {
 		let { name: e, icon: t, interval_days: n, last_completed_date: r, warning_days: i, notifications_enabled: a, persistent_notification_enabled: o, notification_targets: s, notification_title: c, notification_message: l, notify_on_warning: u, notify_on_due: d } = this._draft;
 		return {
 			name: e,
-			icon: Y(t),
+			icon: X(t),
 			interval_days: n,
 			last_completed_date: r,
 			warning_days: i,
@@ -943,20 +1026,30 @@ var De = {
 		};
 	}
 	async saveTask() {
-		if (!(!this.hass || this._saving)) {
-			this._saving = !0, this._error = "", this._notice = "";
-			try {
-				let e = this._draft.task_id, t = await this.hass.connection.sendMessagePromise({
-					type: e ? "cyclic_countdown/tasks/update" : "cyclic_countdown/tasks/create",
-					...e ? { task_id: e } : {},
-					...this.payload()
-				}), n = this._tasks.filter((e) => e.task_id !== t.task_id);
-				this._tasks = [...n, t].sort((e, t) => e.name.localeCompare(t.name)), this._draft = Z(t), this._taskMode = "existing", this._existingTaskId = t.task_id, this._newTaskDraft = X(), this.emitConfig({ task_id: t.task_id }), this._notice = e ? this.s.changesSaved : this.s.taskCreated;
-			} catch (e) {
-				this._error = this.saveErrorMessage(e);
-			} finally {
-				this._saving = !1;
+		if (!this.hass || this._saving || this._deleting || this._testing) return;
+		let e = this.hass.connection, t = this._taskMode, n = this._draft.task_id, r = ++this._mutationEpoch, i = ++this._operationSerial;
+		this._saveOperation = i, n && this._taskServerMutationEpochs.set(n, r);
+		let a = this.payload();
+		this._saving = !0, this._error = "", this._notice = "";
+		try {
+			let i = await e.sendMessagePromise({
+				type: n ? "cyclic_countdown/tasks/update" : "cyclic_countdown/tasks/create",
+				...n ? { task_id: n } : {},
+				...a
+			});
+			if (this.hass?.connection === e && (!n || this._taskServerMutationEpochs.get(n) === r)) {
+				let e = this._tasks.filter((e) => e.task_id !== i.task_id);
+				this._tasks = [...e, i].sort((e, t) => e.name.localeCompare(t.name));
 			}
+			if (!this.mutationIsCurrent(r, e, t, n)) return;
+			this._draft = Q(i), this._taskMode = "existing", this._existingTaskId = i.task_id, this._existingTaskDraftDirty = !1, this._existingDrafts.set(i.task_id, {
+				draft: Q(i),
+				dirty: !1
+			}), this._newTaskDraft = Z(this.currentDateIso), this._newTaskDraftDirty = !1, this.emitConfig({ task_id: i.task_id }), this._notice = n ? this.s.changesSaved : this.s.taskCreated;
+		} catch (i) {
+			this.mutationIsCurrent(r, e, t, n) && (this._error = this.saveErrorMessage(i));
+		} finally {
+			this._saveOperation === i && (this._saveOperation = void 0, this._saving = !1);
 		}
 	}
 	saveErrorMessage(e) {
@@ -964,87 +1057,110 @@ var De = {
 		return t.toLowerCase().includes("icon") ? this.s.invalidIcon : t || this.s.saveFailed;
 	}
 	async deleteTask() {
-		if (!(!this.hass || !this._draft.task_id) && window.confirm(this.s.deleteConfirm(this._draft.name))) try {
-			await this.hass.connection.sendMessagePromise({
+		if (!this.hass || !this._draft.task_id || this._saving || this._deleting || this._testing || !window.confirm(this.s.deleteConfirm(this._draft.name))) return;
+		let e = this.hass.connection, t = this._taskMode, n = this._draft.task_id, r = ++this._mutationEpoch, i = ++this._operationSerial;
+		this._deleteOperation = i, this._taskServerMutationEpochs.set(n, r), this._deleting = !0;
+		try {
+			await e.sendMessagePromise({
 				type: "cyclic_countdown/tasks/delete",
-				task_id: this._draft.task_id
-			}), this._tasks = this._tasks.filter((e) => e.task_id !== this._draft.task_id);
-			let e = this._tasks[0];
-			e ? (this._taskMode = "existing", this._existingTaskId = e.task_id, this._draft = Z(e), this.emitConfig({ task_id: e.task_id })) : (this._taskMode = "new", this._existingTaskId = void 0, this._newTaskDraft = X(), this._draft = Z(this._newTaskDraft), this.emitConfig({ task_id: void 0 })), this._notice = this.s.taskDeleted;
+				task_id: n
+			});
+			let i = this.hass?.connection === e && this._taskServerMutationEpochs.get(n) === r;
+			if (i && (this._existingDrafts.delete(n), this._tasks = this._tasks.filter((e) => e.task_id !== n), this._taskServerMutationEpochs.delete(n)), i && this.isConnected && this._taskMode === "existing" && this._draft.task_id === n) {
+				this.selectAfterDelete(), this._notice = this.s.taskDeleted;
+				return;
+			}
+			if (!this.mutationIsCurrent(r, e, t, n)) return;
+			this.selectAfterDelete(), this._notice = this.s.taskDeleted;
 		} catch {
-			this._error = this.s.deleteFailed;
+			this.mutationIsCurrent(r, e, t, n) && (this._error = this.s.deleteFailed);
+		} finally {
+			this._deleteOperation === i && (this._deleteOperation = void 0, this._deleting = !1);
 		}
+	}
+	selectAfterDelete() {
+		let e = this._tasks[0];
+		if (e) {
+			this._taskMode = "new", this.activateExistingTask(e), this.emitConfig({ task_id: e.task_id });
+			return;
+		}
+		this._taskMode = "new", this._existingTaskId = void 0, this._existingTaskDraftDirty = !1, this._newTaskDraft = Z(this.currentDateIso), this._newTaskDraftDirty = !1, this._draft = Q(this._newTaskDraft), this.emitConfig({ task_id: void 0 });
 	}
 	targetChanged(e) {
 		let t = [...e.target.selectedOptions];
 		this.updateDraft("notification_targets", t.map((e) => e.value));
 	}
 	async testNotification() {
-		if (!(!this.hass || this._testing || this.draftInvalid)) {
-			this._testing = !0, this._error = "", this._notice = "";
-			try {
-				let e = await this.hass.connection.sendMessagePromise({
-					type: "cyclic_countdown/notifications/test",
-					...this._draft.task_id ? { task_id: this._draft.task_id } : {},
-					...this.payload(),
-					targets: this._draft.notification_targets
-				});
-				this._notice = this.s.testSent(e.delivered.length, e.failed.length);
-			} catch {
-				this._error = this.s.testFailed;
-			} finally {
-				this._testing = !1;
-			}
+		if (!this.hass || this._saving || this._deleting || this._testing || this.draftInvalid) return;
+		let e = this.hass.connection, t = this._taskMode, n = this._draft.task_id, r = this._mutationEpoch, i = ++this._operationSerial, a = this.payload(), o = [...this._draft.notification_targets];
+		this._testOperation = i, this._testing = !0, this._error = "", this._notice = "";
+		try {
+			let s = await e.sendMessagePromise({
+				type: "cyclic_countdown/notifications/test",
+				...n ? { task_id: n } : {},
+				...a,
+				targets: o
+			});
+			if (this._testOperation !== i || !this.mutationIsCurrent(r, e, t, n)) return;
+			this._notice = this.s.testSent(s.delivered.length, s.failed.length);
+		} catch {
+			this._testOperation === i && this.mutationIsCurrent(r, e, t, n) && (this._error = this.s.testFailed);
+		} finally {
+			this._testOperation === i && (this._testOperation = void 0, this._testing = !1);
 		}
 	}
 	get previewTask() {
-		let e = this.computedDueIso() === "—" ? J() : this.computedDueIso(), t = /* @__PURE__ */ new Date(`${e}T12:00:00`), n = /* @__PURE__ */ new Date(`${J()}T12:00:00`), r = Math.round((t.getTime() - n.getTime()) / 864e5), i = this._previewPhase === "auto" ? r : {
+		let e = this.computedDueIso(), t = e === "—" ? this.currentDateIso : e, n = Ce(t, this.currentDateIso) ?? 0, r = this._previewPhase === "auto" ? n : {
 			normal: Math.max(this._draft.warning_days + 1, Math.ceil(this._draft.interval_days / 2)),
 			warning: Math.max(1, this._draft.warning_days || 1),
 			due: 0,
 			overdue: -2
-		}[this._previewPhase], a = this._previewPhase === "auto" ? i < 0 ? "overdue" : i === 0 ? "due" : this._draft.warning_days > 0 && i <= this._draft.warning_days ? "warning" : "normal" : this._previewPhase, o = Math.max(1, this._draft.interval_days);
+		}[this._previewPhase], i = this._previewPhase === "auto" ? r < 0 ? "overdue" : r === 0 ? "due" : this._draft.warning_days > 0 && r <= this._draft.warning_days ? "warning" : "normal" : this._previewPhase, a = Math.max(1, this._draft.interval_days);
 		return {
 			...this._draft,
 			task_id: this._draft.task_id || "preview",
 			name: this._draft.name || this.s.previewTaskName,
-			due_date: e,
-			remaining_days: i,
-			elapsed_progress: Math.min(1, Math.max(0, (o - i) / o)),
-			phase: a,
+			due_date: t,
+			remaining_days: r,
+			elapsed_progress: Math.min(1, Math.max(0, (a - r) / a)),
+			phase: i,
 			notification_targets: [...this._draft.notification_targets]
 		};
 	}
 	renderIconPicker() {
-		return this._iconPickerReady ? M`<ha-icon-picker
+		return this._iconPickerDefined && !this._iconIndexUnavailable ? M`<ha-icon-picker
         .hass=${this.hass}
         .value=${this._draft.icon}
-        .invalid=${!Oe.test(this._draft.icon)}
+        .disabled=${!this._iconIndexReady}
+        .invalid=${!Ne.test(this._draft.icon)}
         .errorMessage=${this.s.invalidIcon}
-        @picker-opened=${this.iconPickerOpened}
-        @picker-closed=${this.iconPickerClosed}
-        @value-changed=${(e) => this.updateDraft("icon", Y(e.detail.value))}
-      ></ha-icon-picker><small>${this.s.iconHint}</small>` : M`<input
+        aria-busy=${this._iconIndexReady ? "false" : "true"}
+        @value-changed=${(e) => this.updateDraft("icon", X(e.detail.value))}
+      ></ha-icon-picker><small>${this._iconIndexReady ? this.s.iconHint : this.s.loadingIcons}</small>` : M`<input
       .value=${this._draft.icon}
-      @change=${(e) => this.updateDraft("icon", Y(e.target.value))}
+      @change=${(e) => this.updateDraft("icon", X(e.target.value))}
       placeholder="mdi:wrench-clock"
     /><small>${this.s.iconHint}</small>`;
 	}
-	iconPickerOpened(e) {
-		this.iconPickerClosed();
-		let t = e.currentTarget, n = () => {
-			if (!t.isConnected) return;
-			let e = t.shadowRoot?.querySelector("ha-generic-picker"), r = e?.getItems?.(), i = e?.shadowRoot?.querySelector("ha-picker-combo-box");
-			if (r?.length && i) {
-				e?.refreshItems?.(), this._iconRefreshTimer = void 0;
+	ensureIconIndexReady() {
+		if (!this._iconPickerDefined || this._iconIndexReady || this._iconIndexUnavailable || this._iconIndexTimer !== void 0 || this._loading || this._loadFailed || !this.hasEditableTask) return;
+		let e = this.shadowRoot?.querySelector("ha-icon-picker");
+		if (e) {
+			if (this._iconIndexWaitStarted ??= performance.now(), (e.shadowRoot?.querySelector("ha-generic-picker"))?.getItems?.()?.length) {
+				this._iconIndexReady = !0, this._iconIndexWaitStarted = void 0;
 				return;
 			}
-			this._iconRefreshTimer = window.setTimeout(n, 100);
-		};
-		n();
+			if (performance.now() - this._iconIndexWaitStarted >= Fe) {
+				this._iconIndexUnavailable = !0, this._iconIndexWaitStarted = void 0;
+				return;
+			}
+			this._iconIndexTimer = window.setTimeout(() => {
+				this._iconIndexTimer = void 0, this.ensureIconIndexReady();
+			}, Pe);
+		}
 	}
-	iconPickerClosed() {
-		this._iconRefreshTimer && window.clearTimeout(this._iconRefreshTimer), this._iconRefreshTimer = void 0;
+	stopIconIndexProbe() {
+		this._iconIndexTimer !== void 0 && window.clearTimeout(this._iconIndexTimer), this._iconIndexTimer = void 0, this._iconIndexWaitStarted = void 0;
 	}
 	renderTaskSelector() {
 		let e = this._existingTaskId || this._config?.task_id, t = M`
@@ -1094,7 +1210,7 @@ var De = {
           <label>${this.s.name}<input required maxlength="128" .value=${this._draft.name} @input=${(e) => this.input("name", e)} placeholder=${this.s.namePlaceholder} /></label>
           <label>${this.s.icon}${this.renderIconPicker()}</label>
           <label>${this.s.intervalDays}<input type="number" min="1" max="3650" .value=${String(this._draft.interval_days)} @input=${(e) => this.numberInput("interval_days", e)} /></label>
-          <label>${this.s.lastCompleted}<span class="inline-field"><input type="date" .value=${this._draft.last_completed_date} @input=${(e) => this.input("last_completed_date", e)} /><button @click=${() => this.updateDraft("last_completed_date", J())}>${this.s.today}</button></span></label>
+          <label>${this.s.lastCompleted}<span class="inline-field"><input type="date" .value=${this._draft.last_completed_date} @input=${(e) => this.input("last_completed_date", e)} /><button @click=${() => this.updateDraft("last_completed_date", this.currentDateIso)}>${this.s.today}</button></span></label>
           <label>${this.s.warningWindow}<input type="number" min="0" .max=${String(this._draft.interval_days)} .value=${String(this._draft.warning_days)} @input=${(e) => this.numberInput("warning_days", e)} /></label>
           <div class="due-preview"><span>${this.s.nextDueDate}</span><strong>${this.dueDate()}</strong></div>
         </div>` : M`<div class="task-empty">${this.s.selectTaskFirst}</div>`}
@@ -1146,6 +1262,7 @@ var De = {
       <section>
         <h3><ha-icon icon="mdi:bell-outline"></ha-icon>${this.s.notifications}</h3>
         <label class="toggle"><input type="checkbox" .checked=${this._draft.notifications_enabled} @change=${(e) => this.boolInput("notifications_enabled", e)} /><span>${this.s.sendNotifications}</span></label>
+        ${this._targetsLoadFailed ? M`<div class="section-message" role="status">${this.s.notificationTargetsUnavailable}</div>` : P}
         ${this._draft.notifications_enabled ? M`
           <label>${this.s.notificationTargets}<select multiple size="${Math.min(6, Math.max(3, this.visibleTargets.length))}" @change=${this.targetChanged}>${this.visibleTargets.map((e) => M`<option value=${e.id} ?selected=${this._draft.notification_targets.includes(e.id)}>${this.targetLabel(e)}${e.available ? "" : this.s.unavailable}</option>`)}</select></label>
           <div class="grid">
@@ -1155,13 +1272,13 @@ var De = {
             <label class="toggle"><input type="checkbox" .checked=${this._draft.notify_on_due} @change=${(e) => this.boolInput("notify_on_due", e)} /><span>${this.s.onDue}</span></label>
           </div>
           <label>${this.s.message}<textarea required .value=${this._draft.notification_message} @input=${(e) => this.input("notification_message", e)}></textarea><small>${this.s.placeholders}: {name}, {days}, {due_date}</small></label>
-          <div class="notification-preview"><span>${this._draft.notification_title || this.s.notification}</span><p>${this._draft.notification_message.replaceAll("{name}", this._draft.name || this.s.previewTaskName).replaceAll("{days}", String(this.previewTask.remaining_days)).replaceAll("{due_date}", this.computedDueIso() === "—" ? J() : this.computedDueIso())}</p></div>
-          <button class="ghost" ?disabled=${this._testing || this.draftInvalid} @click=${this.testNotification}>${this.s.sendTest}</button>
+          <div class="notification-preview"><span>${this._draft.notification_title || this.s.notification}</span><p>${this._draft.notification_message.replaceAll("{name}", this._draft.name || this.s.previewTaskName).replaceAll("{days}", String(this.previewTask.remaining_days)).replaceAll("{due_date}", this.computedDueIso() === "—" ? this.currentDateIso : this.computedDueIso())}</p></div>
+          <button class="ghost" ?disabled=${this._saving || this._deleting || this._testing || this.draftInvalid} @click=${this.testNotification}>${this.s.sendTest}</button>
         ` : P}
       </section>` : P}
 
       ${this.hasEditableTask ? M`<footer>
-        ${this._draft.task_id ? M`<button class="danger" @click=${this.deleteTask}>${this.s.deleteTask}</button>` : M`<span></span>`}
+        ${this._draft.task_id ? M`<button class="danger" ?disabled=${this._saving || this._deleting || this._testing} @click=${this.deleteTask}>${this.s.deleteTask}</button>` : M`<span></span>`}
         ${this._config.task_id && !this._draft.task_id ? P : M`<button class="save" ?disabled=${this.saveDisabled} @click=${this.saveTask}>${this._saving ? this.s.saving : this._draft.task_id ? this.s.saveTask : this.s.createTask}</button>`}
       </footer>
       <small class="task-save-hint">${this.s.taskSaveHint}</small>` : P}
@@ -1225,14 +1342,15 @@ var De = {
     .message, .integration-error, .status { margin-bottom: 14px; padding: 13px 15px; border-radius: 13px; font-size: 13px; }
     .message.error, .integration-error { background: color-mix(in srgb, var(--error-color, #d85f58) 14%, transparent); }
     .message.notice { background: color-mix(in srgb, var(--success-color, #43a66d) 14%, transparent); }
+    .section-message { margin: 0 0 13px; padding: 10px 12px; border-radius: 10px; color: var(--secondary-text-color); background: color-mix(in srgb, var(--warning-color, #e5a83b) 10%, transparent); font-size: 12px; line-height: 1.4; }
     @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } .style-picker { grid-template-columns: 1fr; } footer { flex-wrap: wrap; } footer button { flex: 1; } }
   `;
 	}
 };
-customElements.get("cyclic-countdown-editor") || customElements.define("cyclic-countdown-editor", ke);
+customElements.get("cyclic-countdown-editor") || customElements.define("cyclic-countdown-editor", Ie);
 //#endregion
 //#region src/cyclic-countdown-card.ts
-var Ae = {
+var Le = {
 	style: "bar",
 	vertical_size: "standard",
 	reverse_progress: !1,
@@ -1242,12 +1360,12 @@ var Ae = {
 	tap_action: "more-info",
 	hold_action: "complete",
 	double_tap_action: "none"
-}, je = {
+}, Re = {
 	type: "custom:cyclic-countdown-card",
-	...Ae
-}, Me = class extends U {
+	...Le
+}, ze = class extends U {
 	constructor(...e) {
-		super(...e), this._config = { ...je }, this._confirmOpen = !1, this._busy = !1, this._error = "", this._justCompleted = !1, this._held = !1;
+		super(...e), this._config = { ...Re }, this._confirmOpen = !1, this._busy = !1, this._error = "", this._justCompleted = !1, this._tapPending = !1, this._held = !1, this._operationEpoch = 0;
 	}
 	static {
 		this.properties = {
@@ -1265,17 +1383,20 @@ var Ae = {
 		return document.createElement("cyclic-countdown-editor");
 	}
 	static getStubConfig() {
-		return { ...Ae };
+		return { ...Le };
 	}
 	setConfig(e) {
 		if (!e) throw Error("Card configuration is required");
-		let t = e.width, n = { ...e };
-		delete n.width, this._config = {
-			...je,
-			...n,
-			vertical_size: e.vertical_size || t || "standard",
+		let t = this._config.task_id, n = e.width, r = { ...e };
+		delete r.width, this._config = {
+			...Re,
+			...r,
+			vertical_size: e.vertical_size || n || "standard",
 			type: "custom:cyclic-countdown-card"
-		};
+		}, t !== this._config.task_id && (this._operationEpoch += 1, this._cachedTaskId = void 0, this._cachedEntityId = void 0, this._optimisticTask = void 0, this._busy = !1, this._error = "", this.closeConfirm(), this._justCompleted = !1, this.clearHoldTimer(), this.clearTapTimer(), this._tapPending = !1, this.clearCompletionResetTimer());
+	}
+	disconnectedCallback() {
+		super.disconnectedCallback(), this._operationEpoch += 1, this.clearHoldTimer(), this.clearTapTimer(), this.clearCompletionResetTimer(), this._tapPending = !1, this._held = !1, this._busy = !1, this._optimisticTask = void 0, this.closeConfirm(), this._justCompleted = !1;
 	}
 	getCardSize() {
 		return this._config.vertical_size === "compact" ? 1 : 2;
@@ -1296,6 +1417,11 @@ var Ae = {
 			min_columns: 3
 		};
 	}
+	willUpdate(e) {
+		if (!e.has("hass")) return;
+		let t = e.get("hass");
+		!t?.connection || t.connection === this.hass?.connection || (this._operationEpoch += 1, this._cachedTaskId = void 0, this._cachedEntityId = void 0, this._optimisticTask = void 0, this._busy = !1, this._error = "", this._justCompleted = !1, this.closeConfirm(), this.clearHoldTimer(), this.clearTapTimer(), this.clearCompletionResetTimer(), this._tapPending = !1);
+	}
 	updated(e) {
 		if (e.has("_confirmOpen") && this._confirmOpen) {
 			let e = this.renderRoot.querySelector("dialog");
@@ -1306,7 +1432,14 @@ var Ae = {
 		return this.hass?.locale?.language || this.hass?.language || navigator.language;
 	}
 	get entity() {
-		if (!(!this.hass || !this._config.task_id)) return Object.values(this.hass.states).find((e) => e.entity_id.startsWith("sensor.") && e.attributes.task_id === this._config.task_id);
+		if (!this.hass || !this._config.task_id) return;
+		let e = this._config.task_id;
+		if (this._cachedTaskId !== e && (this._cachedTaskId = e, this._cachedEntityId = void 0), this._cachedEntityId) {
+			let t = this.hass.states[this._cachedEntityId];
+			if (t?.attributes.task_id === e) return t;
+			this._cachedEntityId = void 0;
+		}
+		for (let [t, n] of Object.entries(this.hass.states)) if (t.startsWith("sensor.") && n.attributes.task_id === e) return this._cachedEntityId = t, n;
 	}
 	get task() {
 		if (this.previewTask) return this.previewTask;
@@ -1322,10 +1455,10 @@ var Ae = {
 	}
 	secondary(e) {
 		let t = this._config.secondary_info === "due_date";
-		return `${t ? G(this.locale, "dueDate") : G(this.locale, "completed")}: ${Ce(t ? e.due_date : e.last_completed_date, this.locale)}`;
+		return `${t ? Y(this.locale, "dueDate") : Y(this.locale, "completed")}: ${Oe(t ? e.due_date : e.last_completed_date, this.locale)}`;
 	}
 	renderSecondary(e) {
-		let t = this._config.secondary_info === "due_date", n = t ? e.due_date : e.last_completed_date, r = t ? G(this.locale, "dueDate") : G(this.locale, "completed"), i = Ce(n, this.locale);
+		let t = this._config.secondary_info === "due_date", n = t ? e.due_date : e.last_completed_date, r = t ? Y(this.locale, "dueDate") : Y(this.locale, "completed"), i = Oe(n, this.locale);
 		return M`<div class="secondary" aria-label=${`${r}: ${i}`}>
       <ha-icon
         icon=${t ? "mdi:calendar-clock-outline" : "mdi:history"}
@@ -1334,28 +1467,48 @@ var Ae = {
       <time datetime=${n}>${i}</time>
     </div>`;
 	}
-	buildAriaLabel(e) {
-		return `${e.name}, ${q(e.phase, this.locale)}, ${e.remaining_days} ${K(e.remaining_days, this.locale)}. ${this._config.tap_action === "complete" ? G(this.locale, "complete") : ""}`;
+	renderPhaseIndicator(e) {
+		return e.phase === "normal" ? P : M`<span class="phase-indicator" aria-hidden="true"><ha-icon .icon=${e.phase === "warning" ? "mdi:alert-circle-outline" : e.phase === "due" ? "mdi:calendar-alert" : "mdi:alert-octagon-outline"}></ha-icon></span>`;
 	}
-	pointerDown() {
-		this._held = !1, !(this._config.hold_action === "none" || this._busy || this.previewTask) && (this._holdTimer = window.setTimeout(() => {
-			this._held = !0, this._holdTimer = void 0, this._tapTimer && window.clearTimeout(this._tapTimer), this._tapTimer = void 0, this.performAction(this._config.hold_action);
-		}, 550));
+	buildAriaLabel(e) {
+		return `${e.name}, ${De(e.phase, this.locale)}, ${e.remaining_days} ${Ee(e.remaining_days, this.locale)}. ${this._config.tap_action === "complete" ? Y(this.locale, "complete") : ""}`;
+	}
+	clearHoldTimer() {
+		this._holdTimer !== void 0 && window.clearTimeout(this._holdTimer), this._holdTimer = void 0;
+	}
+	clearTapTimer() {
+		this._tapTimer !== void 0 && window.clearTimeout(this._tapTimer), this._tapTimer = void 0;
+	}
+	clearCompletionResetTimer() {
+		this._completionResetTimer !== void 0 && window.clearTimeout(this._completionResetTimer), this._completionResetTimer = void 0;
+	}
+	pointerDown(e) {
+		if (e.isPrimary === !1 || e.button !== 0 || (this._held = !1, this.clearHoldTimer(), this._tapPending && this.clearTapTimer(), this._config.hold_action === "none" || this._busy || this.previewTask)) return;
+		let t = e.currentTarget;
+		if (typeof t.setPointerCapture == "function") try {
+			t.setPointerCapture(e.pointerId);
+		} catch {}
+		this._holdTimer = window.setTimeout(() => {
+			this._held = !0, this._holdTimer = void 0, this.clearTapTimer(), this._tapPending = !1, this.performAction(this._config.hold_action);
+		}, 550);
 	}
 	pointerUp() {
-		this._holdTimer && window.clearTimeout(this._holdTimer), this._holdTimer = void 0;
+		this.clearHoldTimer();
+	}
+	pointerCancel() {
+		this.clearHoldTimer(), this.clearTapTimer(), this._tapPending = !1, this._held = !1;
 	}
 	activate() {
 		if (this._held || this._busy || this.previewTask) {
 			this._held = !1;
 			return;
 		}
-		if (this._tapTimer) {
-			window.clearTimeout(this._tapTimer), this._tapTimer = void 0, this.performAction(this._config.double_tap_action);
+		if (this._tapPending) {
+			this.clearTapTimer(), this._tapPending = !1, this.performAction(this._config.double_tap_action);
 			return;
 		}
-		this._tapTimer = window.setTimeout(() => {
-			this._tapTimer = void 0, this.performAction(this._config.tap_action);
+		this._tapPending = !0, this._tapTimer = window.setTimeout(() => {
+			this._tapTimer = void 0, this._tapPending = !1, this.performAction(this._config.tap_action);
 		}, 250);
 	}
 	performAction(e) {
@@ -1368,7 +1521,10 @@ var Ae = {
 		}
 	}
 	keyActivate(e) {
-		(e.key === "Enter" || e.key === " ") && (e.preventDefault(), this.performAction(this._config.tap_action));
+		if (e.key !== "Enter" && e.key !== " " || e.ctrlKey || e.metaKey || e.altKey && e.shiftKey || (e.preventDefault(), e.repeat)) return;
+		this.clearTapTimer(), this._tapPending = !1;
+		let t = e.altKey ? this._config.double_tap_action : e.shiftKey ? this._config.hold_action : this._config.tap_action;
+		this.performAction(t);
 	}
 	moreInfo() {
 		let e = this.entity?.entity_id;
@@ -1379,40 +1535,46 @@ var Ae = {
 		}));
 	}
 	closeConfirm() {
-		let e = this.renderRoot.querySelector("dialog");
+		let e = this.shadowRoot?.querySelector("dialog");
 		e?.open && typeof e.close == "function" && e.close(), this._confirmOpen = !1;
 	}
 	async complete() {
 		let e = this.task;
 		if (!e || !this.hass || !this._config.task_id || this._busy) return;
+		let t = this._config.task_id, n = this._operationEpoch, r = this.hass.connection;
 		this.closeConfirm(), this._busy = !0, this._error = "";
-		let t = this._optimisticTask, n = /* @__PURE__ */ new Date(), r = new Date(n.getFullYear(), n.getMonth(), n.getDate() + e.interval_days), i = (e) => `${e.getFullYear()}-${String(e.getMonth() + 1).padStart(2, "0")}-${String(e.getDate()).padStart(2, "0")}`;
+		let i = this._optimisticTask, a = K(this.hass.config?.time_zone), o = q(a, e.interval_days) || e.due_date;
 		this._optimisticTask = {
 			...e,
-			last_completed_date: i(n),
-			due_date: i(r),
+			last_completed_date: a,
+			due_date: o,
 			remaining_days: e.interval_days,
 			elapsed_progress: 0,
 			phase: "normal"
 		};
 		try {
-			this._optimisticTask = await this.hass.connection.sendMessagePromise({
+			let e = await r.sendMessagePromise({
 				type: "cyclic_countdown/tasks/complete",
-				task_id: this._config.task_id
-			}), this._justCompleted = !0, window.setTimeout(() => {
-				this._justCompleted = !1, this._optimisticTask = void 0;
+				task_id: t
+			});
+			if (!this.isConnected || n !== this._operationEpoch || t !== this._config.task_id || r !== this.hass?.connection) {
+				this._optimisticTask = void 0;
+				return;
+			}
+			this._optimisticTask = e, this._justCompleted = !0, this.clearCompletionResetTimer(), this._completionResetTimer = window.setTimeout(() => {
+				this._completionResetTimer = void 0, this._justCompleted = !1, this._optimisticTask = void 0;
 			}, 1800);
 		} catch {
-			this._optimisticTask = t, this._error = G(this.locale, "backendError");
+			this.isConnected && n === this._operationEpoch && t === this._config.task_id && r === this.hass?.connection ? (this._optimisticTask = i, this._error = Y(this.locale, "backendError")) : this._optimisticTask = void 0;
 		} finally {
-			this._busy = !1;
+			n === this._operationEpoch && t === this._config.task_id && r === this.hass?.connection && (this._busy = !1);
 		}
 	}
 	render() {
 		let e = this.task;
 		if (!e) return M`<ha-card class="missing">
         <ha-icon icon="mdi:wrench-clock"></ha-icon>
-        <div><strong>${G(this.locale, "notFound")}</strong><small>cyclic_countdown</small></div>
+        <div><strong>${Y(this.locale, "notFound")}</strong><small>cyclic_countdown</small></div>
       </ha-card>`;
 		let t = `--progress:${this.progress}%;--accent:${this._config.accent_color || "var(--primary-color, #6d78e8)"}`;
 		return M`
@@ -1422,13 +1584,16 @@ var Ae = {
         role="button"
         tabindex="0"
         aria-label=${this.buildAriaLabel(e)}
+        aria-describedby="keyboard-help"
+        aria-keyshortcuts="Enter Shift+Enter Alt+Enter"
         aria-busy=${this._busy ? "true" : "false"}
         @pointerdown=${this.pointerDown}
         @pointerup=${this.pointerUp}
-        @pointercancel=${this.pointerUp}
+        @pointercancel=${this.pointerCancel}
         @click=${this.activate}
         @keydown=${this.keyActivate}
       >
+        <span id="keyboard-help" class="sr-only">${Y(this.locale, "keyboardHelp")}</span>
         <div class="fill-layer" aria-hidden="true"></div>
         <div class="state-layer" aria-hidden="true"></div>
         <div class="content">
@@ -1436,14 +1601,15 @@ var Ae = {
           <div class="details">
             <div class="title-row">
               <div class="title">${e.name}</div>
-              <span class="phase-label">${q(e.phase, this.locale)}</span>
+              ${this.renderPhaseIndicator(e)}
+              <span class="phase-label">${De(e.phase, this.locale)}</span>
             </div>
             ${this._config.show_secondary ? this.renderSecondary(e) : P}
             ${this._config.style === "bar" ? M`<div class="track"><div class="bar-progress"></div></div>` : P}
           </div>
           <div class="days">
             <strong>${e.remaining_days}</strong>
-            <span>${K(e.remaining_days, this.locale)}</span>
+            <span>${Ee(e.remaining_days, this.locale)}</span>
           </div>
         </div>
         ${this._error ? M`<div class="error" role="alert">${this._error}</div>` : P}
@@ -1452,11 +1618,11 @@ var Ae = {
 			e.target === e.currentTarget && this.closeConfirm();
 		}}>
         <div class="dialog-body">
-          <h2>${G(this.locale, "confirmTitle")}</h2>
+          <h2>${Y(this.locale, "confirmTitle")}</h2>
           <p>${e.name} · ${this.secondary(e)}</p>
           <div class="dialog-actions">
-            <button class="secondary-button" @click=${this.closeConfirm}>${G(this.locale, "cancel")}</button>
-            <button class="primary-button" @click=${this.complete}>${G(this.locale, "complete")}</button>
+            <button class="secondary-button" @click=${this.closeConfirm}>${Y(this.locale, "cancel")}</button>
+            <button class="primary-button" @click=${this.complete}>${Y(this.locale, "complete")}</button>
           </div>
         </div>
       </dialog>
@@ -1472,6 +1638,7 @@ var Ae = {
       --warn: var(--cyclic-countdown-warning-color, var(--warning-color, #e5a83b));
     }
     ha-card { box-sizing: border-box; color: var(--primary-text-color); }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
     .card {
       display: block; width: 100%; position: relative; min-height: 112px; overflow: hidden; cursor: pointer; isolation: isolate; touch-action: manipulation;
       border-radius: var(--cyclic-countdown-radius, var(--ha-card-border-radius, var(--ha-border-radius-lg, 12px)));
@@ -1508,6 +1675,11 @@ var Ae = {
     .title-row { display: flex; align-items: baseline; gap: 9px; min-width: 0; }
     .title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 21px; line-height: 1.22; font-weight: 650; letter-spacing: -.018em; }
     .phase-label { flex: none; font-size: 12px; font-weight: 550; letter-spacing: 0; color: var(--secondary-text-color); }
+    .phase-indicator { display: none; flex: none; place-items: center; }
+    .phase-indicator ha-icon { --mdc-icon-size: 15px; }
+    .warning .phase-indicator { color: var(--warn); }
+    .due .phase-indicator, .overdue .phase-indicator { color: var(--danger); }
+    .compact.warning .phase-indicator, .compact.due .phase-indicator, .compact.overdue .phase-indicator { display: grid; }
     .normal .phase-label { display: none; }
     .secondary { min-width: 0; margin-top: 5px; display: flex; align-items: center; gap: 5px; overflow: hidden; white-space: nowrap; color: var(--secondary-text-color); font-size: 14px; line-height: 1.3; }
     .secondary ha-icon { flex: none; --mdc-icon-size: 15px; }
@@ -1549,6 +1721,7 @@ var Ae = {
       .title { font-size: 18px; }
       .secondary { font-size: 12px; }
       .phase-label { display: none; }
+      .warning .phase-indicator, .due .phase-indicator, .overdue .phase-indicator { display: grid; }
       .days strong { font-size: 38px; }
     }
     @media (prefers-reduced-motion: reduce) {
@@ -1559,24 +1732,24 @@ var Ae = {
   `;
 	}
 };
-customElements.get("cyclic-countdown-card") || customElements.define("cyclic-countdown-card", Me);
-var Q = {
+customElements.get("cyclic-countdown-card") || customElements.define("cyclic-countdown-card", ze);
+var $ = {
 	type: "cyclic-countdown-card",
 	name: "Cyclic Maintenance Countdown",
 	description: "A theme-aware calendar-day maintenance countdown",
 	preview: !1,
 	documentationURL: "https://github.com/PnnnG/Cyclic-Maintenance-Countdown"
-}, $ = () => {
+}, Be = () => {
 	window.customCards = window.customCards || [];
-	let e = window.customCards.find((e) => e.type === Q.type);
+	let e = window.customCards.find((e) => e.type === $.type);
 	if (e) {
-		Object.assign(e, Q);
+		Object.assign(e, $);
 		return;
 	}
-	window.customCards.push({ ...Q });
+	window.customCards.push({ ...$ });
 };
-$();
+Be();
 //#endregion
-export { Me as CyclicCountdownCard, $ as registerCardPickerEntry };
+export { ze as CyclicCountdownCard, Be as registerCardPickerEntry };
 
 //# sourceMappingURL=cyclic-countdown-card.js.map

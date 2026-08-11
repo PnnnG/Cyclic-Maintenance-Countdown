@@ -95,7 +95,7 @@
         },
       };
       const applyHass = () => {
-        editor.hass = { language, locale: { language: language === "ru" ? "ru-RU" : "en-US" }, states: {}, connection };
+        editor.hass = { language, locale: { language: language === "ru" ? "ru-RU" : "en-US" }, config: { time_zone: "Europe/Moscow" }, states: {}, connection };
       };
       editor.setConfig({
         type: "custom:cyclic-countdown-card",

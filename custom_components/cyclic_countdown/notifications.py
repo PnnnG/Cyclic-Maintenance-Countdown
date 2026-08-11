@@ -6,6 +6,7 @@ import asyncio
 import logging
 from datetime import date
 from typing import Any
+from weakref import WeakKeyDictionary
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
@@ -16,6 +17,85 @@ from .storage import TaskManager
 
 _LOGGER = logging.getLogger(__name__)
 _PLACEHOLDERS = {"name", "days", "due_date"}
+_RECONCILE_LOCKS: WeakKeyDictionary[TaskManager, asyncio.Lock] = WeakKeyDictionary()
+NOTIFICATION_SEND_TIMEOUT = 5.0
+
+
+class NotificationCoordinator:
+    """Serialize manager generations and reject writes from stale reloads."""
+
+    def __init__(self) -> None:
+        self._lock = asyncio.Lock()
+        self._manager: TaskManager | None = None
+        self._generation = 0
+        self._inflight: dict[tuple[str, str, str], asyncio.Future[bool]] = {}
+
+    async def async_activate(self, manager: TaskManager) -> int:
+        """Make a manager current and return its generation."""
+        async with self._lock:
+            self._generation += 1
+            self._manager = manager
+            return self._generation
+
+    async def async_deactivate(self, manager: TaskManager) -> None:
+        """Invalidate a manager without disturbing a newer generation."""
+        async with self._lock:
+            if self._manager is manager:
+                self._generation += 1
+                self._manager = None
+
+    async def async_mark_event_sent(
+        self,
+        task_id: str,
+        event: str,
+        *,
+        expected_cycle_id: str,
+    ) -> bool:
+        """Write a delivered marker through the currently active manager."""
+        async with self._lock:
+            if self._manager is None:
+                return False
+            return await self._manager.async_mark_event_sent(
+                task_id,
+                event,
+                expected_cycle_id=expected_cycle_id,
+            )
+
+    def reserve_event(
+        self,
+        generation: int,
+        key: tuple[str, str, str],
+    ) -> tuple[bool, asyncio.Future[bool] | None]:
+        """Reserve one physical delivery or return the current attempt to await."""
+        if generation != self._generation or self._manager is None:
+            return False, None
+        if reservation := self._inflight.get(key):
+            return False, reservation
+        reservation = asyncio.get_running_loop().create_future()
+        self._inflight[key] = reservation
+        return True, reservation
+
+    def finish_event(
+        self,
+        key: tuple[str, str, str],
+        reservation: asyncio.Future[bool],
+        marked: bool,
+    ) -> None:
+        """Release a delivery reservation without yielding at cancellation time."""
+        if self._inflight.get(key) is not reservation:
+            return
+        del self._inflight[key]
+        if not reservation.done():
+            reservation.set_result(marked)
+
+
+def _reconcile_lock(manager: TaskManager) -> asyncio.Lock:
+    """Return the event-loop lock serializing reconciliation for one manager."""
+    lock = _RECONCILE_LOCKS.get(manager)
+    if lock is None:
+        lock = asyncio.Lock()
+        _RECONCILE_LOCKS[manager] = lock
+    return lock
 
 
 def list_notification_targets(hass: HomeAssistant) -> list[dict[str, Any]]:
@@ -28,7 +108,9 @@ def list_notification_targets(hass: HomeAssistant) -> list[dict[str, Any]]:
             {
                 "id": state.entity_id,
                 "name": state.attributes.get("friendly_name") or state.name,
-                "available": state.state not in {"unavailable", "unknown"},
+                # Notify entities commonly expose ``unknown`` while still accepting
+                # send_message. Only HA's explicit unavailable state is authoritative.
+                "available": state.state != "unavailable",
                 "kind": "entity",
             }
         )
@@ -42,9 +124,7 @@ def list_notification_targets(hass: HomeAssistant) -> list[dict[str, Any]]:
         config_entry = hass.config_entries.async_get_entry(registry_entry.config_entry_id)
         device_name = config_entry.data.get("device_name") if config_entry else None
         if isinstance(device_name, str) and device_name:
-            legacy_mobile_duplicates.add(
-                f"notify.{slugify(f'mobile_app_{device_name}')}"
-            )
+            legacy_mobile_duplicates.add(f"notify.{slugify(f'mobile_app_{device_name}')}")
 
     services = hass.services.async_services().get("notify", {})
     ignored = {"send_message", "persistent_notification"}
@@ -94,22 +174,23 @@ async def async_send_to_targets(
 
     async def send(target_id: str) -> None:
         try:
-            if target_id.startswith("notify.") and target_id in hass.states.async_entity_ids(
-                "notify"
-            ):
-                await hass.services.async_call(
-                    "notify",
-                    "send_message",
-                    data,
-                    target={"entity_id": target_id},
-                    blocking=True,
-                )
-            elif target_id.startswith("notify."):
-                await hass.services.async_call(
-                    "notify", target_id.split(".", 1)[1], data, blocking=True
-                )
-            else:
-                raise ValueError("Unsupported notification target")
+            async with asyncio.timeout(NOTIFICATION_SEND_TIMEOUT):
+                if target_id.startswith("notify.") and target_id in hass.states.async_entity_ids(
+                    "notify"
+                ):
+                    await hass.services.async_call(
+                        "notify",
+                        "send_message",
+                        data,
+                        target={"entity_id": target_id},
+                        blocking=True,
+                    )
+                elif target_id.startswith("notify."):
+                    await hass.services.async_call(
+                        "notify", target_id.split(".", 1)[1], data, blocking=True
+                    )
+                else:
+                    raise ValueError("Unsupported notification target")
             delivered.append(target_id)
         except Exception as err:
             failed.append(target_id)
@@ -133,9 +214,8 @@ async def async_send_persistent_notification(
     if notification_id:
         data["notification_id"] = notification_id
     try:
-        await hass.services.async_call(
-            "persistent_notification", "create", data, blocking=True
-        )
+        async with asyncio.timeout(NOTIFICATION_SEND_TIMEOUT):
+            await hass.services.async_call("persistent_notification", "create", data, blocking=True)
         return {"delivered": [target_id], "failed": []}
     except Exception as err:
         _LOGGER.warning("Persistent notification failed: %s", type(err).__name__)
@@ -169,37 +249,90 @@ async def async_send_task_notification(
     return result
 
 
-async def async_reconcile_notifications(manager: TaskManager) -> None:
+async def async_reconcile_notifications(
+    manager: TaskManager,
+    *,
+    coordinator: NotificationCoordinator | None = None,
+    generation: int | None = None,
+) -> None:
     """Send each unsent warning/due event once for the current cycle.
 
     A missed due event is caught up after downtime even if the task is already
-    overdue; the marker prevents all subsequent overdue-day repeats.
+    overdue; the marker prevents all subsequent overdue-day repeats. Calls for
+    the same manager are serialized across the check, delivery and marker save,
+    while coordinator reservations cover overlapping reload generations. A hard
+    cancellation or process loss after an endpoint accepts a message but before
+    it returns remains an unavoidable at-least-once delivery boundary.
     """
-    today = manager.today
-    for task in manager.list_tasks():
-        if not task.notifications_enabled or (
-            not task.notification_targets and not task.persistent_notification_enabled
-        ):
-            continue
-        remaining = calculate_remaining_days(parse_date(task.due_date), today)
-        events: list[str] = []
-        if (
-            task.notify_on_warning
-            and task.warning_days > 0
-            and remaining <= task.warning_days
-            and not manager.event_was_sent(task, "warning")
-        ):
-            events.append("warning")
-        if task.notify_on_due and remaining <= 0 and not manager.event_was_sent(task, "due"):
-            events.append("due")
+    if (coordinator is None) != (generation is None):
+        raise ValueError("coordinator and generation must be provided together")
 
-        for event in events:
-            message = render_message(task.notification_message, task, today)
-            result = await async_send_task_notification(
-                manager, task, message, event=event
-            )
-            if result["delivered"]:
-                await manager.async_mark_event_sent(task.task_id, event)
+    async with _reconcile_lock(manager):
+        today = manager.today
+        for task in manager.list_tasks():
+            if not task.notifications_enabled or (
+                not task.notification_targets and not task.persistent_notification_enabled
+            ):
+                continue
+            remaining = calculate_remaining_days(parse_date(task.due_date), today)
+            events: list[str] = []
+            if (
+                task.notify_on_warning
+                and task.warning_days > 0
+                and remaining > 0
+                and remaining <= task.warning_days
+                and not manager.event_was_sent(task, "warning")
+            ):
+                events.append("warning")
+            if task.notify_on_due and remaining <= 0 and not manager.event_was_sent(task, "due"):
+                events.append("due")
+
+            for event in events:
+                expected_cycle_id = task.cycle_id
+                reservation: asyncio.Future[bool] | None = None
+                reservation_key = (task.task_id, expected_cycle_id, event)
+                if coordinator is not None and generation is not None:
+                    while True:
+                        owns_delivery, reservation = coordinator.reserve_event(
+                            generation,
+                            reservation_key,
+                        )
+                        if reservation is None:
+                            # This worker belongs to a manager invalidated by reload.
+                            return
+                        if owns_delivery:
+                            break
+                        await asyncio.shield(reservation)
+                        current = manager.get_task(task.task_id)
+                        if (
+                            current is None
+                            or current.cycle_id != expected_cycle_id
+                            or manager.event_was_sent(current, event)
+                        ):
+                            reservation = None
+                            break
+                    if reservation is None:
+                        continue
+
+                message = render_message(task.notification_message, task, today)
+                marked = False
+                try:
+                    result = await async_send_task_notification(manager, task, message, event=event)
+                    if result["delivered"] and coordinator is None:
+                        await manager.async_mark_event_sent(
+                            task.task_id,
+                            event,
+                            expected_cycle_id=expected_cycle_id,
+                        )
+                    elif result["delivered"] and coordinator is not None:
+                        marked = await coordinator.async_mark_event_sent(
+                            task.task_id,
+                            event,
+                            expected_cycle_id=expected_cycle_id,
+                        )
+                finally:
+                    if coordinator is not None and reservation is not None:
+                        coordinator.finish_event(reservation_key, reservation, marked)
 
 
 async def async_send_test(

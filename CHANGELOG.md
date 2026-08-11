@@ -2,6 +2,19 @@
 
 All notable changes to Cyclic Maintenance Countdown are documented here.
 
+## 0.3.0 — 2026-08-12
+
+- Load the bundled card through one persistent, versioned Lovelace resource in storage mode, with idempotent updates, duplicate cleanup, safe removal, and an extra-module fallback for YAML or storage failures.
+- Keep task mutations copy-on-write, use Home Assistant's atomic file writer, surface persistence failures, isolate corrupt records, repair derived due dates, and reject invalid stored identifiers and marker data.
+- Fail closed when a non-admin user tries to complete a task whose sensor is unavailable, while preserving normal entity-control authorization for service and WebSocket calls.
+- Serialize and coalesce notification reconciliation, bound each destination call, prevent stale reload generations from writing task data, reset delivery markers when the schedule changes, and keep warning/due catch-up cycle-safe.
+- Calculate editor, preview, and optimistic-completion dates in the Home Assistant timezone with calendar-day arithmetic that is independent of DST-length changes.
+- Preserve unsaved task drafts across configuration echoes, mode switches, reloads, and connection replacement; ignore late load, save, delete, and completion responses that belong to an obsolete editor state.
+- Make tap, hold, and double-tap actions keyboard-accessible and add a non-color warning/due/overdue indicator to Compact and narrow layouts.
+- Gate the first native icon picker until Home Assistant exposes a non-empty icon index, with a bounded text-input fallback if the native component never becomes ready.
+- Add real sensor/entity lifecycle, service permission, WebSocket CRUD/permission, notification failure, persistence failure, and stale-reload regression tests.
+- Validate Home Assistant 2026.7 and 2026.8, run real TypeScript linting and backend coverage/format gates, keep package versions consistent, and fail CI when the committed frontend bundle is stale.
+
 ## 0.2.4 — 2026-08-10
 
 - Refresh the native Home Assistant icon picker only after both its asynchronous icon index and its mobile combo box are ready, keeping search responsive from the first task onward.

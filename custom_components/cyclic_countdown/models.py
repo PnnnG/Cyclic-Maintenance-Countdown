@@ -6,7 +6,7 @@ import re
 from dataclasses import asdict, dataclass, field
 from datetime import date, timedelta
 from typing import Any
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from .const import (
     DEFAULT_ICON,
@@ -35,7 +35,10 @@ def parse_date(value: str | date) -> date:
 
 def calculate_due_date(last_completed_date: date, interval_days: int) -> date:
     """Return the next due date."""
-    return last_completed_date + timedelta(days=interval_days)
+    try:
+        return last_completed_date + timedelta(days=interval_days)
+    except OverflowError as err:
+        raise TaskValidationError("due date is outside the supported calendar range") from err
 
 
 def calculate_remaining_days(due_date: date, today: date) -> int:
@@ -95,7 +98,7 @@ class CountdownTask:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> CountdownTask:
-        """Restore a task, accepting defaults added by schema migrations."""
+        """Restore and validate a task, repairing its derived due date."""
         payload = dict(data)
         payload.setdefault("icon", DEFAULT_ICON)
         payload.setdefault("warning_days", DEFAULT_WARNING_DAYS)
@@ -108,7 +111,61 @@ class CountdownTask:
         payload.setdefault("notify_on_due", True)
         payload.setdefault("cycle_id", str(uuid4()))
         payload.setdefault("sent_events", [])
-        return cls(**payload)
+
+        if not isinstance(payload.get("task_id"), str):
+            raise TaskValidationError("task_id must be a UUID")
+        try:
+            task_id = str(UUID(payload["task_id"]))
+        except (ValueError, AttributeError) as err:
+            raise TaskValidationError("task_id must be a UUID") from err
+
+        if not isinstance(payload.get("cycle_id"), str):
+            raise TaskValidationError("cycle_id must be a UUID")
+        try:
+            cycle_id = str(UUID(payload["cycle_id"]))
+        except (ValueError, AttributeError) as err:
+            raise TaskValidationError("cycle_id must be a UUID") from err
+
+        for key in (
+            "name",
+            "icon",
+            "last_completed_date",
+            "notification_title",
+            "notification_message",
+        ):
+            if not isinstance(payload.get(key), str):
+                raise TaskValidationError(f"{key} must be a string")
+        for key in ("interval_days", "warning_days"):
+            if not isinstance(payload.get(key), int) or isinstance(payload[key], bool):
+                raise TaskValidationError(f"{key} must be an integer")
+        for key in (
+            "notifications_enabled",
+            "persistent_notification_enabled",
+            "notify_on_warning",
+            "notify_on_due",
+        ):
+            if not isinstance(payload.get(key), bool):
+                raise TaskValidationError(f"{key} must be a boolean")
+
+        sent_events = payload["sent_events"]
+        if not isinstance(sent_events, list) or any(
+            not isinstance(marker, str) for marker in sent_events
+        ):
+            raise TaskValidationError("sent_events must be a list of strings")
+        allowed_markers = {f"{cycle_id}:warning", f"{cycle_id}:due"}
+        if any(marker not in allowed_markers for marker in sent_events):
+            raise TaskValidationError("sent_events contains an invalid cycle marker")
+
+        last_completed = parse_date(payload["last_completed_date"])
+        validated = validate_task_data(payload, partial=False, today=last_completed)
+        due_date = calculate_due_date(last_completed, validated["interval_days"]).isoformat()
+        return cls(
+            task_id=task_id,
+            due_date=due_date,
+            cycle_id=cycle_id,
+            sent_events=list(dict.fromkeys(sent_events)),
+            **validated,
+        )
 
     def to_dict(self) -> dict[str, Any]:
         """Return a storage/API representation."""
@@ -127,19 +184,25 @@ class CountdownTask:
 
     def update(self, changes: dict[str, Any], today: date) -> None:
         """Apply validated changes, recalculating due date from the last completion."""
+        previous_cycle_basis = (self.last_completed_date, self.interval_days)
         merged = self.to_dict()
         merged.update(changes)
         validated = validate_task_data(merged, partial=False, today=today)
+        due_date = calculate_due_date(
+            parse_date(validated["last_completed_date"]), validated["interval_days"]
+        ).isoformat()
         for key, value in validated.items():
             setattr(self, key, value)
-        self.due_date = calculate_due_date(
-            parse_date(self.last_completed_date), self.interval_days
-        ).isoformat()
+        self.due_date = due_date
+        if (self.last_completed_date, self.interval_days) != previous_cycle_basis:
+            self.cycle_id = str(uuid4())
+            self.sent_events = []
 
     def complete(self, today: date) -> None:
         """Start a new cycle from the actual completion date."""
+        due_date = calculate_due_date(today, self.interval_days).isoformat()
         self.last_completed_date = today.isoformat()
-        self.due_date = calculate_due_date(today, self.interval_days).isoformat()
+        self.due_date = due_date
         self.cycle_id = str(uuid4())
         self.sent_events = []
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 import voluptuous as vol
+from homeassistant.auth.models import User
 from homeassistant.auth.permissions.const import POLICY_CONTROL
 from homeassistant.components import websocket_api
 from homeassistant.core import HomeAssistant
@@ -65,6 +66,14 @@ def _manager(hass: HomeAssistant) -> TaskManager:
     if manager is None:
         raise TaskValidationError("Cyclic Countdown integration is not loaded")
     return manager
+
+
+def user_can_complete_task(hass: HomeAssistant, user: User, task_id: str) -> bool:
+    """Check task control permission, failing closed when its entity is absent."""
+    entity_id = er.async_get(hass).async_get_entity_id("sensor", DOMAIN, f"{task_id}_countdown")
+    if entity_id is None:
+        return user.is_admin
+    return user.permissions.check_entity(entity_id, POLICY_CONTROL)
 
 
 def _error(connection: websocket_api.ActiveConnection, msg_id: int, err: Exception) -> None:
@@ -144,9 +153,7 @@ async def ws_complete_task(hass, connection, msg) -> None:
     try:
         manager = _manager(hass)
         task_id = msg["task_id"]
-        registry = er.async_get(hass)
-        entity_id = registry.async_get_entity_id("sensor", DOMAIN, f"{task_id}_countdown")
-        if entity_id and not connection.user.permissions.check_entity(entity_id, POLICY_CONTROL):
+        if not user_can_complete_task(hass, connection.user, task_id):
             raise Unauthorized
         task = await manager.async_complete(task_id)
         connection.send_result(msg["id"], task.runtime(manager.today))
