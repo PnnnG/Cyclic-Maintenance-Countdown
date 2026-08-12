@@ -13,9 +13,14 @@ from homeassistant.config_entries import SOURCE_USER
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.loader import async_get_integration
-from pytest_homeassistant_custom_component.common import mock_component
+from pytest_homeassistant_custom_component.common import MockConfigEntry, mock_component
 
-from custom_components.cyclic_countdown.const import DOMAIN
+from custom_components.cyclic_countdown.const import (
+    CONFIG_ENTRY_VERSION,
+    DEFAULT_INTEGRATION_TITLE,
+    DOMAIN,
+    LEGACY_DEFAULT_INTEGRATION_TITLE,
+)
 from custom_components.cyclic_countdown.frontend_resource import frontend_resource_url
 
 
@@ -92,7 +97,7 @@ async def test_user_flow_creates_loaded_integration(hass: HomeAssistant) -> None
 
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {})
     assert result["type"] is FlowResultType.CREATE_ENTRY
-    assert result["title"] == "Cyclic Maintenance Countdown"
+    assert result["title"] == DEFAULT_INTEGRATION_TITLE
 
     await hass.async_block_till_done()
     assert len(hass.config_entries.async_entries(DOMAIN)) == 1
@@ -106,6 +111,37 @@ async def test_user_flow_creates_loaded_integration(hass: HomeAssistant) -> None
         }
     ]
     assert hass.data[DATA_EXTRA_MODULE_URL].urls == set()
+
+
+@pytest.mark.parametrize(
+    ("title", "expected_title"),
+    [
+        (LEGACY_DEFAULT_INTEGRATION_TITLE, DEFAULT_INTEGRATION_TITLE),
+        ("Boiler room maintenance", "Boiler room maintenance"),
+    ],
+)
+@pytest.mark.usefixtures("enable_custom_integrations")
+async def test_setup_migrates_config_entry_title(
+    hass: HomeAssistant,
+    title: str,
+    expected_title: str,
+) -> None:
+    """Only the legacy default title is renamed; user titles are preserved."""
+    _mock_frontend_assets(hass)
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        title=title,
+        unique_id=DOMAIN,
+        data={},
+        version=1,
+    )
+    entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert entry.version == CONFIG_ENTRY_VERSION
+    assert entry.title == expected_title
 
 
 @pytest.mark.usefixtures("enable_custom_integrations")

@@ -1,15 +1,15 @@
 {
-  "title": "Cyclic Maintenance Countdown",
+  "title": "Maintenance Countdown",
   "config": {
     "step": {
       "user": {
-        "title": "Cyclic Maintenance Countdown",
+        "title": "Maintenance Countdown",
         "description": "Добавьте интеграцию в Home Assistant. После настройки задачи создаются и редактируются в визуальном редакторе карточки."
       }
     },
     "abort": {
-      "already_configured": "Cyclic Maintenance Countdown уже настроена.",
-      "single_instance_allowed": "Cyclic Maintenance Countdown уже настроена. Достаточно одного экземпляра интеграции."
+      "already_configured": "Maintenance Countdown уже настроена.",
+      "single_instance_allowed": "Maintenance Countdown уже настроена. Достаточно одного экземпляра интеграции."
     }
   },
   "services": {

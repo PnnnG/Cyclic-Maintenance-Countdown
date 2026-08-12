@@ -57,7 +57,7 @@ async def async_register_lovelace_resource(hass: HomeAssistant, url: str) -> boo
         for duplicate in matching:
             if duplicate["id"] != resource["id"]:
                 _LOGGER.warning(
-                    "Removing duplicate Cyclic Maintenance Countdown Lovelace resource %s",
+                    "Removing duplicate Maintenance Countdown Lovelace resource %s",
                     duplicate["id"],
                 )
                 await resources.async_delete_item(duplicate["id"])

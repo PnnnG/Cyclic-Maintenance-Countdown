@@ -1,7 +1,7 @@
 import { language } from "./localize";
 
 const en = {
-  integrationNotLoaded: "Cyclic Maintenance Countdown is not loaded. Add it in Settings → Devices & services, then refresh this page.",
+  integrationNotLoaded: "Maintenance Countdown is not loaded. Add it in Settings → Devices & services, then refresh this page.",
   changesSaved: "Task changes saved. You can close the card editor.",
   taskCreated: "Task created",
   saveFailed: "Could not save task",
@@ -89,7 +89,7 @@ export type EditorStrings = {
 };
 
 const ru: EditorStrings = {
-  integrationNotLoaded: "Интеграция Cyclic Maintenance Countdown не загружена. Добавьте её в Настройки → Устройства и службы и обновите страницу.",
+  integrationNotLoaded: "Интеграция Maintenance Countdown не загружена. Добавьте её в Настройки → Устройства и службы и обновите страницу.",
   changesSaved: "Изменения задачи сохранены. Редактор карточки можно закрыть.",
   taskCreated: "Задача создана",
   saveFailed: "Не удалось сохранить задачу",

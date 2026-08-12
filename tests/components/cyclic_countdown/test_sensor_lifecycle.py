@@ -23,7 +23,11 @@ from pytest_homeassistant_custom_component.common import (
 )
 
 from custom_components import cyclic_countdown as integration
-from custom_components.cyclic_countdown.const import DOMAIN, SERVICE_COMPLETE
+from custom_components.cyclic_countdown.const import (
+    DEFAULT_INTEGRATION_TITLE,
+    DOMAIN,
+    SERVICE_COMPLETE,
+)
 from custom_components.cyclic_countdown.storage import TaskManager
 
 
@@ -53,7 +57,7 @@ async def _setup_loaded_entry(hass: HomeAssistant) -> tuple[MockConfigEntry, Tas
     mock_component(hass, "lovelace")
     entry = MockConfigEntry(
         domain=DOMAIN,
-        title="Cyclic Maintenance Countdown",
+        title=DEFAULT_INTEGRATION_TITLE,
         unique_id=DOMAIN,
         data={},
     )

@@ -1,4 +1,4 @@
-"""Cyclic Maintenance Countdown integration."""
+"""Maintenance Countdown integration."""
 
 from __future__ import annotations
 
@@ -19,7 +19,10 @@ from homeassistant.helpers.event import async_track_time_change
 from homeassistant.loader import async_get_integration
 
 from .const import (
+    CONFIG_ENTRY_VERSION,
+    DEFAULT_INTEGRATION_TITLE,
     DOMAIN,
+    LEGACY_DEFAULT_INTEGRATION_TITLE,
     PLATFORMS,
     SERVICE_COMPLETE,
 )
@@ -78,7 +81,7 @@ class _NotificationReconciliationWorker:
             except asyncio.CancelledError:
                 raise
             except Exception:
-                _LOGGER.exception("Cyclic countdown notification reconciliation failed")
+                _LOGGER.exception("Maintenance Countdown notification reconciliation failed")
 
 
 async def _async_register_persistent_frontend_resource(hass: HomeAssistant, url: str) -> None:
@@ -96,7 +99,7 @@ async def _async_handle_complete_service(hass: HomeAssistant, call: ServiceCall)
     """Complete a task after applying service-context authorization."""
     manager: TaskManager | None = hass.data.get(DOMAIN)
     if manager is None:
-        raise HomeAssistantError("Cyclic Countdown integration is not loaded")
+        raise HomeAssistantError("Maintenance Countdown integration is not loaded")
     task_id = call.data["task_id"]
     if call.context.user_id:
         user = await hass.auth.async_get_user(call.context.user_id)
@@ -126,6 +129,31 @@ async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
         complete_task,
         schema=SERVICE_COMPLETE_SCHEMA,
     )
+    return True
+
+
+async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Migrate user-visible defaults without changing stable identifiers."""
+    if entry.version > CONFIG_ENTRY_VERSION:
+        _LOGGER.error(
+            "Cannot migrate config entry from unsupported version %s",
+            entry.version,
+        )
+        return False
+
+    if entry.version == 1:
+        if entry.title == LEGACY_DEFAULT_INTEGRATION_TITLE:
+            hass.config_entries.async_update_entry(
+                entry,
+                title=DEFAULT_INTEGRATION_TITLE,
+                version=CONFIG_ENTRY_VERSION,
+            )
+        else:
+            hass.config_entries.async_update_entry(
+                entry,
+                version=CONFIG_ENTRY_VERSION,
+            )
+
     return True
 
 

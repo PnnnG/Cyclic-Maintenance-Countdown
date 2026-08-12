@@ -1,0 +1,63 @@
+name: Bug report
+description: Report reproducible incorrect behavior in Maintenance Countdown
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: checkboxes
+    attributes:
+      label: Checklist
+      options:
+        - label: I am using the latest Maintenance Countdown release supported by my Home Assistant version.
+          required: true
+        - label: I searched existing issues for the same behavior.
+          required: true
+        - label: I removed private URLs, notification contents, tokens, and other secrets.
+          required: true
+  - type: input
+    attributes:
+      label: Maintenance Countdown version
+      description: Use the version shown by HACS or the GitHub release.
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Home Assistant version
+      placeholder: 2026.8.1
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: Client
+      options:
+        - Browser
+        - iOS Companion
+        - Android Companion
+        - More than one client
+        - Backend only
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: What happened?
+      description: Describe the observed behavior and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Reproduction steps
+      placeholder: |
+        1. Open ...
+        2. Select ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Relevant configuration
+      description: Paste only the card YAML or automation needed to reproduce the issue. Remove secrets.
+      render: yaml
+  - type: textarea
+    attributes:
+      label: Logs and screenshots
+      description: Add relevant Home Assistant logs, browser-console errors, or screenshots. Remove private information.

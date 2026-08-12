@@ -168,7 +168,7 @@ describe("cyclic-countdown-editor", () => {
       },
     };
     await settle(editor);
-    expect(editor.shadowRoot?.textContent).toContain("not loaded");
+    expect(editor.shadowRoot?.textContent).toContain("Maintenance Countdown is not loaded");
     expect(editor.shadowRoot?.textContent).toContain("Retry");
   });
 

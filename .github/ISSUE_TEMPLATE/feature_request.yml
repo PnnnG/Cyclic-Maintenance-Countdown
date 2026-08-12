@@ -1,0 +1,26 @@
+name: Feature request
+description: Propose a focused improvement to Maintenance Countdown
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    attributes:
+      label: Problem
+      description: What maintenance workflow is difficult or impossible today?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Proposed behavior
+      description: Describe the smallest user-facing change that would solve the problem.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Alternatives considered
+      description: Explain any existing Home Assistant feature, automation, or workaround you tried.
+  - type: textarea
+    attributes:
+      label: Additional context
+      description: Add sketches or examples if they clarify the request.

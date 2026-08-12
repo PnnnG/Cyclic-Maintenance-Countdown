@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Cyclic Countdown visual harness</title>
+    <title>Maintenance Countdown visual harness</title>
     <style>
       * { box-sizing: border-box; }
       body { margin: 0; padding: 28px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #dfe5ec; }
@@ -26,7 +26,7 @@
         set icon(value) { this.textContent = value?.includes("bacteria") ? "⚙" : value?.includes("filter") ? "✦" : "◈"; }
       });
     </script>
-    <script type="module" src="/custom_components/cyclic_countdown/frontend/cyclic-countdown-card.js?v=0.2.4"></script>
+    <script type="module" src="/custom_components/cyclic_countdown/frontend/cyclic-countdown-card.js?v=0.3.1"></script>
   </head>
   <body>
     <main id="root"></main>

@@ -1,4 +1,4 @@
-# Release checklist
+# Maintainer release checklist
 
 Use this checklist for every pre-release and stable release. A green unit-test run is necessary but does not replace the Home Assistant and Companion checks below.
 
@@ -35,5 +35,8 @@ Run on both the minimum and latest supported Home Assistant versions.
 
 - [ ] Replace the `Unreleased` changelog section with the exact version and date.
 - [ ] Update `custom_components/cyclic_countdown/manifest.json` and `frontend/package.json` to the same new version.
+- [ ] Confirm the Maintenance Countdown product name and `PnnnG/Maintenance-Countdown` links agree across the manifest, HACS metadata, translations, card picker, and README.
+- [ ] Open the README's HACS repository and config-flow buttons against a clean Home Assistant test instance.
 - [ ] Confirm the version has never been published or tagged before.
+- [ ] Mark the GitHub release as a pre-release until the stable-release checklist has been completed.
 - [ ] Create the Git tag only after all checks above are recorded as complete.

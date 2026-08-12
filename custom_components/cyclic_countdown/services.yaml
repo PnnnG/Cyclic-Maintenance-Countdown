@@ -4,7 +4,7 @@ complete:
   fields:
     task_id:
       name: Task
-      description: Stable UUID of the cyclic maintenance task.
+      description: Stable UUID of the maintenance task.
       required: true
       selector:
         text:

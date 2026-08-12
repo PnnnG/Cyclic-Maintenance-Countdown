@@ -1,10 +1,13 @@
-"""Constants for Cyclic Maintenance Countdown."""
+"""Constants for Maintenance Countdown."""
 
 from __future__ import annotations
 
 from typing import Final
 
 DOMAIN: Final = "cyclic_countdown"
+DEFAULT_INTEGRATION_TITLE: Final = "Maintenance Countdown"
+LEGACY_DEFAULT_INTEGRATION_TITLE: Final = "Cyclic Maintenance Countdown"
+CONFIG_ENTRY_VERSION: Final = 2
 FRONTEND_PATH: Final = "/cyclic_countdown/cyclic-countdown-card.js"
 PLATFORMS: Final = ["sensor"]
 STORAGE_KEY: Final = f"{DOMAIN}.tasks"

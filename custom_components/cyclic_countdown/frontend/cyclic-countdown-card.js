@@ -608,7 +608,7 @@ function ke(e, t, n = !1) {
 //#endregion
 //#region src/localize/editor.ts
 var Ae = {
-	integrationNotLoaded: "Cyclic Maintenance Countdown is not loaded. Add it in Settings → Devices & services, then refresh this page.",
+	integrationNotLoaded: "Maintenance Countdown is not loaded. Add it in Settings → Devices & services, then refresh this page.",
 	changesSaved: "Task changes saved. You can close the card editor.",
 	taskCreated: "Task created",
 	saveFailed: "Could not save task",
@@ -688,7 +688,7 @@ var Ae = {
 	createTask: "Create task",
 	taskSaveHint: "Task data is saved separately from the card settings."
 }, je = {
-	integrationNotLoaded: "Интеграция Cyclic Maintenance Countdown не загружена. Добавьте её в Настройки → Устройства и службы и обновите страницу.",
+	integrationNotLoaded: "Интеграция Maintenance Countdown не загружена. Добавьте её в Настройки → Устройства и службы и обновите страницу.",
 	changesSaved: "Изменения задачи сохранены. Редактор карточки можно закрыть.",
 	taskCreated: "Задача создана",
 	saveFailed: "Не удалось сохранить задачу",
@@ -1752,10 +1752,10 @@ var Re = {
 customElements.get("cyclic-countdown-card") || customElements.define("cyclic-countdown-card", Be);
 var $ = {
 	type: "cyclic-countdown-card",
-	name: "Cyclic Maintenance Countdown",
+	name: "Maintenance Countdown",
 	description: "A theme-aware calendar-day maintenance countdown",
 	preview: !1,
-	documentationURL: "https://github.com/PnnnG/Cyclic-Maintenance-Countdown"
+	documentationURL: "https://github.com/PnnnG/Maintenance-Countdown"
 }, Ve = () => {
 	window.customCards = window.customCards || [];
 	let e = window.customCards.find((e) => e.type === $.type);

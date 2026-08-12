@@ -1,4 +1,4 @@
-"""Persistent task manager for Cyclic Maintenance Countdown."""
+"""Persistent task manager for Maintenance Countdown."""
 
 from __future__ import annotations
 

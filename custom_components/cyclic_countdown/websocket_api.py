@@ -64,7 +64,7 @@ def register_websocket_commands(hass: HomeAssistant) -> None:
 def _manager(hass: HomeAssistant) -> TaskManager:
     manager = hass.data.get(DOMAIN)
     if manager is None:
-        raise TaskValidationError("Cyclic Countdown integration is not loaded")
+        raise TaskValidationError("Maintenance Countdown integration is not loaded")
     return manager
 
 

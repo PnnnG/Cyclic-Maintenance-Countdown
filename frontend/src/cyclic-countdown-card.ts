@@ -582,10 +582,10 @@ if (!customElements.get("cyclic-countdown-card")) {
 
 const CARD_PICKER_ENTRY = {
   type: "cyclic-countdown-card",
-  name: "Cyclic Maintenance Countdown",
+  name: "Maintenance Countdown",
   description: "A theme-aware calendar-day maintenance countdown",
   preview: false,
-  documentationURL: "https://github.com/PnnnG/Cyclic-Maintenance-Countdown",
+  documentationURL: "https://github.com/PnnnG/Maintenance-Countdown",
 };
 
 export const registerCardPickerEntry = (): void => {

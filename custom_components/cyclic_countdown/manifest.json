@@ -1,13 +1,13 @@
 {
   "domain": "cyclic_countdown",
-  "name": "Cyclic Maintenance Countdown",
+  "name": "Maintenance Countdown",
   "codeowners": ["@PnnnG"],
   "config_flow": true,
   "dependencies": ["frontend", "http", "lovelace", "persistent_notification"],
-  "documentation": "https://github.com/PnnnG/Cyclic-Maintenance-Countdown",
+  "documentation": "https://github.com/PnnnG/Maintenance-Countdown",
   "integration_type": "service",
   "iot_class": "calculated",
-  "issue_tracker": "https://github.com/PnnnG/Cyclic-Maintenance-Countdown/issues",
+  "issue_tracker": "https://github.com/PnnnG/Maintenance-Countdown/issues",
   "requirements": [],
   "single_config_entry": true,
   "version": "0.3.1"

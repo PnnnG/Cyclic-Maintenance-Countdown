@@ -66,7 +66,7 @@ describe("cyclic-countdown-card", () => {
     expect(window.customCards).toContainEqual(
       expect.objectContaining({
         type: "cyclic-countdown-card",
-        name: "Cyclic Maintenance Countdown",
+        name: "Maintenance Countdown",
         preview: false,
       }),
     );
@@ -84,9 +84,9 @@ describe("cyclic-countdown-card", () => {
 
     expect(window.customCards).toHaveLength(1);
     expect(stale).toEqual(expect.objectContaining({
-      name: "Cyclic Maintenance Countdown",
+      name: "Maintenance Countdown",
       preview: false,
-      documentationURL: expect.any(String),
+      documentationURL: "https://github.com/PnnnG/Maintenance-Countdown",
     }));
   });
 

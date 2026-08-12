@@ -1,15 +1,15 @@
 {
-  "title": "Cyclic Maintenance Countdown",
+  "title": "Maintenance Countdown",
   "config": {
     "step": {
       "user": {
-        "title": "Cyclic Maintenance Countdown",
+        "title": "Maintenance Countdown",
         "description": "Add the integration to Home Assistant. After setup, create and edit tasks in the visual card editor."
       }
     },
     "abort": {
-      "already_configured": "Cyclic Maintenance Countdown is already configured.",
-      "single_instance_allowed": "Cyclic Maintenance Countdown is already configured. Only one instance is needed."
+      "already_configured": "Maintenance Countdown is already configured.",
+      "single_instance_allowed": "Maintenance Countdown is already configured. Only one instance is needed."
     }
   },
   "services": {
@@ -19,7 +19,7 @@
       "fields": {
         "task_id": {
           "name": "Task",
-          "description": "Stable UUID of the cyclic maintenance task."
+          "description": "Stable UUID of the maintenance task."
         }
       }
     }
