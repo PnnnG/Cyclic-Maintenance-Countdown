@@ -53,13 +53,25 @@ describe("cyclic-countdown-editor", () => {
   const mountEditor = (initialConfig = config) => {
     if (!customElements.get("ha-icon-picker")) {
       customElements.define("ha-icon-picker", class extends HTMLElement {
-        items: unknown[] = [];
+        items: { id: string }[] = [];
         disabled = false;
 
         attachComboBox() {
           const generic = this.shadowRoot?.querySelector("ha-generic-picker");
           if (!generic?.shadowRoot) return undefined;
-          const comboBox = document.createElement("ha-picker-combo-box");
+          const comboBox = document.createElement("ha-picker-combo-box") as HTMLElement & {
+            allItems?: unknown[];
+            filteredItems?: unknown[];
+            input?: (query: string) => unknown[];
+            layout?: { pin: { index: number; block: string } };
+            value?: string;
+          };
+          comboBox.input = (query) => {
+            comboBox.filteredItems = (comboBox.allItems ?? []).filter((item) =>
+              String((item as { id?: string }).id ?? item).includes(query),
+            );
+            return comboBox.filteredItems;
+          };
           generic.shadowRoot.append(comboBox);
           return comboBox;
         }
@@ -75,10 +87,48 @@ describe("cyclic-countdown-editor", () => {
           if (this.shadowRoot) return;
           const root = this.attachShadow({ mode: "open" });
           const generic = document.createElement("ha-generic-picker") as HTMLElement & {
-            getItems?: () => unknown[];
+            getItems?: () => { id: string }[];
+            lastOpenSelectedValue?: string;
+            refreshCount?: number;
+            refreshItems?: () => void;
+            updateComplete?: Promise<unknown>;
+            open?: (
+              event?: Event,
+              options?: { selectedValue?: string },
+            ) => HTMLElement | undefined;
           };
           generic.attachShadow({ mode: "open" });
           generic.getItems = () => this.items;
+          generic.updateComplete = Promise.resolve();
+          generic.refreshItems = () => {
+            generic.refreshCount = (generic.refreshCount ?? 0) + 1;
+            const comboBox = generic.shadowRoot?.querySelector("ha-picker-combo-box") as
+              | (HTMLElement & { allItems?: unknown[] })
+              | null;
+            if (comboBox) comboBox.allItems = [...this.items];
+          };
+          generic.open = (_event, options) => {
+            generic.lastOpenSelectedValue = options?.selectedValue;
+            const comboBox = this.attachComboBox() as HTMLElement & {
+              allItems?: unknown[];
+              layout?: { pin: { index: number; block: string } };
+              value?: string;
+            };
+            comboBox.value = options?.selectedValue ?? (this as HTMLElement & { value?: string }).value;
+            comboBox.allItems = [...this.items];
+            if (comboBox.value) {
+              const index = this.items.findIndex(
+                (item) => (item as { id?: string }).id === comboBox.value,
+              );
+              comboBox.layout = { pin: { index: Math.max(0, index), block: "center" } };
+            }
+            generic.dispatchEvent(new CustomEvent("picker-opened", {
+              bubbles: true,
+              composed: true,
+            }));
+            return comboBox;
+          };
+          generic.shadowRoot?.append(document.createElement("ha-picker-field"));
           root.append(generic);
         }
       });
@@ -910,7 +960,7 @@ describe("cyclic-countdown-editor", () => {
     };
     await settle(editor);
     const picker = editor.shadowRoot?.querySelector("ha-icon-picker") as HTMLElement & {
-      items: unknown[];
+      items: { id: string }[];
       disabled: boolean;
       open: () => HTMLElement | undefined;
     };
@@ -919,17 +969,104 @@ describe("cyclic-countdown-editor", () => {
     expect(picker.open()).toBeUndefined();
 
     picker.items = [
-      "mdi:baby-face-outline",
-      "mdi:backspace",
-      "mdi:bacteria",
-      "mdi:water-pump",
+      { id: "mdi:baby-face-outline" },
+      { id: "mdi:backspace" },
+      { id: "mdi:bacteria" },
     ];
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    expect(picker.disabled).toBe(true);
+
+    picker.items.push({ id: "mdi:account" });
     await vi.waitFor(async () => {
       await editor.updateComplete;
       expect(picker.disabled).toBe(false);
     });
 
     expect(picker.open()).toBeDefined();
+  });
+
+  it("opens an existing icon without HA's selected-value pin", async () => {
+    editor.hass = {
+      language: "en",
+      states: {},
+      connection: {
+        sendMessagePromise: vi.fn(async () => []) as unknown as HomeAssistant["connection"]["sendMessagePromise"],
+      },
+    };
+    await settle(editor);
+    const picker = editor.shadowRoot?.querySelector("ha-icon-picker") as HTMLElement & {
+      disabled: boolean;
+      items: { id: string }[];
+      value?: string;
+    };
+    picker.items = [
+      { id: "mdi:account" },
+      { id: "mdi:bacteria" },
+      { id: "mdi:wrench-clock" },
+    ];
+    await vi.waitFor(async () => {
+      await editor.updateComplete;
+      expect(picker.disabled).toBe(false);
+    });
+
+    const generic = picker.shadowRoot?.querySelector("ha-generic-picker") as HTMLElement & {
+      lastOpenSelectedValue?: string;
+      refreshCount?: number;
+    };
+    const field = generic.shadowRoot?.querySelector("ha-picker-field");
+    field?.dispatchEvent(new MouseEvent("click", {
+      bubbles: true,
+      cancelable: true,
+      composed: true,
+    }));
+
+    expect(picker.value).toBe("mdi:wrench-clock");
+    expect(generic.lastOpenSelectedValue).toBe("");
+    await vi.waitFor(() => expect(generic.refreshCount).toBe(1));
+    const comboBox = generic.shadowRoot?.querySelector("ha-picker-combo-box") as HTMLElement & {
+      allItems: unknown[];
+      filteredItems?: unknown[];
+      input(query: string): unknown[];
+      layout?: unknown;
+      value?: string;
+    };
+    expect(comboBox.value).toBe("");
+    expect(comboBox.layout).toBeUndefined();
+    expect(comboBox.allItems).toEqual(picker.items);
+    comboBox.input("b");
+    comboBox.input("bac");
+    expect(comboBox.input("bact")).toEqual([{ id: "mdi:bacteria" }]);
+  });
+
+  it("leaves the native clear control on its normal path", async () => {
+    editor.hass = {
+      language: "en",
+      states: {},
+      connection: {
+        sendMessagePromise: vi.fn(async () => []) as unknown as HomeAssistant["connection"]["sendMessagePromise"],
+      },
+    };
+    await settle(editor);
+    const picker = editor.shadowRoot?.querySelector("ha-icon-picker") as HTMLElement & {
+      disabled: boolean;
+      items: { id: string }[];
+    };
+    picker.items = [{ id: "mdi:account" }, { id: "mdi:wrench-clock" }];
+    await vi.waitFor(() => expect(picker.disabled).toBe(false));
+
+    const generic = picker.shadowRoot?.querySelector("ha-generic-picker") as HTMLElement & {
+      lastOpenSelectedValue?: string;
+    };
+    const clear = document.createElement("ha-icon-button");
+    clear.classList.add("clear");
+    generic.shadowRoot?.querySelector("ha-picker-field")?.append(clear);
+    clear.dispatchEvent(new MouseEvent("click", {
+      bubbles: true,
+      cancelable: true,
+      composed: true,
+    }));
+
+    expect(generic.lastOpenSelectedValue).toBeUndefined();
   });
 
   it("restarts icon-index readiness after the editor is reattached", async () => {
@@ -942,13 +1079,13 @@ describe("cyclic-countdown-editor", () => {
     };
     await settle(editor);
     const picker = editor.shadowRoot?.querySelector("ha-icon-picker") as HTMLElement & {
-      items: unknown[];
+      items: { id: string }[];
       disabled: boolean;
     };
     expect(picker.disabled).toBe(true);
 
     editor.remove();
-    picker.items = ["mdi:bacteria"];
+    picker.items = [{ id: "mdi:account" }, { id: "mdi:bacteria" }];
     document.body.append(editor);
 
     await vi.waitFor(async () => {

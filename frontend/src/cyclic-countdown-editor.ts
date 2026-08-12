@@ -37,8 +37,21 @@ const DEFAULT_CARD_CONFIG: CardConfig = {
 };
 
 const ICON_PATTERN = /^[a-z0-9_-]+:[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const ICON_INDEX_SENTINEL = "mdi:account";
 const ICON_INDEX_POLL_MS = 100;
 const ICON_INDEX_TIMEOUT_MS = 10_000;
+
+interface GenericIconPickerElement extends HTMLElement {
+  disabled?: boolean;
+  getItems?: () => IconPickerItem[] | undefined;
+  open?: (event?: Event, options?: { selectedValue?: string }) => void | Promise<void>;
+  refreshItems?: () => void;
+  updateComplete?: Promise<unknown>;
+}
+
+interface IconPickerItem {
+  id?: string;
+}
 
 const normalizeIcon = (value: string): string => {
   const normalized = value.trim().toLowerCase().replace(/\s+/g, "-");
@@ -126,6 +139,10 @@ export class CyclicCountdownEditor extends LitElement {
   private _saveOperation?: number;
   private _deleteOperation?: number;
   private _testOperation?: number;
+  private readonly _iconPickerClickListener = {
+    capture: true,
+    handleEvent: (event: Event) => this.openIconPickerWithoutPinnedValue(event),
+  };
 
   private get locale(): string {
     return this.hass?.locale?.language || this.hass?.language || navigator.language;
@@ -173,6 +190,7 @@ export class CyclicCountdownEditor extends LitElement {
 
   connectedCallback(): void {
     super.connectedCallback();
+    this.retryUnavailableIconIndex();
     if (!this._sessionInitialized && this._config) this.initializeTaskSession(this._config);
     if (!this._iconPickerDefined) {
       void customElements.whenDefined("ha-icon-picker").then(() => {
@@ -300,6 +318,7 @@ export class CyclicCountdownEditor extends LitElement {
       if (this._loadedConnection) {
         this._mutationEpoch += 1;
         this.invalidatePendingOperations();
+        this.retryUnavailableIconIndex();
       }
       this._loadedConnection = this.hass.connection;
       void this.load();
@@ -727,6 +746,8 @@ export class CyclicCountdownEditor extends LitElement {
         .invalid=${!ICON_PATTERN.test(this._draft.icon)}
         .errorMessage=${this.s.invalidIcon}
         aria-busy=${this._iconIndexReady ? "false" : "true"}
+        @click=${this._iconPickerClickListener}
+        @picker-opened=${this.refreshOpenIconPicker}
         @value-changed=${(event: CustomEvent<{ value: string }>) => this.updateDraft("icon", normalizeIcon(event.detail.value))}
       ></ha-icon-picker><small>${this._iconIndexReady ? this.s.iconHint : this.s.loadingIcons}</small>`;
     }
@@ -736,6 +757,37 @@ export class CyclicCountdownEditor extends LitElement {
       placeholder="mdi:wrench-clock"
     /><small>${this.s.iconHint}</small>`;
   }
+
+  private openIconPickerWithoutPinnedValue(event: Event): void {
+    const path = event.composedPath();
+    const fieldClick = path.some(
+      (target) => target instanceof HTMLElement && target.localName === "ha-picker-field",
+    );
+    const clearClick = path.some(
+      (target) => target instanceof HTMLElement && target.classList.contains("clear"),
+    );
+    if (!fieldClick || clearClick || !this._iconIndexReady) return;
+
+    const picker = event.currentTarget as HTMLElement;
+    const generic = picker.shadowRoot?.querySelector<GenericIconPickerElement>("ha-generic-picker");
+    if (!generic?.open || generic.disabled) return;
+
+    // HA pins the virtualized list to the currently selected icon on first
+    // open. In the mobile bottom sheet that initial pin can race the list
+    // layout and leave a stale/empty search snapshot. Keep the field value
+    // intact, but open the native picker without an initial pinned value.
+    event.preventDefault();
+    event.stopPropagation();
+    void generic.open(undefined, { selectedValue: "" });
+  }
+
+  private readonly refreshOpenIconPicker = async (event: Event): Promise<void> => {
+    const picker = event.currentTarget as HTMLElement;
+    const generic = picker.shadowRoot?.querySelector<GenericIconPickerElement>("ha-generic-picker");
+    if (!generic) return;
+    await (generic.updateComplete ?? Promise.resolve());
+    generic.refreshItems?.();
+  };
 
   private ensureIconIndexReady(): void {
     if (
@@ -752,10 +804,9 @@ export class CyclicCountdownEditor extends LitElement {
     if (!picker) return;
     this._iconIndexWaitStarted ??= performance.now();
 
-    const generic = picker.shadowRoot?.querySelector("ha-generic-picker") as
-      | (HTMLElement & { getItems?: () => unknown[] | undefined })
-      | null;
-    if (generic?.getItems?.()?.length) {
+    const generic = picker.shadowRoot?.querySelector<GenericIconPickerElement>("ha-generic-picker");
+    const items = generic?.getItems?.();
+    if (items?.some((item) => item?.id === ICON_INDEX_SENTINEL)) {
       this._iconIndexReady = true;
       this._iconIndexWaitStarted = undefined;
       return;
@@ -779,6 +830,13 @@ export class CyclicCountdownEditor extends LitElement {
     if (this._iconIndexTimer !== undefined) window.clearTimeout(this._iconIndexTimer);
     this._iconIndexTimer = undefined;
     this._iconIndexWaitStarted = undefined;
+  }
+
+  private retryUnavailableIconIndex(): void {
+    if (!this._iconIndexUnavailable) return;
+    this.stopIconIndexProbe();
+    this._iconIndexUnavailable = false;
+    this._iconIndexReady = false;
   }
 
   private renderTaskSelector() {

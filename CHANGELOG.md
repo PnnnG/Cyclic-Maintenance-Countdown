@@ -2,6 +2,12 @@
 
 All notable changes to Cyclic Maintenance Countdown are documented here.
 
+## 0.3.1 — 2026-08-12
+
+- Open Home Assistant's native icon catalog without pinning its virtualized list to the current icon, preventing an intermittent empty first-open list in Companion.
+- Refresh the native picker after its mobile sheet is rendered and wait for a known built-in MDI icon before enabling it, avoiding stale search snapshots during asynchronous index loading.
+- Retry native icon-index discovery after editor reconnection instead of leaving a temporary loading failure attached to the editor session.
+
 ## 0.3.0 — 2026-08-12
 
 - Load the bundled card through one persistent, versioned Lovelace resource in storage mode, with idempotent updates, duplicate cleanup, safe removal, and an extra-module fallback for YAML or storage failures.
